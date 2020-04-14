@@ -6,8 +6,10 @@
 from __future__ import annotations
 
 from typing import Dict
+from datetime import datetime
 import pandas as pd
 import yfinance as yf
+
 
 from listing_obtainers import ListingObtainer
 
@@ -16,14 +18,15 @@ class StockFilterByPrice:
     template: Dict
     filtered_stocks: pd.DataFrame
     dayThreshold: int
+    timestampOfDownload: datetime
 
-    def __init__(self, priceThreshold: int):
+    def __init__(self, priceThreshold: int, dayThreshold=5):
         self.priceThreshold = priceThreshold
         self.data = {
             "Ticker": [],
             "Price": []
         }
-        self.dayThreshold = 5
+        self.dayThreshold = dayThreshold
 
     """
     Changes the day threshold (default is 5), which stores how long ago the stock
@@ -48,17 +51,10 @@ class StockFilterByPrice:
         for i in range(len(self.data["Ticker"])):
             to_download += self.data["Ticker"][i] + " "
 
-        print(to_download)
-
+        self.timestampOfDownload = datetime.now()
         df = yf.download(tickers=to_download, period=str(self.dayThreshold) + "d", interval="1m", threads=False)
         df = df.iloc[:, 0:len(self.data["Ticker"])]
-
         self.data = self._extractMostRecentPrices(df)
-
-        print("df: -----------------------------------------")
-        print(df)
-        print(df.info())
-
         return self
 
 
@@ -73,12 +69,13 @@ class StockFilterByPrice:
             "Price": []
         }
 
-        self.filtered_stocks = pd.DataFrame(dictionary, columns=["Ticker", "Price"])
-
         for i in range(len(self.data["Ticker"])):
             if self.data["Price"][i] <= self.priceThreshold:
-                df = pd.DataFrame([[self.data["Ticker"][i], self.data["Price"][i]]], columns=["Ticker", "Price"])
-                self.filtered_stocks = self.filtered_stocks.append(df, ignore_index=True)
+                dictionary["Ticker"].append(self.data["Ticker"][i])
+                dictionary["Price"].append(self.data["Price"][i])
+
+        self.filtered_stocks = pd.DataFrame(dictionary,
+                                            columns=["Ticker", "Price"])
 
         return self
 
@@ -92,12 +89,8 @@ class StockFilterByPrice:
             s = data.iloc[:, i]
             val_index = s.last_valid_index()
 
-            print("--------------------------")
-            print(val_index)
-
             if val_index is not None:
                 val = s[val_index]
-                print(val)
 
                 if val is not None:
                     dataDict["Price"].append(val)

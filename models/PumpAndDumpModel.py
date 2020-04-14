@@ -1,0 +1,26 @@
+# Name: Pump and Dump Model
+# Author: Robert Ciborowski
+# Date: 14/04/2020
+# Description: A super class for models that detect pump and dumps.
+
+from __future__ import annotations
+
+from typing import List
+
+"""
+Representation invariants:
+- _decisionThreshold: is between 0 and 1, inclusive.
+"""
+class PumpAndDumpDetector:
+    # Protected:
+    _classificationThreshold: float
+
+    def __init__(self, classificationThreshold: float):
+        self.setClassificationThreshold(classificationThreshold)
+
+    def detect(self, prices: List[int]) -> bool:
+        print("Please use an implementation of PumpAndDumpDetector!")
+        return False
+
+    def setClassificationThreshold(self, classificationThreshold: float):
+        self._classificationThreshold = classificationThreshold
