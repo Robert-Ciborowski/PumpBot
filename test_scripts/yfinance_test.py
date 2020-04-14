@@ -31,7 +31,7 @@ print(data2)
 # Getting the last known price of a list of stocks!
 data2 = yf.download("AACG AAL AAME AAOI AAON AAPL AAWW AAXJ AAXN ABCB ABEO ABIO ABMD ABTX ABUS ACAD ACAM ACAMU ACAMW ACBI", period="3d", interval="1m")
 # print(data2)
-# data2.to_csv('file_name.csv')
+# data2.to_csv('test_data.csv')
 # print(data2.columns)
 # print(type(range(20, len(data2.columns))))
 
