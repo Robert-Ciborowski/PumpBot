@@ -13,14 +13,14 @@ Representation invariants:
 """
 class PumpAndDumpDetector:
     # Protected:
-    _decisionThreshold: float
+    _classificationThreshold: float
 
-    def __init__(self, decisionThreshold: float):
-        self.setDecisionThreshold(decisionThreshold)
+    def __init__(self, classificationThreshold: float):
+        self.setClassificationThreshold(classificationThreshold)
 
     def detect(self, prices: List[int]) -> bool:
         print("Please use an implementation of PumpAndDumpDetector!")
         return False
 
-    def setDecisionThreshold(self, decisionThreshold: float):
-        self._decisionThreshold = decisionThreshold
+    def setClassificationThreshold(self, classificationThreshold: float):
+        self._classificationThreshold = classificationThreshold
