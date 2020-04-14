@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-bot/bot_properties.csv
+discord_bot/bot_properties.csv
 
 # C extensions
 *.so

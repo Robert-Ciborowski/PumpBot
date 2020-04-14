@@ -1,11 +1,12 @@
 from filter import StockFilterByPrice
 from listing_obtainers import TSXObtainer
+from listing_obtainers.NASDAQObtainer import NASDAQObtainer
 from stock_data.CurrentStockDataObtainer import CurrentStockDataObtainer
 from stock_data.StockDatabase import StockDatabase
 import time
 
 if __name__ == "__main__":
-    tsx_obtainer = TSXObtainer(20)
+    tsx_obtainer = NASDAQObtainer(20)
     filter = StockFilterByPrice(10)
     filter.addListings(tsx_obtainer)\
         .getPricesForListings()\
@@ -17,7 +18,7 @@ if __name__ == "__main__":
             .startSelfUpdating()
 
     print("YO!")
-    time.sleep(2)
+    time.sleep(75)
     database.stopSelfUpdating()
     # print(database.getCurrentStock("AAB.TO"))
 

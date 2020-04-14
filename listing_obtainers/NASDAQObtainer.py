@@ -43,13 +43,13 @@ class NASDAQObtainer(ListingObtainer):
 
                     # If the download fails, remove the file!
                     if not res.startswith('226 Transfer complete'):
-                        print('Download failed')
+                        print('NASDAQ listings download failed!!!')
 
                         if os.path.isfile(file_copy):
                             os.remove(file_copy)
 
             except ftplib.all_errors as e:
-                print('FTP error:', e)
+                print('NASDAQ Listings FTP error:', e)
 
                 if os.path.isfile(file_copy):
                     os.remove(file_copy)
