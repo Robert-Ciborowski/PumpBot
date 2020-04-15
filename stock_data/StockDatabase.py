@@ -5,12 +5,14 @@
 
 from __future__ import annotations
 
-from typing import Dict
+from typing import Dict, List
 import pandas as pd
 import yfinance as yf
 import threading as th
 from datetime import datetime
 
+from events import EventDispatcher
+from events.ListingPriceUpdatedEvent import ListingPriceUpdatedEvent
 from filter import StockFilterByPrice
 from stock_data.StockDataObtainer import StockDataObtainer
 
@@ -18,12 +20,14 @@ from stock_data.StockDataObtainer import StockDataObtainer
 Representation invariants:
 - _updateTimestamps is a Dict of lists, and each list contains x datetimes, 
   where 0 < x <= pricesToKeepTrackOf
-- _updateTimestamps is a Dict of lists, and each list contains x floats, 
-  where 0 < x <= pricesToKeepTrackOf
+- _entries is a Dict of lists, and each list contains x floats, 
+  where 0 < x <= pricesToKeepTrackOf. Last element in each list contains most
+  recent price.
 """
 class StockDatabase:
     pricesToKeepTrackOf: int
     obtainer: StockDataObtainer
+    secondsBetweenStockUpdates: int
 
     # PRIVATE:
     _entries: Dict
@@ -31,13 +35,28 @@ class StockDatabase:
     _entriesLock: th.Lock
     _stopThread: bool
     _updaterThread: th.Thread
+    _instance = None
+    _listeners: Dict
 
-    def __init__(self, minutesToKeepTrackOf=5):
-        self.pricesToKeepTrackOf = minutesToKeepTrackOf
+    def __init__(self):
+        if not StockDatabase._instance:
+            StockDatabase._instance = self
+        else:
+            print("Only one instance of EventDispatcher is allowed!")
+
+        self.pricesToKeepTrackOf = 5
         self._entries = {}
         self._updateTimestamps = {}
         self.obtainer = None
         self._entriesLock = th.Lock()
+        self.secondsBetweenStockUpdates = 60
+
+    @staticmethod
+    def getInstance() -> StockDatabase:
+        if not StockDatabase._instance:
+            return StockDatabase()
+        else:
+            return StockDatabase._instance
 
     def useObtainer(self, obtainer: StockDataObtainer) -> StockDatabase:
         self.obtainer = obtainer
@@ -51,6 +70,14 @@ class StockDatabase:
     #         self._updateTimestamps[ticker] = [datetime(1970, 1, 1)]
     #
     #     return self
+
+    def setPricesToKeepTrackOf(self, pricesToKeepTrackOf: int) -> StockDatabase:
+        self.pricesToKeepTrackOf = pricesToKeepTrackOf
+        return self
+
+    def setSecondsBetweenStockUpdates(self, secondsBetweenStockUpdates: int) -> StockDatabase:
+        self.secondsBetweenStockUpdates = secondsBetweenStockUpdates
+        return self
 
     def trackStocksInFilter(self, filter: StockFilterByPrice) -> StockDatabase:
         series = filter.filtered_stocks["Ticker"]
@@ -77,7 +104,7 @@ class StockDatabase:
     """
     Returns stock price, or -1 if that stock is not being tracked.
     """
-    def getCurrentStock(self, ticker: str) -> float:
+    def getCurrentStockPrice(self, ticker: str) -> float:
         with self._entriesLock:
             try:
                 return self._entries[ticker]
@@ -85,6 +112,15 @@ class StockDatabase:
                 print("Tried to obtain " + ticker + "from the database, but "
                                                     "that stock isn't tracked!")
                 return -1
+
+    def getRecentStockPrices(self, ticker: str) -> List[float]:
+        with self._entriesLock:
+            try:
+                return self._entries[ticker]
+            except KeyError as e:
+                print("Tried to obtain " + ticker + "from the database, but "
+                                                    "that stock isn't tracked!")
+                return []
 
     def update(self):
         while not self._stopThread:
@@ -95,7 +131,7 @@ class StockDatabase:
         currDateTime = datetime.now()
         diff = currDateTime - self._updateTimestamps[ticker][0]
 
-        if int(diff.total_seconds() / 60) > 0:
+        if int(diff.total_seconds() / self.secondsBetweenStockUpdates) > 0:
             value = self.obtainer.obtainPrice(ticker)
 
             if value == -1:
@@ -105,6 +141,7 @@ class StockDatabase:
                 print("Was able to obtain: " + ticker)
 
             self._updateEntryAndTimeStamp(ticker, value)
+            EventDispatcher.getInstance().dispatchEvent(ListingPriceUpdatedEvent(ticker))
 
 
     def _updateEntryAndTimeStamp(self, ticker: str, value: float):

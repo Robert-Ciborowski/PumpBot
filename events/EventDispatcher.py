@@ -9,28 +9,30 @@ from typing import Dict
 from events import EventListener, Event
 
 """
-This class is a singleton! You get the instance in EventDispatcher.instance
+This class is a singleton! You get the instance in EventDispatcher.getInstance()
 
 Representation invariants:
 - _listeners: a Dict of Lists, and each lists contains an EventListener
               (nu duplicates)
 """
 class EventDispatcher:
-    instance = None
-
+    _instance = None
     _listeners: Dict
 
     def __init__(self):
-        if not EventDispatcher.instance:
-            EventDispatcher.instance = self
+        if not EventDispatcher._instance:
+            EventDispatcher._instance = self
         else:
             print("Only one instance of EventDispatcher is allowed!")
 
         self._listeners = {}
 
     @staticmethod
-    def setup() -> EventDispatcher:
-        return EventDispatcher()
+    def getInstance() -> EventDispatcher:
+        if not EventDispatcher._instance:
+            return EventDispatcher()
+        else:
+            return EventDispatcher._instance
 
     def addListener(self, listener: EventListener, eventType: str):
         if eventType in self._listeners:
@@ -40,6 +42,7 @@ class EventDispatcher:
                 self._listeners[eventType].append(listener)
         else:
             self._listeners[eventType] = [listener]
+            print("Added listener for " + eventType)
 
     def dispatchEvent(self, event: Event):
         if event.type not in self._listeners:

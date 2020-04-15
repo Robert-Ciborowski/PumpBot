@@ -12,12 +12,14 @@ if __name__ == "__main__":
         .getPricesForListings()\
         .filterStocks()
 
-    database = StockDatabase(3)
-    database.useObtainer(CurrentStockDataObtainer())\
+    # Recommended for setSecondsBetweenStockUpdates: 60 (which is the default)
+    database = StockDatabase.getInstance()
+    database.setPricesToKeepTrackOf(7)\
+            .setSecondsBetweenStockUpdates(30)\
+            .useObtainer(CurrentStockDataObtainer())\
             .trackStocksInFilter(filter)\
             .startSelfUpdating()
 
-    print("YO!")
     time.sleep(75)
     database.stopSelfUpdating()
     # print(database.getCurrentStock("AAB.TO"))
