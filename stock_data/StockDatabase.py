@@ -88,8 +88,9 @@ class StockDatabase:
                 print("Stock " + ticker + " is already being tracked!")
             else:
                 self._entries[ticker] = [filter.filtered_stocks.at[item[0], "Price"]]
-                self._updateTimestamps[ticker] = [filter.timestampOfDownload]
+                self._updateTimestamps[ticker] = filter.timestampOfDownload
 
+        self.obtainer.trackStocks(self._entries.keys())
         return self
 
     def startSelfUpdating(self):
@@ -129,31 +130,18 @@ class StockDatabase:
 
     def _updateStock(self, ticker: str):
         currDateTime = datetime.now()
-        diff = currDateTime - self._updateTimestamps[ticker][0]
+        diff = currDateTime - self._updateTimestamps[ticker]
 
         if int(diff.total_seconds() / self.secondsBetweenStockUpdates) > 0:
-            value = self.obtainer.obtainPrice(ticker)
+            lst = self.obtainer.obtainPrices(ticker, self.pricesToKeepTrackOf)
 
-            if value == -1:
-                value = self._entries[ticker][0]
-                print("Was unable to obtain: " + ticker)
-            else:
-                print("Was able to obtain: " + ticker)
-
-            self._updateEntryAndTimeStamp(ticker, value)
-            EventDispatcher.getInstance().dispatchEvent(ListingPriceUpdatedEvent(ticker))
+            if len(lst) != 0:
+                self._updateEntryAndTimeStamp(ticker, lst)
+                EventDispatcher.getInstance().dispatchEvent(ListingPriceUpdatedEvent(ticker))
 
 
-    def _updateEntryAndTimeStamp(self, ticker: str, value: float):
+
+    def _updateEntryAndTimeStamp(self, ticker: str, values: List[float]):
         with self._entriesLock:
-            entriesRef = self._entries[ticker]
-            entriesRef.append(value)
-            timestampRef = self._updateTimestamps[ticker]
-            timestampRef.append(datetime.now())
-
-            if len(entriesRef) > self.pricesToKeepTrackOf:
-                while len(self._entries[ticker]) > self.pricesToKeepTrackOf:
-                    self._entries[ticker].pop(0)
-
-                while len(self._updateTimestamps[ticker]) > self.pricesToKeepTrackOf:
-                    self._updateTimestamps[ticker].pop(0)
+            self._entries[ticker] = values
+            self._updateTimestamps[ticker] = datetime.now()

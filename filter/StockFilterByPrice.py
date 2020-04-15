@@ -12,20 +12,25 @@ import yfinance as yf
 
 
 from listing_obtainers import ListingObtainer
+from stock_data import StockDataObtainer
+
 
 class StockFilterByPrice:
     priceThreshold: int
     template: Dict
+    data: Dict
     filtered_stocks: pd.DataFrame
     dayThreshold: int
     timestampOfDownload: datetime
+    dataObtainer: StockDataObtainer
 
-    def __init__(self, priceThreshold: int, dayThreshold=5):
+    def __init__(self, priceThreshold: int, dataObtainer: StockDataObtainer, dayThreshold=5):
         self.priceThreshold = priceThreshold
         self.data = {
             "Ticker": [],
             "Price": []
         }
+        self.dataObtainer = dataObtainer
         self.dayThreshold = dayThreshold
 
     """
@@ -43,18 +48,21 @@ class StockFilterByPrice:
             self.data["Ticker"].append(row["Ticker"])
             self.data["Price"].append(0)
 
+        self.dataObtainer.trackStocks(self.data["Ticker"])
         return self
 
     def getPricesForListings(self) -> StockFilterByPrice:
-        to_download = ""
-
-        for i in range(len(self.data["Ticker"])):
-            to_download += self.data["Ticker"][i] + " "
-
         self.timestampOfDownload = datetime.now()
-        df = yf.download(tickers=to_download, period=str(self.dayThreshold) + "d", interval="1m", threads=False)
-        df = df.iloc[:, 0:len(self.data["Ticker"])]
-        self.data = self._extractMostRecentPrices(df)
+        data2 = {"Ticker": [], "Price": []}
+
+        for ticker in self.data["Ticker"]:
+            lst = self.dataObtainer.obtainPrices(ticker, 1)
+
+            if len(lst) != 0:
+                data2["Ticker"].append(ticker)
+                data2["Price"].append(lst[0])
+
+        self.data = data2
         return self
 
 
@@ -69,31 +77,16 @@ class StockFilterByPrice:
             "Price": []
         }
 
+        toRemove = []
+
         for i in range(len(self.data["Ticker"])):
             if self.data["Price"][i] <= self.priceThreshold:
                 dictionary["Ticker"].append(self.data["Ticker"][i])
                 dictionary["Price"].append(self.data["Price"][i])
+            else:
+                toRemove.append(self.data["Ticker"][i])
 
         self.filtered_stocks = pd.DataFrame(dictionary,
                                             columns=["Ticker", "Price"])
-
+        self.dataObtainer.stopTrackingStocks(toRemove)
         return self
-
-    def _extractMostRecentPrices(self, data: pd.DataFrame) -> Dict:
-        dataDict = {
-            "Ticker": [],
-            "Price": []
-        }
-
-        for i in range(0, len(data.columns)):
-            s = data.iloc[:, i]
-            val_index = s.last_valid_index()
-
-            if val_index is not None:
-                val = s[val_index]
-
-                if val is not None:
-                    dataDict["Price"].append(val)
-                    dataDict["Ticker"].append(data.columns[i][1])
-
-        return dataDict

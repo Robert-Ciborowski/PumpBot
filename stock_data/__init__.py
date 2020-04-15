@@ -7,7 +7,7 @@ import time
 
 if __name__ == "__main__":
     tsx_obtainer = NASDAQObtainer(20)
-    filter = StockFilterByPrice(10)
+    filter = StockFilterByPrice(10, CurrentStockDataObtainer())
     filter.addListings(tsx_obtainer)\
         .getPricesForListings()\
         .filterStocks()

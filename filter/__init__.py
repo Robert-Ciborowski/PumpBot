@@ -13,12 +13,13 @@ if __name__ == "__main__":
     #     .filterStocks()
     # filter.filtered_stocks.to_csv("filtered_stocks.csv")
 
-    nasdaq_obtainer = NASDAQObtainer()
+    nasdaq_obtainer = NASDAQObtainer(20)
     filter = StockFilterByPrice(5)
     filter.addListings(nasdaq_obtainer) \
         .getPricesForListings() \
         .filterStocks()
-    filter.filtered_stocks.to_csv("filtered_stocks_nasdaq_test.csv")
+    print(filter.filtered_stocks)
+    # filter.filtered_stocks.to_csv("filtered_stocks_nasdaq_test.csv")
 
     # tsx_obtainer = TSXObtainer()
     # filter = StockFilterByPrice(10)

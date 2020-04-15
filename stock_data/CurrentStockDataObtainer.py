@@ -7,12 +7,13 @@
 
 from __future__ import annotations
 
-from typing import Dict
-from datetime import datetime
+from typing import Dict, List
+from datetime import datetime, timedelta
 import pandas as pd
 import yfinance as yf
 from googlefinance import getQuotes
 import json
+
 
 from stock_data.StockDataObtainer import StockDataObtainer
 
@@ -20,6 +21,37 @@ class CurrentStockDataObtainer(StockDataObtainer):
     def obtainPrice(self, ticker: str) -> float:
         return self._obtainPriceYahooFinance(ticker)
         # return self._obtainPriceGoogleFinance(ticker)
+
+    """
+    - data: in the form {"Ticker": []}
+    """
+    def obtainPrices(self, ticker: str, numberOfPrices=-1) -> List[float]:
+        start_date_str = str(datetime.now().strftime("%Y-%m-%d"))
+        end_date_str = str(
+            (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d"))
+        stock = yf.Ticker(ticker)
+        df = stock.history(start=start_date_str, end=end_date_str,
+                           interval="1m")
+        prices = df["Open"].tolist()
+
+        if numberOfPrices > len(prices) or numberOfPrices < 0:
+            return prices
+
+        return prices[len(prices) - numberOfPrices:len(prices)]
+
+
+        # to_download = ""
+        #
+        # for i in range(len(data["Ticker"])):
+        #     to_download += data["Ticker"][i] + " "
+        #
+        # self.timestampOfDownload = datetime.now()
+        # df = yf.download(tickers=to_download,
+        #                  period=str(dayThreshold) + "d", interval="1m",
+        #                  threads=False)
+        # df = df.iloc[:, 0:len(data["Ticker"])]
+        # data = self._extractMostRecentPrices(df)
+        # return data
 
     def _get_most_recent(self, data: pd.DataFrame) -> float:
         if data is None or len(data.columns) == 0:
@@ -37,11 +69,20 @@ class CurrentStockDataObtainer(StockDataObtainer):
         return -1
 
     def _obtainPriceYahooFinance(self, ticker: str) -> float:
+        start_date_str = str(self.dateOfStart.strftime("%Y-%m-%d"))
+        end_date_str = str(
+            (self.dateOfStart + timedelta(days=1)).strftime("%Y-%m-%d"))
+        stock = yf.Ticker(ticker)
+        df = stock.history(start=start_date_str, end=end_date_str,
+                           interval="1m")
+        self._downloadedData[ticker] = df["Open"]
+
+
         now = datetime.now()
-        date_time = now.strftime("%Y-%m-%d")
-        date_str = str(date_time)
+        date_str = str(now.strftime("%Y-%m-%d"))
+        date_str_2 = str((now + timedelta(days=1)).strftime("%Y-%m-%d"))
         df = yf.download(tickers=ticker,
-                         start=date_str, end=date_str)
+                         start=date_str, end=date_str_2)
         return self._get_most_recent(df)
 
     # def _obtainPriceGoogleFinance(self, ticker: str) -> float:
@@ -52,5 +93,6 @@ class CurrentStockDataObtainer(StockDataObtainer):
     #     print("AAPL!!!!!!")
     #     print(df)
     #     return 0
+
 
 

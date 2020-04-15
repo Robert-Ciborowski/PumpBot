@@ -1281,7 +1281,7 @@ FTC|First Trust Large Cap Growth AlphaDEX Fund|G|N|N|100|Y|N
 FTCS|First Trust Capital Strength ETF|G|N|N|100|Y|N
 FTDR|frontdoor, inc. - Common Stock|Q|N|N|100|N|N
 FTEK|Fuel Tech, Inc. - Common Stock|Q|N|D|100|N|N
-FTFT|Future FinTech Group Inc. - Common Stock|S|N|D|100|N|N
+FTFT|Future FinTech Group Inc. - Common Stock|S|N|N|100|N|N
 FTGC|First Trust Global Tactical Commodity Strategy Fund|G|N|N|100|Y|N
 FTHI|First Trust BuyWrite Income ETF|G|N|N|100|Y|N
 FTLB|First Trust Hedged BuyWrite Income ETF|G|N|N|100|Y|N
@@ -1898,7 +1898,7 @@ LINC|Lincoln Educational Services Corporation - Common Stock|Q|N|N|100|N|N
 LIND|Lindblad Expeditions Holdings Inc.  - Common Stock|S|N|N|100|N|N
 LIQT|LiqTech International, Inc. - Common Stock|S|N|N|100|N|N
 LITE|Lumentum Holdings Inc. - Common Stock|Q|N|N|100|N|N
-LIVE|Live Ventures Incorporated - Common Stock|S|N|E|100|N|N
+LIVE|Live Ventures Incorporated - Common Stock|S|N|N|100|N|N
 LIVK|LIV Capital Acquisition Corp. - Class A Ordinary Shares|S|N|N|100|N|N
 LIVKU|LIV Capital Acquisition Corp. - Unit|S|N|N|100|N|N
 LIVKW|LIV Capital Acquisition Corp. - Warrant|S|N|N|100|N|N
@@ -1981,7 +1981,7 @@ MAGS|Magal Security Systems Ltd. - Ordinary Shares|G|N|N|100|N|N
 MANH|Manhattan Associates, Inc. - Common Stock|Q|N|N|100|N|N
 MANT|ManTech International Corporation - Class A Common Stock|Q|N|N|100|N|N
 MAR|Marriott International - Class A Common Stock|Q|N|N|100|N|N
-MARA|Marathon Patent Group, Inc. - Common Stock|S|N|N|100|N|N
+MARA|Marathon Patent Group, Inc. - Common Stock|S|N|D|100|N|N
 MARK|Remark Holdings, Inc. - Common Stock|S|N|D|100|N|N
 MARPS|Marine Petroleum Trust - Units of Beneficial Interest|S|N|N|100|N|N
 MASI|Masimo Corporation - Common Stock|Q|N|N|100|N|N
@@ -3176,10 +3176,10 @@ TNXP|Tonix Pharmaceuticals Holding Corp. - Common Stock|G|N|N|100|N|N
 TOCA|Tocagen Inc. - Common Stock|Q|N|N|100|N|N
 TOPS|TOP Ships Inc. - Common Stock|S|N|D|100|N|N
 TORC|resTORbio, Inc. - Common Stock|Q|N|N|100|N|N
-TOTA|Tottenham Acquisition I Limited - Ordinary Shares|S|N|D|100|N|N
-TOTAR|Tottenham Acquisition I Limited - Right|S|N|D|100|N|N
-TOTAU|Tottenham Acquisition I Limited - Unit|S|N|D|100|N|N
-TOTAW|Tottenham Acquisition I Limited - Warrant|S|N|D|100|N|N
+TOTA|Tottenham Acquisition I Limited - Ordinary Shares|S|N|N|100|N|N
+TOTAR|Tottenham Acquisition I Limited - Right|S|N|N|100|N|N
+TOTAU|Tottenham Acquisition I Limited - Unit|S|N|N|100|N|N
+TOTAW|Tottenham Acquisition I Limited - Warrant|S|N|N|100|N|N
 TOUR|Tuniu Corporation - American Depositary Shares|G|N|N|100|N|N
 TOWN|Towne Bank - Common Stock|Q|N|N|100|N|N
 TPCO|Tribune Publishing Company - Common Stock|G|N|N|100|N|N
@@ -3559,4 +3559,4 @@ ZXYZ.A|Nasdaq Symbology Test Common Stock|Q|Y|N|100||N
 ZXZZT|NASDAQ TEST STOCK|G|Y|N|100||N
 ZYNE|Zynerba Pharmaceuticals, Inc. - Common Stock|G|N|N|100|N|N
 ZYXI|Zynex, Inc. - Common Stock|S|N|N|100|N|N
-File Creation Time: 0414202017:01|||||||
+File Creation Time: 0414202021:31|||||||

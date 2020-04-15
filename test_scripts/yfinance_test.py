@@ -5,6 +5,7 @@ Example of how to use the yfinance library.
 
 import yfinance as yf
 import pandas as pd
+import pandas_datareader as pdr
 import matplotlib.pyplot as plt
 
 # data = yf.download(tickers="BA", period="1m", interval="1m")
@@ -16,20 +17,17 @@ import matplotlib.pyplot as plt
 
 # data2 = yf.download("SPY AAPL", start="2017-01-01", end="2017-04-30")
 #
-# print("MSFT:")
-# msft = yf.Ticker("MSFT")
-# print(msft.info)
-#
-# print("Data2:")
-# print(type(data2))
-# print(data2)
-# print("End of data2")
+msft = yf.Ticker("ABUS")
+print(msft)
+
+# get historical market data
+print(msft.history(start="2020-04-09", end="2020-04-10", interval="1m"))
 
 data2 = yf.download("VNP.TO", start="2020-04-09", end="2020-04-12")
 print(data2)
 
 # Getting the last known price of a list of stocks!
-data2 = yf.download("AACG AAL AAME AAOI AAON AAPL AAWW AAXJ AAXN ABCB ABEO ABIO ABMD ABTX ABUS ACAD ACAM ACAMU ACAMW ACBI", period="3d", interval="1m")
+data2 = yf.download("AACG AAL AAME AAOI AAON AAPL AAWW AAXJ AAXN ABCB ABEO ABIO ABMD ABTX ABUS ACAD ACAM ACAMU ACAMW ACBI", start="2020-04-09", end="2020-04-10", interval="1m")
 # print(data2)
 # data2.to_csv('test_data.csv')
 # print(data2.columns)
