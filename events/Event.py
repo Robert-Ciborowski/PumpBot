@@ -8,12 +8,13 @@ from __future__ import annotations
 from typing import Dict
 
 class Event:
+    type: str
     data: Dict
 
-    def __init__(self):
+    def __init__(self, type: str):
+        self.type = type
         self.data = {}
 
     def addData(self, dataName: str, data) -> Event:
         self.data[dataName] = data
         return self
-
