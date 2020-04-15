@@ -75,30 +75,41 @@ async def talk(ctx):
 	await ctx.send(phrases[randint(0, len(phrases) - 1)])
 
 
-@client.event
-async def on_message(message, ):
-	if message.author.bot:
-		return
+@client.command()
+async def market(ctx, message):
+	if message == "all":
+		await ctx.send("Market Data")
+	elif message == "jp":
+		await ctx.send("JP data")
+	elif message == "morgan":
+		await ctx.send("morgan data")
 
-	author = str(message.author)
-	msg = message.content.lower()
 
-	# We want to filter out bad words!
-	if "wall street" in msg:
-		await message.channel.send(str(message.author.mention) + " test!")
-	elif "jp" in msg or "morgan" in msg:
-		await message.channel.send(str(message.author.mention) + " test 2!")
-
-	elif message.content.startswith("help"):
-		if (author == "MuchoPotato#3835"):
-			phrases = ["Test!!!", "TEST!!!!!!!!"]
-			await message.channel.send(phrases[randint(0, len(phrases) - 1)])
-
-	# Using in just in case he changes his #XXXX value.
-	if ("MuchoPotato" in author):
-		if "meme" in msg:
-			await message.channel.send("!TSET")
-	await client.process_commands(message)
+# @client.event
+# async def on_message(message, ):
+# 	if message.author.bot:
+# 		return
+#
+# 	author = str(message.author)
+# 	msg = message.content.lower()
+#
+# 	# We want to filter out bad words!
+#
+# 	if "wall street" in msg:
+# 		await message.channel.send(str(message.author.mention) + " test!")
+# 	elif "jp" in msg or "morgan" in msg:
+# 		await message.channel.send(str(message.author.mention) + " test 2!")
+#
+# 	elif message.content.startswith("help"):
+# 		if (author == "MuchoPotato#3835"):
+# 			phrases = ["Test!!!", "TEST!!!!!!!!"]
+# 			await message.channel.send(phrases[randint(0, len(phrases) - 1)])
+#
+# 	# Using in just in case he changes his #XXXX value.
+# 	if ("MuchoPotato" in author):
+# 		if "meme" in msg:
+# 			await message.channel.send("!TSET")
+# 	await client.process_commands(message)
 
 @tasks.loop(minutes=30)
 async def change_status():
