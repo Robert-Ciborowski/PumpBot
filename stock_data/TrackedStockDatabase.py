@@ -24,7 +24,7 @@ Representation invariants:
   where 0 < x <= pricesToKeepTrackOf. Last element in each list contains most
   recent price.
 """
-class StockDatabase:
+class TrackedStockDatabase:
     pricesToKeepTrackOf: int
     obtainer: StockDataObtainer
     secondsBetweenStockUpdates: int
@@ -39,8 +39,8 @@ class StockDatabase:
     _listeners: Dict
 
     def __init__(self):
-        if not StockDatabase._instance:
-            StockDatabase._instance = self
+        if not TrackedStockDatabase._instance:
+            TrackedStockDatabase._instance = self
         else:
             print("Only one instance of EventDispatcher is allowed!")
 
@@ -52,17 +52,17 @@ class StockDatabase:
         self.secondsBetweenStockUpdates = 60
 
     @staticmethod
-    def getInstance() -> StockDatabase:
-        if not StockDatabase._instance:
-            return StockDatabase()
+    def getInstance() -> TrackedStockDatabase:
+        if not TrackedStockDatabase._instance:
+            return TrackedStockDatabase()
         else:
-            return StockDatabase._instance
+            return TrackedStockDatabase._instance
 
-    def useObtainer(self, obtainer: StockDataObtainer) -> StockDatabase:
+    def useObtainer(self, obtainer: StockDataObtainer) -> TrackedStockDatabase:
         self.obtainer = obtainer
         return self
 
-    # def trackStock(self, ticker: str) -> StockDatabase:
+    # def trackStock(self, ticker: str) -> TrackedStockDatabase:
     #     if self._entries.get(ticker):
     #         print("Stock " + ticker + " is already being tracked!")
     #     else:
@@ -71,15 +71,15 @@ class StockDatabase:
     #
     #     return self
 
-    def setPricesToKeepTrackOf(self, pricesToKeepTrackOf: int) -> StockDatabase:
+    def setPricesToKeepTrackOf(self, pricesToKeepTrackOf: int) -> TrackedStockDatabase:
         self.pricesToKeepTrackOf = pricesToKeepTrackOf
         return self
 
-    def setSecondsBetweenStockUpdates(self, secondsBetweenStockUpdates: int) -> StockDatabase:
+    def setSecondsBetweenStockUpdates(self, secondsBetweenStockUpdates: int) -> TrackedStockDatabase:
         self.secondsBetweenStockUpdates = secondsBetweenStockUpdates
         return self
 
-    def trackStocksInFilter(self, filter: StockFilterByPrice) -> StockDatabase:
+    def trackStocksInFilter(self, filter: StockFilterByPrice) -> TrackedStockDatabase:
         series = filter.filtered_stocks["Ticker"]
 
         for item in series.iteritems():
@@ -108,7 +108,7 @@ class StockDatabase:
     def getCurrentStockPrice(self, ticker: str) -> float:
         with self._entriesLock:
             try:
-                return self._entries[ticker]
+                return self._entries[ticker][-1]
             except KeyError as e:
                 print("Tried to obtain " + ticker + "from the database, but "
                                                     "that stock isn't tracked!")

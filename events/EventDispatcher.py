@@ -42,11 +42,11 @@ class EventDispatcher:
                 self._listeners[eventType].append(listener)
         else:
             self._listeners[eventType] = [listener]
-            print("Added listener for " + eventType)
 
     def dispatchEvent(self, event: Event):
         if event.type not in self._listeners:
             return
 
+        print("Dispatching: " + event.type)
         for listener in self._listeners[event.type]:
             listener.onEvent(event)

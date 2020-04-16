@@ -19,8 +19,12 @@ from stock_data.StockDataObtainer import StockDataObtainer
 
 class CurrentStockDataObtainer(StockDataObtainer):
     def obtainPrice(self, ticker: str) -> float:
-        return self._obtainPriceYahooFinance(ticker)
-        # return self._obtainPriceGoogleFinance(ticker)
+        lst = self.obtainPrices(ticker, 1)
+
+        if len(lst) == 0:
+            return -1
+
+        return lst[-1]
 
     """
     - data: in the form {"Ticker": []}
@@ -68,22 +72,19 @@ class CurrentStockDataObtainer(StockDataObtainer):
 
         return -1
 
-    def _obtainPriceYahooFinance(self, ticker: str) -> float:
-        start_date_str = str(self.dateOfStart.strftime("%Y-%m-%d"))
-        end_date_str = str(
-            (self.dateOfStart + timedelta(days=1)).strftime("%Y-%m-%d"))
-        stock = yf.Ticker(ticker)
-        df = stock.history(start=start_date_str, end=end_date_str,
-                           interval="1m")
-        self._downloadedData[ticker] = df["Open"]
-
-
-        now = datetime.now()
-        date_str = str(now.strftime("%Y-%m-%d"))
-        date_str_2 = str((now + timedelta(days=1)).strftime("%Y-%m-%d"))
-        df = yf.download(tickers=ticker,
-                         start=date_str, end=date_str_2)
-        return self._get_most_recent(df)
+    # def _obtainPriceYahooFinance(self, ticker: str) -> float:
+    #     return self.obtainPrices
+    #
+    #
+    #     now = datetime.now()
+    #     date_str = str(now.strftime("%Y-%m-%d"))
+    #     date_str_2 = str((now + timedelta(days=1)).strftime("%Y-%m-%d"))
+    #     df = yf.download(tickers=ticker,
+    #                      start=date_str, end=date_str_2)
+    #     price = self._get_most_recent(df)
+    #     print("PRICE ------")
+    #     print(price)
+    #     return price
 
     # def _obtainPriceGoogleFinance(self, ticker: str) -> float:
     #     now = datetime.now()

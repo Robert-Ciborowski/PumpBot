@@ -2,7 +2,7 @@ from filter import StockFilterByPrice
 from listing_obtainers import TSXObtainer
 from listing_obtainers.NASDAQObtainer import NASDAQObtainer
 from stock_data.CurrentStockDataObtainer import CurrentStockDataObtainer
-from stock_data.StockDatabase import StockDatabase
+from stock_data import TrackedStockDatabase
 import time
 
 if __name__ == "__main__":
@@ -13,7 +13,7 @@ if __name__ == "__main__":
         .filterStocks()
 
     # Recommended for setSecondsBetweenStockUpdates: 60 (which is the default)
-    database = StockDatabase.getInstance()
+    database = TrackedStockDatabase.getInstance()
     database.setPricesToKeepTrackOf(7)\
             .setSecondsBetweenStockUpdates(30)\
             .useObtainer(CurrentStockDataObtainer())\

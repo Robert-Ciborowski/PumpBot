@@ -9,7 +9,7 @@ from typing import List
 
 from events import EventListener, Event, EventDispatcher
 from events.PumpAndDumpEvent import PumpAndDumpEvent
-from stock_data import StockDatabase
+from stock_data.TrackedStockDatabase import TrackedStockDatabase
 
 """
 Representation invariants:
@@ -31,7 +31,7 @@ class PumpAndDumpDetector(EventListener):
 
     def onEvent(self, event: Event):
         if event.type == "ListingPriceUpdated":
-            prices = StockDatabase.getInstance().getRecentStockPrices(event.data["Ticker"])
+            prices = TrackedStockDatabase.getInstance().getRecentStockPrices(event.data["Ticker"])
             probability = self.detect(prices)
 
             if probability >= self._classificationThreshold:

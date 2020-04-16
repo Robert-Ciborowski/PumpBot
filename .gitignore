@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# New properties:
+discord_bot/bot_secret_properties.json
+
+# Old properties:
 discord_bot/bot_properties.csv
 
 # C extensions
