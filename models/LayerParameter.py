@@ -3,7 +3,7 @@
 # Date: 18/04/2020
 # Description: A parameter for a neural network layer.
 
-class LayerParamater:
+class LayerParameter:
     # Number of nodes in the layer
     units: int
     # Activation function for the layer, e.g. "relu" or "sigmoid"

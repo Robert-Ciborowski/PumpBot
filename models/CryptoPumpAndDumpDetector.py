@@ -14,11 +14,18 @@ from matplotlib import pyplot as plt
 import tensorflow.keras.layers
 
 from models import LayerParameter
+from models.Hyperparameters import Hyperparameters
 from models.PumpAndDumpDetector import PumpAndDumpDetector
 
 class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
-    def __init__(self):
-        super().__init__()
+    hyperparameters: Hyperparameters
+    listOfMetrics: List
+    _metrics: List
+
+    def __init__(self, classificationThreshold: float, hyperparameters: Hyperparameters):
+        super().__init__(classificationThreshold)
+        self._buildMetrics()
+        self.hyperparameters = hyperparameters
 
     def detect(self, prices: List[int]) -> bool:
         return random.random() <= self._classificationThreshold
@@ -26,17 +33,14 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     """
     Creates a brand new neural network for this model.
     """
-    def createModel(self, learningRate: float, featureLayer,
-                     layerParameters: List[LayerParameter], metrics=[]):
-        # Most simple tf.keras models are sequential.
-        model = tf.keras.models.Sequential()
-
-        # Add the layer containing the feature columns to the model.
-        model.add(featureLayer)
+    def createModel(self, featureLayer,
+                     layerParameters: List):
+        self.model = tf.keras.models.Sequential()
+        self.model.add(featureLayer)
 
         count = 0
         for parameter in layerParameters:
-            model.add(tf.keras.layers.Dense(units=parameter.units,
+            self.model.add(tf.keras.layers.Dense(units=parameter.units,
                                             activation=parameter.activation,
                                             kernel_regularizer=tf.keras.regularizers.l2(
                                                 l=0.04),
@@ -44,26 +48,22 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
             count += 1
 
         # Define the output layer.
-        model.add(tf.keras.layers.Dense(units=1,
-                                        name="Output"))
+        self.model.add(tf.keras.layers.Dense(units=1, input_shape=(1,),
+                                activation=tf.sigmoid, name="Output"))
 
-        # Use mean squared error for the loss function.
-        model.compile(
-            optimizer=tf.keras.optimizers.RMSprop(lr=learningRate),
-            loss=tf.keras.losses.BinaryCrossentropy(),
-            metrics=metrics)
+        # Compiles the model with the appropriate loss function.
+        self.model.compile(
+            optimizer=tf.keras.optimizers.RMSprop(lr=self.hyperparameters.learningRate),
+            loss=tf.keras.losses.BinaryCrossentropy(), metrics=self._metrics)
 
-        return model
-
-    def trainModel(model, dataset, epochs, label_name,
-                           batch_size=None):
+    def trainModel(self, dataset, label_name):
         """Train the model by feeding it data."""
 
         # Split the dataset into features and label.
         features = {name: np.array(value) for name, value in dataset.items()}
         label = np.array(features.pop(label_name))
-        history = model.fit(x=features, y=label, batch_size=batch_size,
-                            epochs=epochs, shuffle=True)
+        history = self.model.fit(x=features, y=label, batch_size=self.hyperparameters.batchSize,
+                            epochs=self.hyperparameters.epochs, shuffle=True)
 
         # The list of epochs is stored separately from the rest of history.
         epochs = history.epoch
@@ -71,6 +71,43 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         # To track the progression of training, gather a snapshot
         # of the model's mean squared error at each epoch.
         hist = pd.DataFrame(history.history)
-        mse = hist["mean_squared_error"]
+        return epochs, hist
 
-        return epochs, mse
+    """
+    Evalutaes the model on features.
+    Returns:
+        Scalar test loss (if the model has a single output and no metrics)
+        or list of scalars (if the model has multiple outputs
+        and/or metrics). The attribute `model.metrics_names` will give you
+        the display labels for the scalar outputs.
+    """
+    def evaluate(self, features, label):
+        return self.model.evaluate(features, label, self.hyperparameters.batchSize)
+
+    def plotCurve(self, epochs, hist, metrics):
+        """Plot a curve of one or more classification metrics vs. epoch."""
+        # list_of_metrics should be one of the names shown in:
+        # https://www.tensorflow.org/tutorials/structured_data/imbalanced_data#define_the_model_and_metrics
+
+        plt.figure()
+        plt.xlabel("Epoch")
+        plt.ylabel("Value")
+
+        for m in metrics:
+            x = hist[m]
+            plt.plot(epochs[1:], x[1:], label=m)
+
+        plt.legend()
+        plt.show()
+
+    def _buildMetrics(self):
+        self._metrics = [tf.keras.metrics.BinaryAccuracy(name='accuracy',
+                                      threshold=self._classificationThreshold),
+      tf.keras.metrics.Precision(thresholds=self._classificationThreshold,
+                                 name='precision'
+                                 ),
+      tf.keras.metrics.Recall(thresholds=self._classificationThreshold,
+                              name="recall"),
+        tf.keras.metrics.AUC(num_thresholds=100, name='auc'),
+                         tf.keras.metrics.MeanSquaredError(name='rmse')]
+        self.listOfMetrics = ["accuracy", "precision", "recall", "auc", "rmse"]

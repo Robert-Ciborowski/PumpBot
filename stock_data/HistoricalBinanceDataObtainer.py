@@ -47,74 +47,16 @@ class HistoricStockDataObtainer(StockDataObtainer):
             self._downloadedData.pop(ticker)
 
     def _predownloadData(self, ticker: str):
-        start_date_str = str(self.dateOfStart.strftime("%Y-%m-%d"))
-        end_date_str = str((self.dateOfStart + timedelta(days=1)).strftime("%Y-%m-%d"))
-        stock = yf.Ticker(ticker)
-        df = stock.history(start=start_date_str, end=end_date_str, interval="1m")
 
-        # For some reason, the current price is being added at the end, so we
-        # need to get rid of it.
-        df.drop(df.tail(1).index, inplace=True)
-        print(ticker + "================================================")
-        print(df["Open"])
-        self._downloadedData[ticker] = df["Open"]
 
     def obtainPrice(self, ticker: str) -> float:
-        now = datetime.now()
-        diff = now - self._startTime
-        date = self.dateOfStart + diff
-        start_date_to_use = datetime(date.year, date.month, date.day, hour=date.hour, minute=date.minute)
-        timezone = pytz.timezone(self.timezone)
-        d_aware = timezone.localize(start_date_to_use)
-        price = self._getPriceFromSeries(self._downloadedData[ticker], d_aware)
-        return price
+        return 0.0
 
     """
     - data: in the form {"Ticker": []}
     """
 
     def obtainPrices(self, ticker: str, numberOfPrices=-1) -> List[float]:
-        now = datetime.now()
-        diff = now - self._startTime
-        date = self.dateOfStart + diff
-        start_date_to_use = datetime(date.year, date.month, date.day,
-                                     hour=date.hour, minute=date.minute)
-        timezone = pytz.timezone(self.timezone)
-        d_aware = timezone.localize(start_date_to_use)
-
-        print("Obtaining prices for: " + ticker + " with date: " + str(start_date_to_use))
-        return self._getPricesFromSeries(self._downloadedData[ticker], d_aware,
-                                         numberOfPrices)
-
-    def _getPriceFromSeries(self, series: pd.Series, time: datetime) -> float:
-        keys = series.keys()
-        lastKey = keys[0]
-
-        for key in keys:
-            if key.to_pydatetime() > time:
-                break
-            lastKey = key
-
-        return series[lastKey]
-
-    def _getPricesFromSeries(self, series: pd.Series, time: datetime, pricesToObtain=-1) -> List[float]:
-        keys = series.keys()
-
-        if len(keys) == 0:
-            return []
-
-        lastIndex = 0
-
-        for i in range(len(keys)):
-            if keys[i].to_pydatetime() > time:
-                lastIndex = i
-                break
-
-        print("lastIndex: " + str(keys[lastIndex]))
-        if pricesToObtain < 0 or pricesToObtain >= lastIndex:
-            return series[:lastIndex]
-        else:
-            return series[lastIndex-pricesToObtain:lastIndex]
-
+        return []
 
 
