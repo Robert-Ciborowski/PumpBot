@@ -4,7 +4,7 @@
 # Description: A class which represents the event in which a pump and dump
 #              occurred.
 
-from __future__ import annotations
+# from __future__ import annotations
 from typing import Dict
 
 from events import Event

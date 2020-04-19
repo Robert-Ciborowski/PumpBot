@@ -5,13 +5,12 @@
 #              Note: I was experimenting with the Google Finance API but it
 #              hasn't been maintained in a long time and gets HTTP 403 errors :(
 
-from __future__ import annotations
+# from __future__ import annotations
 
 from typing import Dict, List
 from datetime import datetime, timedelta
 import pandas as pd
 import yfinance as yf
-from googlefinance import getQuotes
 import json
 
 

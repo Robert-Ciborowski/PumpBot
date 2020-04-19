@@ -4,7 +4,7 @@
 # Description: An event which occurs when the price of a tracked listing has
 #              been updated.
 
-from __future__ import annotations
+# from __future__ import annotations
 
 from events import Event
 

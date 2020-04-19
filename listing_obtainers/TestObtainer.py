@@ -3,7 +3,7 @@
 # Date: 12/04/2020
 # Description: Generates a few listings.
 
-from __future__ import annotations
+# from __future__ import annotations
 
 import pandas as pd
 import urllib.request, json

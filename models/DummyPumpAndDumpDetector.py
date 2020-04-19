@@ -7,11 +7,11 @@
 #              probability! (The probability of its output being true is
 #              the decision threshold itself.)
 
-from __future__ import annotations
+# from __future__ import annotations
 from typing import List
 import random
 
-from models.PumpAndDumpModel import PumpAndDumpDetector
+from models.PumpAndDumpDetector import PumpAndDumpDetector
 
 class DummyPumpAndDumpDetector(PumpAndDumpDetector):
     def detect(self, prices: List[int]) -> bool:

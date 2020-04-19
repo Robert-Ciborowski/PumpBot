@@ -3,10 +3,10 @@
 # Date: 14/04/2020
 # Description: A class which dispatches events. This is a singleton.
 
-from __future__ import annotations
+# from __future__ import annotations
 from typing import Dict
 
-from events import EventListener, Event
+from events import EventListener, Event, EventDispatcher
 
 """
 This class is a singleton! You get the instance in EventDispatcher.getInstance()
@@ -47,6 +47,5 @@ class EventDispatcher:
         if event.type not in self._listeners:
             return
 
-        print("Dispatching: " + event.type)
         for listener in self._listeners[event.type]:
             listener.onEvent(event)

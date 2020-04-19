@@ -3,19 +3,16 @@
 # Date: 26/03/2020
 # Description: Filters out stocks.
 
-from __future__ import annotations
+# from __future__ import annotations
 
 from typing import Dict
 from datetime import datetime
 import pandas as pd
-import yfinance as yf
 
-
-from listing_obtainers import ListingObtainer
+from filter.StockFilter import StockFilter
 from stock_data import StockDataObtainer
 
-
-class StockFilterByPrice:
+class StockFilterByPrice(StockFilter):
     priceThreshold: int
     template: Dict
     data: Dict
@@ -25,33 +22,19 @@ class StockFilterByPrice:
     dataObtainer: StockDataObtainer
 
     def __init__(self, priceThreshold: int, dataObtainer: StockDataObtainer, dayThreshold=5):
+        super().__init__(dataObtainer)
         self.priceThreshold = priceThreshold
-        self.data = {
-            "Ticker": [],
-            "Price": []
-        }
-        self.dataObtainer = dataObtainer
         self.dayThreshold = dayThreshold
 
     """
     Changes the day threshold (default is 5), which stores how long ago the stock
     must have had a price update/change for it to be used.
     """
-    def changeDayThreshold(self, dayThreshold: int) -> StockFilterByPrice:
+    def changeDayThreshold(self, dayThreshold: int):
         self.dayThreshold = dayThreshold
         return self
 
-    def addListings(self, obtainer: ListingObtainer) -> StockFilterByPrice:
-        dataframe = obtainer.obtain()
-
-        for index, row in dataframe.iterrows():
-            self.data["Ticker"].append(row["Ticker"])
-            self.data["Price"].append(0)
-
-        self.dataObtainer.trackStocks(self.data["Ticker"])
-        return self
-
-    def getPricesForListings(self) -> StockFilterByPrice:
+    def getDataForFiltering(self):
         self.timestampOfDownload = datetime.now()
         data2 = {"Ticker": [], "Price": []}
 
@@ -71,7 +54,7 @@ class StockFilterByPrice:
     Preconditions: coloumn "Ticker" of df contains stock tickers as strings,
                    coloumn "Price" of df contains prices
     """
-    def filterStocks(self) -> StockFilterByPrice:
+    def filter(self):
         dictionary = {
             "Ticker": [],
             "Price": []

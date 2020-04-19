@@ -9,8 +9,8 @@ if __name__ == "__main__":
     tsx_obtainer = NASDAQObtainer(20)
     filter = StockFilterByPrice(10, CurrentStockDataObtainer())
     filter.addListings(tsx_obtainer)\
-        .getPricesForListings()\
-        .filterStocks()
+        .getDataForFiltering()\
+        .filter()
 
     # Recommended for setSecondsBetweenStockUpdates: 60 (which is the default)
     database = TrackedStockDatabase.getInstance()

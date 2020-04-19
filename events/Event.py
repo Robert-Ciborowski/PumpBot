@@ -4,8 +4,9 @@
 # Description: A class which is outputted to event listeners when an event
 #              occurs.
 
-from __future__ import annotations
+# # from __future__ import annotations
 from typing import Dict
+from events import Event
 
 class Event:
     type: str

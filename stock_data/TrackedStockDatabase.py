@@ -3,7 +3,7 @@
 # Date: 13/04/2020
 # Description: Keeps track of stock prices to the minute.
 
-from __future__ import annotations
+# from __future__ import annotations
 
 from typing import Dict, List
 import pandas as pd
@@ -13,7 +13,7 @@ from datetime import datetime
 
 from events import EventDispatcher
 from events.ListingPriceUpdatedEvent import ListingPriceUpdatedEvent
-from filter import StockFilterByPrice
+from filter.StockFilter import StockFilter
 from stock_data.StockDataObtainer import StockDataObtainer
 
 """
@@ -52,13 +52,13 @@ class TrackedStockDatabase:
         self.secondsBetweenStockUpdates = 60
 
     @staticmethod
-    def getInstance() -> TrackedStockDatabase:
+    def getInstance():
         if not TrackedStockDatabase._instance:
             return TrackedStockDatabase()
         else:
             return TrackedStockDatabase._instance
 
-    def useObtainer(self, obtainer: StockDataObtainer) -> TrackedStockDatabase:
+    def useObtainer(self, obtainer: StockDataObtainer):
         self.obtainer = obtainer
         return self
 
@@ -71,15 +71,15 @@ class TrackedStockDatabase:
     #
     #     return self
 
-    def setPricesToKeepTrackOf(self, pricesToKeepTrackOf: int) -> TrackedStockDatabase:
+    def setPricesToKeepTrackOf(self, pricesToKeepTrackOf: int):
         self.pricesToKeepTrackOf = pricesToKeepTrackOf
         return self
 
-    def setSecondsBetweenStockUpdates(self, secondsBetweenStockUpdates: int) -> TrackedStockDatabase:
+    def setSecondsBetweenStockUpdates(self, secondsBetweenStockUpdates: int):
         self.secondsBetweenStockUpdates = secondsBetweenStockUpdates
         return self
 
-    def trackStocksInFilter(self, filter: StockFilterByPrice) -> TrackedStockDatabase:
+    def trackStocksInFilter(self, filter: StockFilter):
         series = filter.filtered_stocks["Ticker"]
 
         for item in series.iteritems():

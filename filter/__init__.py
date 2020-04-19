@@ -16,8 +16,8 @@ if __name__ == "__main__":
     nasdaq_obtainer = NASDAQObtainer(20)
     filter = StockFilterByPrice(5)
     filter.addListings(nasdaq_obtainer) \
-        .getPricesForListings() \
-        .filterStocks()
+        .getDataForFiltering() \
+        .filter()
     print(filter.filtered_stocks)
     # filter.filtered_stocks.to_csv("filtered_stocks_nasdaq_test.csv")
 

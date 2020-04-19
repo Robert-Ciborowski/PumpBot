@@ -3,7 +3,7 @@
 # Date: 12/04/2020
 # Description: Obtains all listings from some market.
 
-from __future__ import annotations
+# from __future__ import annotations
 
 from typing import Dict
 import pandas as pd

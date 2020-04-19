@@ -5,7 +5,7 @@
 #              dumps. This bot simply outputs the pump and dump info into the
 #              console.
 
-from __future__ import annotations
+# from __future__ import annotations
 
 from events import Event
 from events.EventListener import EventListener

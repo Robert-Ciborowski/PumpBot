@@ -3,7 +3,7 @@
 # Date: 13/04/2020
 # Description: Keeps track of stock prices to the minute.
 
-from __future__ import annotations
+# from __future__ import annotations
 
 from datetime import datetime, timedelta
 from typing import Dict, List, Tuple

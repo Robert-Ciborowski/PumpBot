@@ -60,7 +60,7 @@ ADTN|ADTRAN, Inc. - Common Stock|Q|N|N|100|N|N
 ADUS|Addus HomeCare Corporation - Common Stock|Q|N|E|100|N|N
 ADVM|Adverum Biotechnologies, Inc. - Common Stock|G|N|N|100|N|N
 ADXN|Addex Therapeutics Ltd - American Depositary Shares|S|N|N|100|N|N
-ADXS|Advaxis, Inc. - Common Stock|Q|N|N|100|N|N
+ADXS|Advaxis, Inc. - Common Stock|Q|N|D|100|N|N
 AEGN|Aegion Corp - Class A Common Stock|Q|N|N|100|N|N
 AEHR|Aehr Test Systems - Common Stock|S|N|N|100|N|N
 AEIS|Advanced Energy Industries, Inc. - Common Stock|Q|N|N|100|N|N
@@ -69,7 +69,7 @@ AERI|Aerie Pharmaceuticals, Inc. - Common Stock|G|N|N|100|N|N
 AESE|Allied Esports Entertainment, Inc. - Common Stock|S|N|N|100|N|N
 AEY|ADDvantage Technologies Group, Inc. - Common Stock|G|N|N|100|N|N
 AEYE|AudioEye, Inc. - Common Stock|S|N|N|100|N|N
-AEZS|Aeterna Zentaris Inc. - Common Stock|S|N|N|100|N|N
+AEZS|Aeterna Zentaris Inc. - Common Stock|S|N|D|100|N|N
 AFH|Atlas Financial Holdings, Inc. - Ordinary Shares|S|N|H|100|N|N
 AFIN|American Finance Trust, Inc. - Class A Common Stock|Q|N|N|100|N|N
 AFINP|American Finance Trust, Inc. - 7.50% Series A Cumulative Redeemable Perpetual Preferred Stock|Q|N|N|100|N|N
@@ -133,7 +133,7 @@ ALGRU|Allegro Merger Corp. - Unit|S|N|D|100|N|N
 ALGRW|Allegro Merger Corp. - Warrant|S|N|D|100|N|N
 ALGT|Allegiant Travel Company - Common Stock|Q|N|N|100|N|N
 ALIM|Alimera Sciences, Inc. - Common Stock|G|N|N|100|N|N
-ALJJ|ALJ Regional Holdings, Inc. - Common Stock|G|N|N|100|N|N
+ALJJ|ALJ Regional Holdings, Inc. - Common Stock|G|N|D|100|N|N
 ALKS|Alkermes plc - Ordinary Shares|Q|N|N|100|N|N
 ALLK|Allakos Inc. - Common Stock|Q|N|N|100|N|N
 ALLO|Allogene Therapeutics, Inc. - Common Stock|Q|N|N|100|N|N
@@ -848,7 +848,6 @@ CWCO|Consolidated Water Co. Ltd. - Ordinary Shares|Q|N|N|100|N|N
 CWST|Casella Waste Systems, Inc. - Class A Common Stock|Q|N|N|100|N|N
 CXDC|China XD Plastics Company Limited - Common Stock|G|N|N|100|N|N
 CXSE|WisdomTree China ex-State-Owned Enterprises Fund|G|N|N|100|Y|N
-CY|Cypress Semiconductor Corporation - Common Stock|Q|N|N|100|N|N
 CYAD|Celyad SA - American Depositary Shares|G|N|N|100|N|N
 CYAN|Cyanotech Corporation - Common Stock|S|N|N|100|N|N
 CYBE|CyberOptics Corporation - Common Stock|G|N|N|100|N|N
@@ -965,7 +964,7 @@ DWUS|AdvisorShares Dorsey Wright FSM US Core ETF|G|N|N|100|Y|N
 DXCM|DexCom, Inc. - Common Stock|Q|N|N|100|N|N
 DXGE|WisdomTree Germany Hedged Equity Fund|G|N|N|100|Y|N
 DXJS|WisdomTree Japan Hedged SmallCap Equity Fund|G|N|N|100|Y|N
-DXLG|Destination XL Group, Inc. - Common Stock|Q|N|N|100|N|N
+DXLG|Destination XL Group, Inc. - Common Stock|Q|N|D|100|N|N
 DXPE|DXP Enterprises, Inc. - Common Stock|Q|N|N|100|N|N
 DXYN|The Dixie Group, Inc. - Common Stock|G|N|N|100|N|N
 DYAI|Dyadic International, Inc. - Common Stock|S|N|N|100|N|N
@@ -1257,7 +1256,7 @@ FRHC|Freedom Holding Corp. - Common Stock|S|N|N|100|N|N
 FRME|First Merchants Corporation - Common Stock|Q|N|N|100|N|N
 FRPH|FRP Holdings, Inc. - Common Stock|Q|N|N|100|N|N
 FRPT|Freshpet, Inc. - Common Stock|G|N|N|100|N|N
-FRSX|Foresight Autonomous Holdings Ltd. - American Depositary Shares|S|N|N|100|N|N
+FRSX|Foresight Autonomous Holdings Ltd. - American Depositary Shares|S|N|D|100|N|N
 FRTA|Forterra, Inc. - Common Stock|Q|N|N|100|N|N
 FSBC|FSB Bancorp, Inc. - Common Stock|S|N|N|100|N|N
 FSBW|FS Bancorp, Inc. - Common Stock|S|N|N|100|N|N
@@ -2697,7 +2696,7 @@ RDVY|First Trust Rising Dividend Achievers ETF|G|N|N|100|Y|N
 RDWR|Radware Ltd. - Ordinary Shares|Q|N|N|100|N|N
 REAL|The RealReal, Inc. - Common Stock|Q|N|N|100|N|N
 REDU|RISE Education Cayman Ltd - American Depositary Shares|G|N|N|100|N|N
-REED|Reeds, Inc. - Common Stock|S|N|N|100|N|N
+REED|Reeds, Inc. - Common Stock|S|N|D|100|N|N
 REFR|Research Frontiers Incorporated - Common Stock|S|N|N|100|N|N
 REG|Regency Centers Corporation - Common Stock|Q|N|N|100|N|N
 REGI|Renewable Energy Group, Inc. - Common Stock|Q|N|N|100|N|N
@@ -2917,7 +2916,7 @@ SLNO|Soleno Therapeutics, Inc. - Common Stock|S|N|N|100|N|N
 SLP|Simulations Plus, Inc. - Common Stock|S|N|N|100|N|N
 SLQD|iShares 0-5 Year Investment Grade Corporate Bond ETF|G|N|N|100|Y|N
 SLRC|Solar Capital Ltd. - Common Stock|Q|N|N|100|N|N
-SLRX|Salarius Pharmaceuticals, Inc. - Common Stock|S|N|N|100|N|N
+SLRX|Salarius Pharmaceuticals, Inc. - Common Stock|S|N|D|100|N|N
 SLS|SELLAS Life Sciences Group, Inc.  - Common Stock|S|N|N|100|N|N
 SLVO|Credit Suisse AG - Credit Suisse Silver Shares Covered Call Exchange Traded Notes|G|N|N|100|N|N
 SMBC|Southern Missouri Bancorp, Inc. - Common Stock|G|N|N|100|N|N
@@ -3458,7 +3457,7 @@ WSG|Wanda Sports Group Company Limited - American Depositary Shares|Q|N|N|100|N|
 WSTG|Wayside Technology Group, Inc. - Common Stock|G|N|N|100|N|N
 WSTL|Westell Technologies, Inc. - Class A Common Stock|S|N|D|100|N|N
 WTBA|West Bancorporation - Common Stock|Q|N|N|100|N|N
-WTER|The Alkaline Water Company Inc. - Common Stock|S|N|N|100|N|N
+WTER|The Alkaline Water Company Inc. - Common Stock|S|N|D|100|N|N
 WTFC|Wintrust Financial Corporation - Common Stock|Q|N|N|100|N|N
 WTFCM|Wintrust Financial Corporation - Fixed-to-Floating Rate Non-Cumulative Perpetual Preferred Stock, Series D|Q|N|N|100|N|N
 WTRE|Watford Holdings Ltd. - Common Shares|Q|N|N|100|N|N
@@ -3558,4 +3557,4 @@ ZXYZ.A|Nasdaq Symbology Test Common Stock|Q|Y|N|100||N
 ZXZZT|NASDAQ TEST STOCK|G|Y|N|100||N
 ZYNE|Zynerba Pharmaceuticals, Inc. - Common Stock|G|N|N|100|N|N
 ZYXI|Zynex, Inc. - Common Stock|S|N|N|100|N|N
-File Creation Time: 0415202021:31|||||||
+File Creation Time: 0417202021:31|||||||

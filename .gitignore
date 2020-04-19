@@ -4,10 +4,16 @@ __pycache__/
 *$py.class
 
 # New properties:
-discord_bot/bot_secret_properties.json
+bot_secret_properties.json
+binance_properties.json
 
 # Old properties:
 discord_bot/bot_properties.csv
+
+# Downloaded historical data
+binance_historical_data/*.csv
+
+venv-3.6.8
 
 # C extensions
 *.so

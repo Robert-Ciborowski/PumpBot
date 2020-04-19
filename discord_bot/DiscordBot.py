@@ -3,7 +3,6 @@
 # Date: 15/04/2020
 # Description: Outputs updated regarding pump and dumps to Discord.
 
-from __future__ import annotations
 
 import asyncio
 from asyncio import AbstractEventLoop
@@ -15,7 +14,7 @@ import threading as th
 import json
 
 from events import EventListener, Event
-from stock_data import CurrentStockDataObtainer
+from stock_data.StockDataObtainer import StockDataObtainer
 
 
 class DiscordBot(discord.Client, EventListener):
@@ -28,16 +27,18 @@ class DiscordBot(discord.Client, EventListener):
     _stockUpdatesID: int
     _runThread: th.Thread
     _loop: AbstractEventLoop
-    _obtainer: CurrentStockDataObtainer
+    _obtainer: StockDataObtainer
+    _priceFormat: str
 
-    def __init__(self, propertiesFileLocation="bot_properties.json",
-                 secretPropertiesFileLocation="bot_secret_properties.json"):
+    def __init__(self, obtainer: StockDataObtainer, propertiesFileLocation="bot_properties.json",
+                 secretPropertiesFileLocation="bot_secret_properties.json", priceFormat="2"):
         super().__init__()
         self._update_properties(propertiesFileLocation)
         self._update_secret_properties(secretPropertiesFileLocation)
         self._setupHelpString()
         self._loop = asyncio.get_event_loop()
-        self._obtainer = CurrentStockDataObtainer()
+        self._obtainer = obtainer
+        self._priceFormat = priceFormat
 
     def runOnSeperateThread(self):
         self._runThread = th.Thread(target=self._run, daemon=False)
@@ -54,7 +55,6 @@ class DiscordBot(discord.Client, EventListener):
         await self.change_presence(activity=discord.Game(self.status))
 
     async def on_message(self, message):
-        print("Message!")
         if message.author == self.user:
             return
 
@@ -109,11 +109,10 @@ class DiscordBot(discord.Client, EventListener):
                 self.status = data["Status"]
                 self.USTrackedIndices = data["US Tracked Indices"]
                 self.CATrackedIndices = data["CA Tracked Indices"]
-        except csv.Error as e:
+        except:
             print(
                 "You are missing " + propertiesPath + ". Please ask Robert" \
                     "(robert.ciborowski@mail.utoronto.ca) for help.")
-            print(e)
 
     def _setupHelpString(self):
         self._helpString = "All commands start with a '$'.\n```" \
@@ -167,11 +166,11 @@ class DiscordBot(discord.Client, EventListener):
 
         if price < 0:
             await message.channel.send(
-                str(message.author.mention) + " " + lst[1] + " is not on " \
-                    "Yahoo Finance or is invalid!")
+                str(message.author.mention) + " " + lst[1] + " is not " \
+                    "available or is invalid!")
         else:
             await message.channel.send(
-                (str(message.author.mention) + " **" + lst[1] + "**: ${:.2f}") \
+                (str(message.author.mention) + " **" + lst[1] + "**: ${:." + self._priceFormat + "f}") \
                     .format(price))
 
 
