@@ -11,12 +11,16 @@ import urllib.request, json
 from listing_obtainers.ListingObtainer import ListingObtainer
 
 class TestObtainer(ListingObtainer):
-    def __init__(self):
+    dummyTicker: str
+
+    def __init__(self, dummyTicker="AAPL"):
         super().__init__()
+        self.dummyTicker = dummyTicker
 
     def obtain(self) -> pd.DataFrame:
         dictionary = {
-            "Ticker": ["BA", "AAPL"]
+            "Ticker": [self.dummyTicker],
+            "Price": [0]
         }
 
         self.listings = pd.DataFrame(dictionary,

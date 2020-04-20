@@ -54,7 +54,6 @@ def get_all_binance(symbol, kline_size, save = False):
 def fileExists(file: str) -> bool:
     return os.path.exists(file)
 
-
 def downloadBinanceDataToCSV():
     tickers = binance_client.get_all_tickers()
 

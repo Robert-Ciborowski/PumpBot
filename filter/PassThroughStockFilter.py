@@ -8,7 +8,6 @@
 from typing import Dict
 
 from filter.StockFilter import StockFilter
-from listing_obtainers import ListingObtainer
 from stock_data import StockDataObtainer
 import pandas as pd
 
