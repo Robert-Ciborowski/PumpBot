@@ -55,6 +55,7 @@ def fileExists(file: str) -> bool:
     return os.path.exists(file)
 
 def downloadBinanceDataToCSV():
+    # tickers = binance_client.get_all_tickers()
     tickers = binance_client.get_all_tickers()
 
     for ticker in tickers:
@@ -66,7 +67,7 @@ def downloadBinanceDataToCSV():
 
         print("Obtaining " + symbol + "...")
         get_all_binance(symbol, "1m", save=True)
-        print("Obtained " + symbol + "...")
+        print("Obtained " + symbol + ".")
 
 
 if __name__ == "__main__":

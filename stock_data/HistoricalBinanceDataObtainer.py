@@ -10,19 +10,19 @@ from typing import Dict, List, Tuple
 import pandas as pd
 import re
 import pytz
+import time
 
 from stock_data.StockDataObtainer import StockDataObtainer
 
 class HistoricalBinanceDataObtainer(StockDataObtainer):
     dateOfStart: datetime
     dateOfEnd: datetime
-    timezone: str
     filePathPrefix: str
 
     _startTime: datetime
     _data: Dict[str, pd.DataFrame]
     _obtained: bool
-    _timezone: str
+    timezone: str
 
     def __init__(self, dateOfStart: datetime, dateOfEnd: datetime, filePathPrefix=""):
         self.dateOfStart = dateOfStart
@@ -32,7 +32,7 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
         self._data = {}
         self._obtained = False
         self.filePathPrefix = filePathPrefix
-        self._timezone ="Etc/GMT-0"
+        self.timezone = "Etc/GMT-0"
 
     def trackStocks(self, tickers: List[str]):
         if self._obtained:
@@ -52,25 +52,61 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
 
     def _readTickerData(self, ticker: str):
         path = self.filePathPrefix + ticker + "-1m-data.csv"
-        df = pd.DataFrame([], columns=["Price", "Volume"])
+        # df = pd.DataFrame([], columns=["Price", "Volume"])
+        df = pd.DataFrame([], columns=["Timestamp", "Open", "High", "Low," "Close", "Volume"])
+        count = 0
+        # minuteCount = 0
 
         try:
             with open(path, newline='') as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
-                    timestamp = row["timestamp"]
-                    times = re.split(r'[/:\s]\s*', timestamp)
+                    if count > 428576:
+                        break
+                    count += 1
 
-                    time = datetime(int(times[2]), int(times[1]),
-                                                 int(times[0]), int(times[3]),
-                                                 int(times[4]))
-                    timezone = pytz.timezone(self._timezone)
-                    time = timezone.localize(time)
+                    if count < 425697:
+                        continue
+
+                    # minuteCount += 1
+                    #
+                    # if minuteCount == 60:
+                    #     minuteCount = 0
+                    #
+                    # if minuteCount != 1:
+                    #     continue
+
+                    # print(count)
+
+                    timestamp = row["timestamp"]
+                    times = re.split(r'[-/:\s]\s*', timestamp)
+
+                    try:
+                        if "-" in timestamp:
+                            timing = datetime(int(times[0]), int(times[1]),
+                                            int(times[2]), int(times[3]),
+                                            int(times[4]))
+                        else:
+                            timing = datetime(int(times[2]), int(times[1]),
+                                            int(times[0]), int(times[3]),
+                                            int(times[4]))
+                    except ValueError as e:
+                        print(timestamp)
+                        print(e)
+                        time.sleep(1000)
+
+                    timezone = pytz.timezone(self.timezone)
+                    timing = timezone.localize(timing)
                     price = float(row["open"])
+                    price2 = float(row["high"])
+                    price3 = float(row["low"])
+                    price4 = float(row["close"])
                     volume = int(row["trades"])
-                    row = pd.DataFrame([[price, volume]], index=[time], columns=["Price", "Volume"])
-                    df = pd.concat([row, df])
-                    self._data[ticker] = df
+                    # row = pd.DataFrame([[price, volume]], index=[time], columns=["Price", "Volume"])
+                    row = pd.DataFrame([[timing, price, price2, price3, price4, volume]], index=[timing], columns=["Timestamp", "Open", "High", "Low", "Close", "Volume"])
+                    df = pd.concat([df, row])
+            self._data[ticker] = df
+            print(df)
 
         except IOError as e:
             print("Could not read " + path + "!")
