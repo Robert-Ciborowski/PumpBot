@@ -10,8 +10,9 @@ binance_properties.json
 # Old properties:
 discord_bot/bot_properties.csv
 
-# Downloaded historical data
+# Downloaded historical data and some test data sets
 binance_historical_data/*.csv
+data_set/*.csv
 
 venv-3.6.8
 

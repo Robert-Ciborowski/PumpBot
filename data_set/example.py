@@ -8,8 +8,12 @@ if __name__ == "__main__":
         HistoricalBinanceDataObtainer
 
     historicalObtainer = HistoricalBinanceDataObtainer(
-        datetime(day=14, month=7, year=2017, hour=4, minute=0), datetime(day=14, month=7, year=2017, hour=4, minute=21),
+        datetime(day=17, month=8, year=2018, hour=0, minute=1), datetime(day=31, month=8, year=2018, hour=0, minute=1),
         "../binance_historical_data/")
-    historicalObtainer.trackStocks(["OAXBTC"])
+    historicalObtainer.trackStocks(["OAXBTC", "EOSETH", "ICNETH"])
     dataSetCreator = BinanceDataSetCreator(historicalObtainer)
-    dataSetCreator.findPumpAndDumps("OAXBTC")
+    # dataSetCreator.findPumpAndDumps("OAXBTC", 0, 40000, plot=True)
+    pumps, rightBeforePumps = dataSetCreator.findPumpsForSymbols(["OAXBTC", "EOSETH", "ICNETH"], 850)
+    dataSetCreator.createFinalPumpsDataSet(pumps, rightBeforePumps)
+    print(rightBeforePumps[0].columns)
+    dataSetCreator.exportPumpsToCSV("OAXBTC-EOSETH-ICNETH", rightBeforePumps)
