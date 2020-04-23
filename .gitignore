@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+/PumpBot-API/config
+
 # New properties:
 bot_secret_properties.json
 binance_properties.json
