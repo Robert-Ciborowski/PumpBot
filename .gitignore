@@ -8,6 +8,7 @@ __pycache__/
 # New properties:
 bot_secret_properties.json
 binance_properties.json
+post_request_properties.json
 
 # Old properties:
 discord_bot/bot_properties.csv
