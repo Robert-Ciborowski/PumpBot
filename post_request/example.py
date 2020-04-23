@@ -1,5 +1,5 @@
-from postRequest import postRequest
+from post_request import PostRequest
 
 if __name__ == "__main__":
-    request = postRequest()
+    request = PostRequest()
     request.submitRequest("testing")
