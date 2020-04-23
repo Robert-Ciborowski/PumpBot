@@ -24,11 +24,15 @@ class BinanceDataSetCreator:
     def __init__(self, dataObtainer: HistoricalBinanceDataObtainer):
         self.dataObtainer = dataObtainer
 
-    def exportPumpsToCSV(self, symbol: str, rightBeforePumps: List, pathPrefix=""):
+    def exportPumpsToCSV(self, symbol: str, rightBeforePumps: List, areTheyPumps=True, pathPrefix=""):
         if len(rightBeforePumps) == 0:
             return
 
-        path = pathPrefix + symbol + "-pumps.csv"
+        if areTheyPumps:
+            path = pathPrefix + symbol + "-pumps.csv"
+        else:
+            path = pathPrefix + symbol + "-non-pumps.csv"
+
         try:
             with open(path, 'w', newline='') as file:
                 writer = csv.writer(file)
@@ -46,7 +50,11 @@ class BinanceDataSetCreator:
                     for index, row in df.iterrows():
                         csvRow.append(row["24m Close Price RA"])
 
-                    csvRow.append(1)
+                    if areTheyPumps:
+                        csvRow.append(1)
+                    else:
+                        csvRow.append(0)
+
                     writer.writerow(csvRow)
 
         except IOError as e:
@@ -75,6 +83,29 @@ class BinanceDataSetCreator:
 
         return lst
 
+    def createFinalNonPumpsDataSet(self, pumps: List, rightBeforePumps: List):
+        lst = []
+        lst2 = []
+        length = len(pumps)
+
+        for i in range(0, length):
+            print("Is this a pump? " + str(i + 1) + "/" + str(length))
+            df = pumps[i]
+            df2 = rightBeforePumps[i]
+            self.plotWithPyPlot(df, df2)
+            input1 = input()
+
+            if input1 == "n":
+                lst.append(df)
+                lst2.append(df2)
+            elif input1 == "y":
+                continue
+            else:
+                print("Invalid input.")
+                i -= 1
+
+        return lst
+
     def plotWithPyPlot(self, df, df2):
         fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(15, 8))
         fig.tight_layout()
@@ -83,6 +114,10 @@ class BinanceDataSetCreator:
         # axes[0].xlabel("Timestamp")
         # axes[0].ylabel("Value")
         axes[0][0].plot(df[["Timestamp"]], df[["High"]], label="High")
+        axes[0][0].plot(df2.iloc[0]["Timestamp"], df2.iloc[0]["High"],
+                        marker='o', markersize=3, color="red")
+        axes[0][0].plot(df2.iloc[-1]["Timestamp"], df2.iloc[-1]["High"], marker='o', markersize=3, color="red")
+        axes[0][0].set_title("Zoomed Out - Price High")
         # axes[0].legend()
         # plt.show()
 
@@ -90,11 +125,18 @@ class BinanceDataSetCreator:
         # axes[1].xlabel("Timestamp")
         # axes[1].ylabel("Value")
         axes[1][0].plot(df[["Timestamp"]], df[["Volume"]], label="Volume")
+        axes[1][0].plot(df2.iloc[0]["Timestamp"], df2.iloc[0]["Volume"],
+                        marker='o', markersize=3, color="red")
+        axes[1][0].plot(df2.iloc[-1]["Timestamp"], df2.iloc[-1]["Volume"],
+                        marker='o', markersize=3, color="red")
+        axes[1][0].set_title("Zoomed Out - Volume")
         # axes[1].legend()
         # plt.show()
 
         axes[0][1].plot(df2[["Timestamp"]], df2[["High"]], label="High")
+        axes[0][1].set_title("Zoomed In - Price High")
         axes[1][1].plot(df2[["Timestamp"]], df2[["Volume"]], label="Volume")
+        axes[1][1].set_title("Zoomed In - Volume")
 
         fig.show()
 
@@ -114,17 +156,47 @@ class BinanceDataSetCreator:
 
         return lst1, lst2
 
+    def findNonPumpsForSymbols(self, symbols: List[str], amountToIncrement: int):
+        """
+        Precondition: symbols is not empty!!!
+        :param symbols:
+        :param amountToIncrement:
+        :return:
+        """
+        lst1, lst2 = self.findNonPumpsForSymbol(symbols[0], amountToIncrement)
+
+        for i in range(1, len(symbols)):
+            lst3, lst4 = self.findNonPumpsForSymbol(symbols[i], amountToIncrement)
+            lst1 += lst3
+            lst2 += lst4
+
+        return lst1, lst2
+
     def findPumpsForSymbol(self, symbol: str, amountToIncrement: int):
         df = self.dataObtainer._data[symbol]
         dfs = []
         dfs2 = []
-
-        for i in range(0, int(self._getNumberOfRows(df) / (amountToIncrement + 1))):
-            rowEntry, df2 = self.findPumpAndDumps(symbol, i * amountToIncrement, (i + 1) * amountToIncrement)
+        print(int((self._getNumberOfRows(df) - 1440) / (amountToIncrement + 1)))
+        for i in range(0, int((self._getNumberOfRows(df) - 1440) / (amountToIncrement + 1))):
+            rowEntry, df2 = self.findPumpAndDumps(symbol, i * amountToIncrement, 1440 + (i + 1) * amountToIncrement)
 
             if rowEntry["Pump and Dumps"] > 0:
                 dfs.append(df2)
                 dfs2.append(rowEntry["Right Before DF"])
+
+        return dfs, dfs2
+
+    def findNonPumpsForSymbol(self, symbol: str, amountToIncrement: int):
+        df = self.dataObtainer._data[symbol]
+        dfs = []
+        dfs2 = []
+
+        for i in range(0, int((self._getNumberOfRows(df) - 100) / (amountToIncrement + 1))):
+            rowEntry, df2 = self.findPumpAndDumps(symbol, i * amountToIncrement, 100 + (i + 1) * amountToIncrement)
+
+            if rowEntry["Pump and Dumps"] == 0:
+                dfs.append(df2)
+                dfs2.append(df2.iloc[0:100])
 
         return dfs, dfs2
 
@@ -137,12 +209,23 @@ class BinanceDataSetCreator:
         :return:
         """
         df = self.dataObtainer._data[symbol].iloc[startIndex:endIndex]
-        return self._analyseSymbol(symbol, df, 3, 1.05, plot=plot), df
+        # return self._analyseSymbolForPumps(symbol, df, 3, 1.05, plot=plot), df
+        return self._analyseSymbolForPumps(symbol, df, 2.5, 1.05, plot=plot), df
+
+    def findNonPumpAndDumps(self, symbol: str, startIndex: int, endIndex: int, plot=False):
+        """
+        NOTE: FOR NOW, let's just try and make this function with the help of
+        that research paper.
+        :param df:
+        :return:
+        """
+        df = self.dataObtainer._data[symbol].iloc[startIndex:endIndex]
+        return self._analyseSymbolForNonPumps(symbol, df, 1.25, 1.05, plot=plot), df
 
     # returns final dataframe
-    def _analyseSymbol(self, symbol: str, df: pd.DataFrame, volumeThreshold,
-                       priceThreshold, windowSize=24, candleSize='1m',
-                       plot=False):
+    def _analyseSymbolForPumps(self, symbol: str, df: pd.DataFrame, volumeThreshold,
+                               priceThreshold, windowSize=24, candleSize='1m',
+                               plot=False):
         '''
         USAGE:
         f_path : path to OHLCV csv e.g.'../data/binance/binance_STORJ-BTC_[2018-04-20 00.00.00]-TO-[2018-05-09 23.00.00].csv'
@@ -162,7 +245,7 @@ class BinanceDataSetCreator:
 
         pdmask, pddf = self._findPriceDumps(df, windowSize)
 
-        vdmask, vddf = self._findVolumeDumps(df, windowSize)
+        # vdmask, vddf = self._findVolumeDumps(df, windowSize)
 
         # find coinciding price and volume spikes
         volumePriceMask = (volumeMask) & (pmask)
@@ -175,6 +258,73 @@ class BinanceDataSetCreator:
 
         # find coniciding price and volume spikes with dumps afterwards
         ''' at some point should probably be renamed '''
+        finalMask = (volumeMask) & (pmask) & (pdmask)
+        finalDF = df[finalMask]
+
+        #  remove indicators which occur on the same day
+        finalCombined = self._removeSameDayPumps(finalDF)
+        finalCombinedAmount = self._getNumberOfRows(finalCombined)
+
+        if finalCombinedAmount == 0:
+            rightBeforeDF = finalCombined
+        else:
+            timeIndex = finalCombined.index[0]
+            endIndex = self.dataObtainer._data[symbol].index.get_loc(timeIndex) - 3
+            startIndex = max(endIndex - 100, 0)
+            rightBeforeDF = self.dataObtainer._data[symbol].iloc[startIndex:endIndex]
+
+        # -- plot --
+        if plot is True:
+            self._plotPumps(symbol, exchangeName, windowSize, df, pdf, vdf,
+                            volumePriceDF, pddf, finalDF, finalCombined,
+                            plotPriceRA=True, plotPricePeaks=True, plotVolumeRA=True,
+                            plotVolumePeaks=True)
+
+        rowEntry = {'Exchange': exchangeName,
+                    'Symbol': symbol,
+                    'Price Spikes': priceSpikeAmount,
+                    'Volume Spikes': volumeSpikeAmount,
+                    'Alleged Pump and Dumps': allegedAmount,
+                    'Pump and Dumps': finalCombinedAmount,
+                    "Right Before DF": rightBeforeDF
+                    }
+
+        return rowEntry
+
+    def _analyseSymbolForNonPumps(self, symbol: str, df: pd.DataFrame, volumeThreshold,
+                               priceThreshold, windowSize=24, candleSize='1m',
+                               plot=False):
+        '''
+        USAGE:
+        f_path : path to OHLCV csv e.g.'../data/binance/binance_STORJ-BTC_[2018-04-20 00.00.00]-TO-[2018-05-09 23.00.00].csv'
+        v_thresh : volume threshold e.g. 5 (500%)
+        p_thresh : price threshold e.g. 1.05 (5%)
+        c_size : candle size
+        win_size : size of the window for the rolling average, in hours
+        '''
+        exchangeName = "binance"
+
+        # This finds spikes for volume and price.
+        volumeMask, vdf = self._findNonVolumeSpikes(df, volumeThreshold, windowSize)
+        volumeSpikeAmount = self._getNumberOfRows(vdf)
+
+        pmask, pdf = self._findNonPriceSpikes(df, priceThreshold, windowSize)
+        priceSpikeAmount = self._getNumberOfRows(pdf)
+
+        pdmask, pddf = self._findNonPriceDumps(df, windowSize)
+
+        # vdmask, vddf = self._findNonVolumeDumps(df, windowSize)
+
+        # find coinciding price and volume spikes
+        volumePriceMask = (volumeMask) & (pmask)
+        volumePriceDF = df[volumePriceMask]
+        volumePriceCombinedRowsAmount = self._getNumberOfRows(volumePriceDF)
+
+        # coinciding price and volume spikes for alleged P&D (more than 1x per given time removed)
+        volumePriceFinalDF = self._removeSameDayPumps(volumePriceDF)
+        allegedAmount = self._getNumberOfRows(volumePriceFinalDF)
+
+        # find coniciding price and volume spikes with dumps afterwards
         finalMask = (volumeMask) & (pmask) & (pdmask)
         finalDF = df[finalMask]
 
@@ -266,6 +416,57 @@ class BinanceDataSetCreator:
 
         df[vRA_plus] = df[vRA].shift(-windowSize)
         priceDumpMask = df[vRA_plus] <= (df[vRA] + df[vRA].std())
+        # if the xhour RA from after the pump was detected is <= the xhour RA (+std dev) from before the pump was detected
+        # if the volume goes from the high to within a range of what it was before
+
+        priceDumpsDF = df[priceDumpMask]
+        return (priceDumpMask, priceDumpsDF)
+
+    def _findNonVolumeSpikes(self, df, volumeThreshold, windowSize):
+        # -- add rolling average column to df --
+        vRA = str(windowSize) + 'm Volume RA'
+        self._addRA(df, windowSize, 'Volume', vRA)
+
+        # -- find spikes --
+        volumeThreshold = volumeThreshold * df[vRA]  # v_thresh increase in volume
+        volumeSpikeMask = df["Volume"] <= volumeThreshold  # where the volume is at least v_thresh greater than the x-hr RA
+        volumeSpikeDF = df[volumeSpikeMask]
+        return (volumeSpikeMask, volumeSpikeDF)
+
+    # finds price spikes in a given df, with a certain threshold and window size
+    # returns a (boolean_mask,dataframe) tuple
+    def _findNonPriceSpikes(self, df, priceThreshold, windowSize):
+        # -- add rolling average column to df --
+        pRA = str(windowSize) + 'm Close Price RA'
+        self._addRA(df, windowSize, 'Close', pRA)
+
+        # -- find spikes --
+        newThreshold = priceThreshold * df[pRA]  # p_thresh increase in price
+        priceSpikeMask = df["High"] <= newThreshold  # where the high is at least p_thresh greater than the x-hr RA
+        priceSpikeDF = df[priceSpikeMask]
+        return (priceSpikeMask, priceSpikeDF)
+
+    # finds price dumps in a given df, with a certain threshold and window size
+    # requires a price rolling average column of the proper window size and naming convention
+    # returns a (boolean_mask,dataframe) tuple
+    def _findNonPriceDumps(self, df, windowSize):
+        pRA = str(windowSize) + "m Close Price RA"
+        pRA_plus = pRA + "+" + str(windowSize)
+
+        df[pRA_plus] = df[pRA].shift(-windowSize)
+        priceDumpMask = df[pRA_plus] > (df[pRA] + df[pRA].std())
+        # if the xhour RA from after the pump was detected is <= the xhour RA (+std dev) from before the pump was detected
+        # if the price goes from the high to within a range of what it was before
+
+        priceDumpsDF = df[priceDumpMask]
+        return (priceDumpMask, priceDumpsDF)
+
+    def _findNonVolumeDumps(self, df, windowSize):
+        vRA = str(windowSize) + "m Volume RA"
+        vRA_plus = vRA + "+" + str(windowSize)
+
+        df[vRA_plus] = df[vRA].shift(-windowSize)
+        priceDumpMask = df[vRA_plus] > (df[vRA] + df[vRA].std())
         # if the xhour RA from after the pump was detected is <= the xhour RA (+std dev) from before the pump was detected
         # if the volume goes from the high to within a range of what it was before
 
