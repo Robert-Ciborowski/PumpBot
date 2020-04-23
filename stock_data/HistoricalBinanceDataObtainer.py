@@ -118,7 +118,6 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
             pRA = '24m Close Price RA'
             self._addRA(df, 24, 'Close', pRA)
             self._data[ticker] = df
-            print(df)
 
         except IOError as e:
             print("Could not read " + path + "!")
