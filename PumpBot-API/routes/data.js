@@ -11,7 +11,7 @@ const bcrypt = require("bcryptjs");
 router.get("/", async (req, res) => {
   try {
     const data = await Data.find();
-    res.status(200).json({ data: data });
+    res.status(200).json(data);
   } catch (err) {
     return res.status(500).json({ errors: "Server error" });
   }
@@ -31,7 +31,7 @@ router.post(
       return res.status(400).json({ errros: errros.array() });
     }
 
-    const { data_1, data_2, data_3, data_4, name, email, password } = req.body;
+    const { name, data, date, email, password } = req.body;
     try {
       let user = await User.findOne({ email: email });
       if (!user) {
@@ -48,10 +48,8 @@ router.post(
       }
 
       const newData = new Data({
-        data_1,
-        data_2,
-        data_3,
-        data_4,
+        date,
+        data,
         name,
       });
 
