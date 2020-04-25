@@ -3,6 +3,7 @@ import Fadein from "react-fade-in";
 import FadeIn from "react-fade-in";
 
 export const ContactItem = ({ contact }) => {
+  console.log(contact.data);
   const MAX_LENGTH = 110;
   return (
     <FadeIn>

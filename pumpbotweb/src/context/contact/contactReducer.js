@@ -4,6 +4,7 @@ import {
   FILTER_CONTACTS,
   CLEAR_FILTER,
   ADD_CONTACT,
+  SET_PAGE,
 } from "../types";
 
 export default (state, action) => {
@@ -15,6 +16,11 @@ export default (state, action) => {
           const regex = new RegExp(`${action.payload}`, "gi");
           return contact.name.match(regex) || contact.data.match(regex);
         }),
+      };
+    case SET_PAGE:
+      return {
+        ...state,
+        page: action.payload,
       };
     case CLEAR_FILTER:
       return {

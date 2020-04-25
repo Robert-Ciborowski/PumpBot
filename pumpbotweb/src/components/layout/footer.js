@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export const Footer = () => {
   return (
-    <footer className="page-footer deep-purple lighten-1">
+    <footer id="footer" className="page-footer deep-purple lighten-1">
       <div className="container">
         <div className="row">
           <div className="col l6 s12">
@@ -37,7 +37,7 @@ export const Footer = () => {
       </div>
       <div className="footer-copyright deep-purple darken-1">
         <div className="container">
-          SpaceJack &copy; 2020
+          PumpBot &copy; 2020
           <a className="grey-text text-lighten-4 right" href="#!">
             Terms & Conditionss
           </a>

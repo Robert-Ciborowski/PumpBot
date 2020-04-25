@@ -6,11 +6,6 @@ import Pusher from "pusher-js";
 
 export const Contacts = () => {
   const contactContext = useContext(ContactContext);
-  Pusher.logToConsole = true;
-  const pusher = new Pusher(`${process.env.PUSHER_ID}`, {
-    cluster: "us2",
-    forceTLS: true,
-  });
 
   const { contacts, filtered, getData, loading, addContact } = contactContext;
 
@@ -21,6 +16,13 @@ export const Contacts = () => {
   if (contacts.length !== null && contacts.length === 0) {
     return <h4>No Data</h4>;
   }
+
+  Pusher.logToConsole = true;
+
+  const pusher = new Pusher(`35ed37bf47f7c133c6bd`, {
+    cluster: "us2",
+    forceTLS: true,
+  });
 
   const channel = pusher.subscribe("my-channel");
   channel.bind("my-event", function (data) {

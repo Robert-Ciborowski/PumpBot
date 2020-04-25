@@ -8,6 +8,7 @@ import {
   FILTER_CONTACTS,
   CLEAR_FILTER,
   ADD_CONTACT,
+  SET_PAGE,
 } from "../types";
 
 const ContactState = (props) => {
@@ -21,6 +22,7 @@ const ContactState = (props) => {
     ],
     filtered: null,
     loading: true,
+    page: "home",
   };
 
   const [state, dispatch] = useReducer(contactReducer, initialState);
@@ -44,7 +46,7 @@ const ContactState = (props) => {
   const getData = async () => {
     try {
       const res = await axios.get(
-        "https://cors-anywhere.herokuapp.com/http://159.89.127.242:5000/api/pumpbot"
+        "https://cors-anywhere.herokuapp.com/http://165.22.236.136:5000/api/pumpbot"
       );
       console.log(res.data.data);
 
@@ -57,12 +59,28 @@ const ContactState = (props) => {
     }
   };
 
+  const setPage = (flag) => {
+    if (flag === "home") {
+      dispatch({
+        type: SET_PAGE,
+        payload: "home",
+      });
+    } else {
+      dispatch({
+        type: SET_PAGE,
+        payload: "about",
+      });
+    }
+  };
+
   return (
     <ContactContext.Provider
       value={{
         contacts: state.contacts,
         filtered: state.filtered,
         loading: state.loading,
+        page: state.page,
+        setPage,
         clearFilter,
         filterContacts,
         getData,
