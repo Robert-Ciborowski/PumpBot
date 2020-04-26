@@ -55,10 +55,7 @@ export const Navbar = () => {
                 <br />
 
                 <h1>Plan The Future</h1>
-                <p>
-                  lorem ipsum dolor sit amet, consecjkdljf dshfkjhds djs hfkjh
-                  skjd hfs{" "}
-                </p>
+                <p>With Pump Bot All The Future Is Within Your Control </p>
                 <br />
                 {page === "home" ? homeBtn : aboutBtn}
                 <a

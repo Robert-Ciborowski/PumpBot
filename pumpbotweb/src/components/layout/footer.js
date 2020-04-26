@@ -14,21 +14,30 @@ export const Footer = () => {
             </p>
           </div>
           <div className="col l4 offset-l2 s12">
-            <h5 className="white-text">Links</h5>
+            <h5 className="white-text">Links to find us</h5>
             <ul>
               <li>
-                <a className="grey-text text-lighten-3" href="#!">
-                  James
+                <a
+                  className="grey-text text-lighten-3"
+                  href="https://github.com/jamestang12"
+                >
+                  James Tang
                 </a>
               </li>
               <li>
-                <a className="grey-text text-lighten-3" href="#!">
-                  Robert
+                <a
+                  className="grey-text text-lighten-3"
+                  href="https://github.com/Robert-Ciborowski"
+                >
+                  Robert Ciborowski
                 </a>
               </li>
               <li>
-                <a className="grey-text text-lighten-3" href="#!">
-                  Derek
+                <a
+                  className="grey-text text-lighten-3"
+                  href="https://github.com/Derek-Y-Wang"
+                >
+                  Derek Wang
                 </a>
               </li>
             </ul>
@@ -38,9 +47,7 @@ export const Footer = () => {
       <div className="footer-copyright deep-purple darken-1">
         <div className="container">
           PumpBot &copy; 2020
-          <a className="grey-text text-lighten-4 right" href="#!">
-            Terms & Conditionss
-          </a>
+          <a className="grey-text text-lighten-4 right" href="#!"></a>
         </div>
       </div>
     </footer>
