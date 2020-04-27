@@ -19,7 +19,7 @@ export const Navbar = () => {
     <Link
       to="/about"
       style={{ width: "200px" }}
-      className="btn btn-large white purple-text "
+      className="btn btn-large white purple-text"
       onClick={onClick}
     >
       LEARN MORE

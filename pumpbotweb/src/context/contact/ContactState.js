@@ -77,8 +77,8 @@ const ContactState = (props) => {
               "https://cors-anywhere.herokuapp.com/http://165.22.236.136:5000/api/pumpbot",
               {
                 data: {
-                  email: "",
-                  password: "",
+                  email: "jameskibi@gmail.com",
+                  password: "123456",
                   id: data._id,
                 },
               }

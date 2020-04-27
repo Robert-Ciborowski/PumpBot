@@ -15,7 +15,7 @@ export const Footer = () => {
               it into new fields, such as criminology. We believe that machine
               learning technologies should be used for the good of humanity,
               which is why PumpBot serves to warn others about fraudulent pump &
-              dump schemes
+              dump schemes.
             </p>
           </div>
           <div className="col l4 offset-l2 s12">
