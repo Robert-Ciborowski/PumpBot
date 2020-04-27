@@ -70,82 +70,93 @@ export const About = () => {
         </section>
       </FadeIn>
 
-      <section class="section section-testimonial grey lighten-4">
-        <div class="container">
+      <section
+        data-aos="fade-right"
+        class="section section-testimonial grey lighten-4"
+      >
+        <div class="">
           <div class="row">
             <div class="col s12">
-              <div class="carousel carousel-slider center">
-                <div class="carousel-item" id="one" href="#one1!">
-                  <section class="section section-about grey lighten-4">
-                    <div className="container">
-                      <div className="row">
-                        <div className="col s12 m6">
-                          <h3>
-                            About
-                            <span class="deep-purple-text text-darken-1 ">
-                              {" "}
-                              Pumb Bot
-                            </span>
-                          </h3>
+              <section class="section section-about grey lighten-4">
+                <div className="container">
+                  <div className="row">
+                    <div className="col s12 m6">
+                      <h3>
+                        About
+                        <span class="deep-purple-text text-darken-1 ">
+                          {" "}
+                          Pumb Bot
+                        </span>
+                      </h3>
 
-                          <p className="flow-text">
-                            Pumb Bot is a machine learning cryptocurrency robot
-                            which detects and sends alerts about pump & dump
-                            schemes on cryptocurrency exchanges and stock
-                            markets. This program is meant to run on a server
-                            and send out alerts when it detects a pump & dump.
-                            The program is built using Python 3.6.
-                          </p>
-                        </div>
-                        <div className="col s12 m6">
-                          <img
-                            src={texhIng}
-                            className="circle responsive-img"
-                          />
-                        </div>
-                      </div>
+                      <p className="">
+                        Pumb Bot is a machine learning cryptocurrency robot
+                        which detects and sends alerts about pump & dump schemes
+                        on cryptocurrency exchanges and stock markets. This
+                        program is meant to run on a server and send out alerts
+                        when it detects a pump & dump. The program is built
+                        using Python 3.6.
+                      </p>
                     </div>
-                  </section>
-                </div>
-                <div class="carousel-item" id="two" href="#one2!">
-                  <section class="section section-about grey lighten-4">
-                    <div className="container">
-                      <div className="row">
-                        <div className="col s12 m6">
-                          <h3>
-                            Our
-                            <span class="deep-purple-text text-darken-1 ">
-                              {" "}
-                              Inspiration
-                            </span>
-                          </h3>
-
-                          <p className="flow-text">
-                            This project is meant to expand on research on
-                            cryptocurrency pump & dumps, which is an emerging
-                            problem in the field of criminal science.
-                            Specifically, this project is a continuation of the
-                            research done by Josh Kamps and Bennett Kleinberg of
-                            University College London on cryptocurrency pump &
-                            dumps. (Kamps, J; Kleinberg, B; (2018) To the moon:
-                            defining and detecting cryptocurrency
-                            pump-and-dumps. Crime Science, 7, Article 18.)
-                          </p>
-                        </div>
-                        <div className="col s12 m6">
-                          <img
-                            src={Inspiration}
-                            className="circle responsive-img"
-                          />
-                        </div>
-                      </div>
+                    <div className="col s12 m6">
+                      <img
+                        src={texhIng}
+                        className="circle responsive-img aboutImag"
+                      />
                     </div>
-                  </section>
+                  </div>
                 </div>
-              </div>
+              </section>
             </div>
           </div>
         </div>
+      </section>
+
+      <section
+        data-aos="fade-left"
+        class="section section-testimonial  lighten-4"
+      >
+        <div class="">
+          <br />
+          <div class="row">
+            <div class="col s12">
+              <section class="section section-about  lighten-4">
+                <div className="container">
+                  <div className="row">
+                    <div className="col s12 m6">
+                      <img
+                        src={Inspiration}
+                        className="circle responsive-img  aboutImag"
+                      />
+                    </div>
+                    <div className="col s12 m6">
+                      <h3>
+                        Our
+                        <span class="deep-purple-text text-darken-1 ">
+                          {" "}
+                          Inspiration
+                        </span>
+                      </h3>
+
+                      <p className="">
+                        This project is meant to expand on research on
+                        cryptocurrency pump & dumps, which is an emerging
+                        problem in the field of criminal science. Specifically,
+                        this project is a continuation of the research done by
+                        Josh Kamps and Bennett Kleinberg of University College
+                        London on cryptocurrency pump & dumps. (Kamps, J;
+                        Kleinberg, B; (2018) To the moon: defining and detecting
+                        cryptocurrency pump-and-dumps. Crime Science, 7, Article
+                        18.)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+        <br />
       </section>
 
       <section
@@ -181,42 +192,42 @@ export const About = () => {
             <br />
             <br />
             <div className="row">
-              <div className="col s2">
+              <div className="col m2 s2">
                 <img
                   data-aos="fade-up"
                   src={pusherLogo}
                   className="responsive-img"
                 />
               </div>
-              <div className="col s2">
+              <div className="col m2 s2">
                 <img
                   data-aos="fade-down"
                   src={reactLogo}
                   className="responsive-img"
                 />
               </div>
-              <div className="col s2">
+              <div className="col m2 s2">
                 <img
                   data-aos="fade-up"
                   src={tensorflow}
                   className="responsive-img"
                 />
               </div>
-              <div className="col s2">
+              <div className="col m2 s2">
                 <img
                   data-aos="fade-down"
                   src={nodeLogo}
                   className="responsive-img"
                 />
               </div>
-              <div className="col s2">
+              <div className="col m2 s2">
                 <img
                   data-aos="fade-up"
                   src={mongodbLogo}
                   className="responsive-img"
                 />
               </div>
-              <div className="col s2">
+              <div className="col m2 s2">
                 <img
                   data-aos="fade-down"
                   src={pythonLogo}

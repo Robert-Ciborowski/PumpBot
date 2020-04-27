@@ -496,3 +496,8 @@ table th {
   height: 100%;
   overflow: hidden;
 }
+
+.aboutImag {
+  height: 430px;
+  width: 460px;
+}

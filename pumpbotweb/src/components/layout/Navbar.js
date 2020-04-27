@@ -55,7 +55,7 @@ export const Navbar = () => {
                 <br />
 
                 <h1>Plan The Future</h1>
-                <p>With Pump Bot All The Future Is Within Your Control </p>
+                <p>With Pump Bot The Future Is Within Your Control </p>
                 <br />
                 {page === "home" ? homeBtn : aboutBtn}
                 <a
