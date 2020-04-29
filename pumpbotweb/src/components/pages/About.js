@@ -283,7 +283,7 @@ export const About = () => {
             </div>
             <div data-aos="fade-left" className="col s12 m6">
               <h4>
-                <i className="fab fa-discord"></i> Stock Data
+                <i className="fab fa-discord"></i> Discord
               </h4>
               <p>
                 After a pump & dump is detected, a Discord bot sends out an
