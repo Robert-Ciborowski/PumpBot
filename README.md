@@ -1,6 +1,6 @@
 # PumpBot
 A machine learning cryptocurrency robot which detects and sends alerts about pump &amp; dump schemes on cryptocurrency exchanges and stock markets. This program is meant to run on a server and send out alerts when it detects a pump &amp; dump. The program is built using Python 3.6. 
-- [Web Version](https://pumpbot.netlify.app/)
+- [Web Version](https://pumpbot.netlify.app/) (work in progress)
 - [PumpBot Back-End API Documentation](https://documenter.getpostman.com/view/10732808/SzfDy63J?version=latest)
 
 ## Inspiration
