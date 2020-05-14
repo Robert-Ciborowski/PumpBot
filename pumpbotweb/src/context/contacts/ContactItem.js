@@ -3,8 +3,8 @@ import Fadein from "react-fade-in";
 import FadeIn from "react-fade-in";
 
 export const ContactItem = ({ contact }) => {
-  console.log(contact.data);
   const MAX_LENGTH = 110;
+
   return (
     <FadeIn>
       <div className="col m6 s12">
@@ -29,7 +29,7 @@ export const ContactItem = ({ contact }) => {
             <p style={{ marginTop: "15px" }}>{contact.data}</p>
           </div>
           <div className="card-action">
-            <span>Date: {contact.date}</span>
+            <span>Date: {contact.dateFormat}</span>
           </div>
         </div>
       </div>

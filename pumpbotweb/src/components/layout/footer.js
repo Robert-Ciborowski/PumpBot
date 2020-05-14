@@ -9,26 +9,40 @@ export const Footer = () => {
           <div className="col l6 s12">
             <h5 className="white-text">About Us</h5>
             <p className="grey-text text-lighten-4">
-              Lorem ipsum dolor sit amet, consectetur Lorem ipsum dolor sit
-              amet, consectetur
+              PumpBot is made by a team of three passionate computer science
+              students from the University of Toronto and Ryerson University. We
+              strive to push the boundaries of machine learning by implementing
+              it into new fields, such as criminology. We believe that machine
+              learning technologies should be used for the good of humanity,
+              which is why PumpBot serves to warn others about fraudulent pump &
+              dump schemes.
             </p>
           </div>
           <div className="col l4 offset-l2 s12">
-            <h5 className="white-text">Links</h5>
+            <h5 className="white-text">Links to find us</h5>
             <ul>
               <li>
-                <a className="grey-text text-lighten-3" href="#!">
-                  James
+                <a
+                  className="grey-text text-lighten-3"
+                  href="https://github.com/jamestang12"
+                >
+                  James Tang
                 </a>
               </li>
               <li>
-                <a className="grey-text text-lighten-3" href="#!">
-                  Robert
+                <a
+                  className="grey-text text-lighten-3"
+                  href="https://github.com/Robert-Ciborowski"
+                >
+                  Robert Ciborowski
                 </a>
               </li>
               <li>
-                <a className="grey-text text-lighten-3" href="#!">
-                  Derek
+                <a
+                  className="grey-text text-lighten-3"
+                  href="https://github.com/Derek-Y-Wang"
+                >
+                  Derek Wang
                 </a>
               </li>
             </ul>
@@ -38,9 +52,7 @@ export const Footer = () => {
       <div className="footer-copyright deep-purple darken-1">
         <div className="container">
           PumpBot &copy; 2020
-          <a className="grey-text text-lighten-4 right" href="#!">
-            Terms & Conditionss
-          </a>
+          <a className="grey-text text-lighten-4 right" href="#!"></a>
         </div>
       </div>
     </footer>

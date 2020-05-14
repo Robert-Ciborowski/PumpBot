@@ -50,10 +50,43 @@ const ContactState = (props) => {
       );
       console.log(res.data.data);
 
+      let sortedData = res.data.data.sort((a, b) =>
+        a.date < b.date ? 1 : b.date < a.date ? -1 : 0
+      );
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
       dispatch({
         type: GET_CONTACT,
-        payload: res.data.data,
+        payload: sortedData.filter((contact) => {
+          let OneDay = new Date().getTime() + 1 * 24 * 60 * 60 * 1000;
+          return contact.date < OneDay;
+        }),
       });
+
+      await Promise.all(
+        sortedData.map(async (data) => {
+          let OneDay = new Date().getTime() + 1 * 24 * 60 * 60 * 1000;
+          if (OneDay < data.date) {
+            //if (data.date === 1587950200413) {
+            let value = await axios.delete(
+              "https://cors-anywhere.herokuapp.com/http://165.22.236.136:5000/api/pumpbot",
+              {
+                data: {
+                  email: "jameskibi@gmail.com",
+                  password: "123456",
+                  id: data._id,
+                },
+              }
+            );
+            console.log(value);
+          }
+        })
+      );
     } catch (error) {
       console.log(error);
     }

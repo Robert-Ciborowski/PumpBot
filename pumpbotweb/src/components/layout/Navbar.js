@@ -19,7 +19,7 @@ export const Navbar = () => {
     <Link
       to="/about"
       style={{ width: "200px" }}
-      className="btn btn-large white purple-text "
+      className="btn btn-large white purple-text"
       onClick={onClick}
     >
       LEARN MORE
@@ -55,10 +55,7 @@ export const Navbar = () => {
                 <br />
 
                 <h1>Plan The Future</h1>
-                <p>
-                  lorem ipsum dolor sit amet, consecjkdljf dshfkjhds djs hfkjh
-                  skjd hfs{" "}
-                </p>
+                <p>With Pump Bot The Future Is Within Your Control </p>
                 <br />
                 {page === "home" ? homeBtn : aboutBtn}
                 <a
