@@ -11,7 +11,7 @@ import yfinance as yf
 import threading as th
 from datetime import datetime
 
-from events import EventDispatcher
+from events.EventDispatcher import EventDispatcher
 from events.ListingPriceUpdatedEvent import ListingPriceUpdatedEvent
 from filter.StockFilter import StockFilter
 from stock_data.StockDataObtainer import StockDataObtainer

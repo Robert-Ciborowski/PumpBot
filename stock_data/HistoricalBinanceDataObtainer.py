@@ -56,11 +56,13 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
         # df = pd.DataFrame([], columns=["Price", "Volume"])
         df = pd.DataFrame([], columns=["Timestamp", "Open", "High", "Low", "Close", "Volume"])
         count = 0
+        timezone = pytz.timezone(self.timezone)
         # minuteCount = 0
 
         try:
             with open(path, newline='') as csvfile:
                 reader = csv.DictReader(csvfile)
+
                 for row in reader:
                     # if count > 428576:
                     #     break
@@ -82,6 +84,9 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                     timestamp = row["timestamp"]
                     times = re.split(r'[-/:\s]\s*', timestamp)
 
+                    if len(times) < 5:
+                        continue
+
                     try:
                         if "-" in timestamp:
                             timing = datetime(int(times[0]), int(times[1]),
@@ -91,12 +96,12 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                             timing = datetime(int(times[2]), int(times[1]),
                                             int(times[0]), int(times[3]),
                                             int(times[4]))
-                    except ValueError as e:
+                    except:
+                        print("Error:")
                         print(timestamp)
-                        print(e)
-                        time.sleep(1000)
+                        continue
+                        # time.sleep(1)
 
-                    timezone = pytz.timezone(self.timezone)
                     timing = timezone.localize(timing)
 
                     if timing < self.dateOfStart:
@@ -113,6 +118,13 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                     # row = pd.DataFrame([[price, volume]], index=[time], columns=["Price", "Volume"])
                     row = pd.DataFrame([[timing, price, price2, price3, price4, volume]], index=[timing], columns=["Timestamp", "Open", "High", "Low", "Close", "Volume"])
                     df = pd.concat([df, row])
+
+                    count += 1
+
+                    if count == 10000:
+                        print("Read " + ticker + " data up to " + str(timing))
+                        count = 0
+
             vRA = '24m Volume RA'
             self._addRA(df, 24, 'Volume', vRA)
             pRA = '24m Close Price RA'

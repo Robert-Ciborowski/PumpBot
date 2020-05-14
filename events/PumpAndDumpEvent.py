@@ -7,7 +7,7 @@
 # from __future__ import annotations
 from typing import Dict
 
-from events import Event
+from events.Event import Event
 
 
 class PumpAndDumpEvent(Event):

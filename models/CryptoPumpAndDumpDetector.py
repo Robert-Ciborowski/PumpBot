@@ -17,6 +17,7 @@ from models import LayerParameter
 from models.Hyperparameters import Hyperparameters
 from models.PumpAndDumpDetector import PumpAndDumpDetector
 
+
 class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     hyperparameters: Hyperparameters
     listOfMetrics: List

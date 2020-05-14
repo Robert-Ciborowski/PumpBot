@@ -7,7 +7,9 @@
 
 from typing import List
 
-from events import EventListener, Event, EventDispatcher
+from events.EventListener import EventListener
+from events.Event import Event
+from events.EventDispatcher import EventDispatcher
 from events.PumpAndDumpEvent import PumpAndDumpEvent
 from stock_data.TrackedStockDatabase import TrackedStockDatabase
 

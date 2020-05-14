@@ -19,3 +19,16 @@ print("date and time:",date_time)
 
 date_time = now.strftime("%Y-%m-%d")
 print("date and time:",date_time)
+
+# import pandas as pd
+#
+# cars = {'Brand': ['Honda Civic','Toyota Corolla','Ford Focus','Audi A4'],
+#         'Price': [22000,25000,27000,35000]
+#         }
+#
+# df = pd.DataFrame(cars, columns= ['Brand', 'Price'])
+#
+# df.to_csv ('export_dataframe.csv', index = False, header=True)
+# df2 = pd.read_csv('export_dataframe.csv')
+#
+# print (df2)

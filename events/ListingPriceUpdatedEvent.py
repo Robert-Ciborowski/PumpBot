@@ -6,7 +6,7 @@
 
 # from __future__ import annotations
 
-from events import Event
+from events.Event import Event
 
 class ListingPriceUpdatedEvent(Event):
     def __init__(self, ticker: str):

@@ -6,7 +6,7 @@
 # from __future__ import annotations
 from typing import Dict
 
-from events import EventListener, Event, EventDispatcher
+from events import EventListener, Event
 
 """
 This class is a singleton! You get the instance in EventDispatcher.getInstance()
@@ -28,7 +28,7 @@ class EventDispatcher:
         self._listeners = {}
 
     @staticmethod
-    def getInstance() -> EventDispatcher:
+    def getInstance():
         if not EventDispatcher._instance:
             return EventDispatcher()
         else:

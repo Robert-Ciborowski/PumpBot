@@ -37,17 +37,13 @@ if __name__ == "__main__":
     train_df_std = train_df.std()
     train_df_norm = (train_df - train_df_mean) / train_df_std
 
-    # Examine some of the values of the normalized training set. Notice that most
-    # Z-scores fall between -2 and +2.
-    train_df_norm.head()
-
-    # Calculate the Z-scores of each column in the test set and
-    # write those Z-scores into a new pandas DataFrame named test_df_norm.
     test_df_mean = test_df.mean()
     test_df_std = test_df.std()
     test_df_norm = (test_df - test_df_mean) / test_df_std
 
-    # @title Double-click for possible solutions.
+    # Examine some of the values of the normalized training set. Notice that most
+    # Z-scores fall between -2 and +2.
+    train_df_norm.head()
 
     # We arbitrarily set the threshold to 265,000, which is
     # the 75th percentile for median house values.  Every neighborhood
@@ -91,11 +87,11 @@ if __name__ == "__main__":
     featureLayer(dict(train_df_norm))
 
     # Hyperparameters!
-    learningRate = 0.001
-    epochs = 20
+    learningRate = 0.15
+    epochs = 25
     batchSize = 100
     labelName = "median_house_value_is_high"
-    classificationThreshold = 0.35
+    classificationThreshold = 0.85
 
     model = CryptoPumpAndDumpDetector(classificationThreshold,
                                       Hyperparameters(learningRate, epochs,
