@@ -18,16 +18,16 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
     dateOfStart: datetime
     dateOfEnd: datetime
     filePathPrefix: str
+    data: Dict[str, pd.DataFrame]
+    timezone: str
 
     _startTime: datetime
-    _data: Dict[str, pd.DataFrame]
     _obtained: bool
-    timezone: str
 
     def __init__(self, dateOfStart: datetime, dateOfEnd: datetime, filePathPrefix=""):
         self._startTime = datetime.now()
         self.endOfMarket = (4, 0)
-        self._data = {}
+        self.data = {}
         self._obtained = False
         self.filePathPrefix = filePathPrefix
         self.timezone = "Etc/GMT-0"
@@ -49,7 +49,7 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
             return
 
         for ticker in tickers:
-            self._data.pop(ticker)
+            self.data.pop(ticker)
 
     def _readTickerData(self, ticker: str):
         path = self.filePathPrefix + ticker + "-1m-data.csv"
@@ -129,7 +129,7 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
             self._addRA(df, 24, 'Volume', vRA)
             pRA = '24m Close Price RA'
             self._addRA(df, 24, 'Close', pRA)
-            self._data[ticker] = df
+            self.data[ticker] = df
 
         except IOError as e:
             print("Could not read " + path + "!")
