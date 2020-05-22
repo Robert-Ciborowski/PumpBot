@@ -24,5 +24,5 @@ class PassThroughStockFilter(StockFilter):
 
     def filter(self):
         self.filtered_stocks = pd.DataFrame(self.data,
-                                            columns=["Ticker", "Price"])
+                                            columns=["Ticker", "Price", "Volume"])
         return self

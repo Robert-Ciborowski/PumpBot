@@ -43,7 +43,7 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
 
         return priceTotal / numberOfTrades
 
-    def obtainPrices(self, ticker: str, numberOfPrices=-1) -> List[float]:
+    def obtainPrices(self, ticker: str, numberOfPrices=1) -> List[float]:
         if numberOfPrices == -1:
             numberOfPrices = 1
 
@@ -51,7 +51,7 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
                                                 limit=self._recentTradesLimit * numberOfPrices)
 
         if len(trades) == 0:
-            return 0
+            return []
 
         prices = []
         priceTotal = 0.0
@@ -61,12 +61,43 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
             priceTotal += float(trade["price"])
             numberOfTrades += 1
 
-            if priceTotal == self._recentTradesLimit:
+            if numberOfTrades == self._recentTradesLimit:
                 prices.insert(0, priceTotal / numberOfTrades)
                 priceTotal = 0
                 numberOfTrades = 0
 
         return prices
+
+    def obtainPricesAndVolumes(self, ticker: str, numberOfPrices=1):
+        if numberOfPrices < 1:
+            numberOfPrices = 1
+
+        trades = self._client.get_recent_trades(symbol=ticker,
+                                                limit=self._recentTradesLimit * numberOfPrices)
+
+        if len(trades) == 0:
+            return []
+
+        prices = []
+        volumes = []
+        priceTotal = 0.0
+        volumeTotal = 0.0
+        numberOfTrades = 0
+
+        for trade in trades:
+            print(trade)
+            priceTotal += float(trade["price"])
+            volumeTotal += float(trade["qty"])
+            numberOfTrades += 1
+
+            if numberOfTrades == self._recentTradesLimit:
+                prices.insert(0, priceTotal / numberOfTrades)
+                volumes.insert(0, volumeTotal / numberOfTrades)
+                priceTotal = 0
+                volumeTotal = 0
+                numberOfTrades = 0
+
+        return prices, volumes
 
     def _getKeysFromFile(self, propertiesFile: str):
         try:

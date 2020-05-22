@@ -4,11 +4,11 @@ import pandas as pd
 import math
 import os.path
 import time
-from bitmex import bitmex
+# from bitmex import bitmex
 from binance.client import Client
 from datetime import timedelta, datetime
 from dateutil import parser
-from tqdm import tqdm_notebook #(Optional, used for progress-bars)
+# from tqdm import tqdm_notebook #(Optional, used for progress-bars)
 
 ### API
 bitmex_api_key = '[REDACTED]'    #Enter your own API-key here
@@ -19,7 +19,7 @@ binance_api_secret = "[REDACTED]" #Enter your own API-secret here
 ### CONSTANTS
 binsizes = {"1m": 1, "5m": 5, "1h": 60, "1d": 1440}
 batch_size = 750
-bitmex_client = bitmex(test=False, api_key=bitmex_api_key, api_secret=bitmex_api_secret)
+# bitmex_client = bitmex(test=False, api_key=bitmex_api_key, api_secret=bitmex_api_secret)
 binance_client = Client(api_key=binance_api_key, api_secret=binance_api_secret)
 
 

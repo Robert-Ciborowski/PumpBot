@@ -12,6 +12,7 @@ from events.Event import Event
 from events.EventDispatcher import EventDispatcher
 from events.PumpAndDumpEvent import PumpAndDumpEvent
 from stock_data.TrackedStockDatabase import TrackedStockDatabase
+import numpy as np
 
 """
 Representation invariants:
@@ -21,10 +22,14 @@ class PumpAndDumpDetector(EventListener):
     # Protected:
     _classificationThreshold: float
 
-    def __init__(self, classificationThreshold: float):
-        self.setClassificationThreshold(classificationThreshold)
+    def __init__(self):
+        self._classificationThreshold = 0.0
 
-    def detect(self, prices: List[float]) -> bool:
+    def setClassificationThreshold(self, classificationThreshold: float):
+        self._classificationThreshold = classificationThreshold
+        # add stuff here?
+
+    def detect(self, prices) -> bool:
         print("Please use an implementation of PumpAndDumpDetector!")
         return False
 
@@ -34,8 +39,19 @@ class PumpAndDumpDetector(EventListener):
     def onEvent(self, event: Event):
         if event.type == "ListingPriceUpdated":
             prices = TrackedStockDatabase.getInstance().getRecentStockPrices(event.data["Ticker"])
-            probability = self.detect(prices)
+            volumes = TrackedStockDatabase.getInstance().getRecentStockVolumes(event.data["Ticker"])
+            currentPrice = prices[-1]
+            prices, volumes = self._setupDataForModel(prices, volumes)
+            probability = self.detect(volumes + prices)
 
             if probability >= self._classificationThreshold:
                 # Note: most recent price is at the end.
-                EventDispatcher.getInstance().dispatchEvent(PumpAndDumpEvent(event.data["Ticker"], prices[-1]))
+                EventDispatcher.getInstance().dispatchEvent(PumpAndDumpEvent(event.data["Ticker"], currentPrice))
+
+    def _setupDataForModel(self, prices, volumes):
+        from scipy import stats
+        prices = stats.zscore(prices)
+        volumes = stats.zscore(volumes)
+        prices = [np.array([x]) for x in prices]
+        volumes = [np.array([x]) for x in volumes]
+        return prices, volumes

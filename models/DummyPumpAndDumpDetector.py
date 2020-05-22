@@ -14,5 +14,5 @@ import random
 from models.PumpAndDumpDetector import PumpAndDumpDetector
 
 class DummyPumpAndDumpDetector(PumpAndDumpDetector):
-    def detect(self, prices: List[int]) -> bool:
+    def detect(self, prices) -> bool:
         return random.random() <= self._classificationThreshold

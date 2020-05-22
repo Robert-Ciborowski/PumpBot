@@ -22,7 +22,8 @@ class StockFilter:
         self.timestampOfDownload = None
         self.data = {
             "Ticker": [],
-            "Price": []
+            "Price": [],
+            "Volume": []
         }
         self.dataObtainer = dataObtainer
 
@@ -32,6 +33,7 @@ class StockFilter:
         for index, row in dataframe.iterrows():
             self.data["Ticker"].append(row["Ticker"])
             self.data["Price"].append(0)
+            self.data["Volume"].append(0)
 
         self.dataObtainer.trackStocks(self.data["Ticker"])
         self.timestampOfDownload = datetime.now()

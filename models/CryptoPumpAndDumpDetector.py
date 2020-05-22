@@ -4,16 +4,16 @@
 # Description: Detects pump and dumps from Binance crypto data.
 
 # from __future__ import annotations
-from typing import List
+from typing import Dict, List
 import random
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 from tensorflow import feature_column
 from matplotlib import pyplot as plt
-import tensorflow.keras.layers
+from tensorflow.keras import layers
 
-from models import LayerParameter
+from models.LayerParameter import LayerParameter
 from models.Hyperparameters import Hyperparameters
 from models.PumpAndDumpDetector import PumpAndDumpDetector
 
@@ -21,15 +21,51 @@ from models.PumpAndDumpDetector import PumpAndDumpDetector
 class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     hyperparameters: Hyperparameters
     listOfMetrics: List
+    exportPath: str
+
     _metrics: List
 
-    def __init__(self, classificationThreshold: float, hyperparameters: Hyperparameters):
-        super().__init__(classificationThreshold)
+    _NUMBER_OF_SAMPLES = 25
+
+    def __init__(self):
+        super().__init__()
         self._buildMetrics()
+        self.exportPath = "./model_exports/cryptopumpanddumpdetector"
+
+        # The following lines adjust the granularity of reporting.
+        pd.options.display.max_rows = 10
+        pd.options.display.float_format = "{:.1f}".format
+        # tf.keras.backend.set_floatx('float32')
+
+    def setup(self, classificationThreshold: float, hyperparameters: Hyperparameters):
+        super().setClassificationThreshold(classificationThreshold)
         self.hyperparameters = hyperparameters
 
-    def detect(self, prices: List[int]) -> bool:
-        return random.random() <= self._classificationThreshold
+    """
+    Precondition: prices is a pandas dataframe or series.
+    """
+    def detect(self, prices) -> bool:
+        # if isinstance(prices, pd.DataFrame):
+        #     data = {name: np.array(value) for name, value in prices.items()}
+        if isinstance(prices, pd.Series):
+            data = {name: np.array([value]) for name, value in prices.iteritems()}
+        elif isinstance(prices, List) or isinstance(prices, np.ndarray):
+            # The list better contain only floats...
+            data = self._turnListOfFloatsToInputData(prices)
+        else:
+            print("CryptoPumpAndDumpDetector detect() had its precondition "
+                  "violated!")
+            return False
+
+        if data is None or len(data) < CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES * 2:
+            print("CryptoPumpAndDumpDetector detect() was not given enough "
+                  "data to work with!")
+            print(len(data))
+            return False
+
+        result = self.model.predict(data)[0][0]
+        print("Gave out a result of " + str(result))
+        return result <= self._classificationThreshold
 
     """
     Creates a brand new neural network for this model.
@@ -57,7 +93,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
             optimizer=tf.keras.optimizers.RMSprop(lr=self.hyperparameters.learningRate),
             loss=tf.keras.losses.BinaryCrossentropy(), metrics=self._metrics)
 
-    def trainModel(self, dataset, label_name):
+    def trainModel(self, dataset: pd.DataFrame, label_name):
         """Train the model by feeding it data."""
 
         # Split the dataset into features and label.
@@ -101,14 +137,71 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         plt.legend()
         plt.show()
 
+    def exportWeights(self):
+        self.model.save_weights(self.exportPath)
+
+    def loadWeights(self):
+        self.model.load_weights(self.exportPath)
+
+    def createModelUsingDefaults(self):
+        featureColumns = []
+
+        for i in range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES):
+            c = tf.feature_column.numeric_column("Volume-RA-" + str(i))
+            featureColumns.append(c)
+
+        for i in range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES):
+            c = tf.feature_column.numeric_column("Price-RA-" + str(i))
+            featureColumns.append(c)
+
+        # Convert the list of feature columns into a layer that will later be fed into
+        # the model.
+        featureLayer = layers.DenseFeatures(featureColumns)
+        layerParameters = [
+            LayerParameter(5, "sigmoid")
+        ]
+
+        self.createModel(featureLayer, layerParameters)
+
+    def setupUsingDefaults(self):
+        # Hyperparameters!
+        learningRate = 0.008
+        epochs = 500
+        batchSize = 30
+        classificationThreshold = 0.5
+        self.setup(classificationThreshold,
+                    Hyperparameters(learningRate, epochs,
+                                    batchSize))
+
+    def _turnListOfFloatsToInputData(self, data: List[float]) -> Dict:
+        if len(data) < CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES * 2:
+            print("DATA LEN: " + str(len(data)))
+            return None
+
+        features = {}
+        j = 0
+
+        for i in range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES):
+            features["Volume-RA-" + str(i)] = data[j]
+            j += 1
+
+        for i in range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES):
+            features["Price-RA-" + str(i)] = data[j]
+            j += 1
+
+        return features
+
     def _buildMetrics(self):
-        self._metrics = [tf.keras.metrics.BinaryAccuracy(name='accuracy',
+        self._metrics = [
+            tf.keras.metrics.BinaryAccuracy(name='accuracy',
                                       threshold=self._classificationThreshold),
-      tf.keras.metrics.Precision(thresholds=self._classificationThreshold,
-                                 name='precision'
-                                 ),
-      tf.keras.metrics.Recall(thresholds=self._classificationThreshold,
-                              name="recall"),
-        tf.keras.metrics.AUC(num_thresholds=100, name='auc'),
-                         tf.keras.metrics.MeanSquaredError(name='rmse')]
+            tf.keras.metrics.Precision(thresholds=self._classificationThreshold,
+                                     name='precision'
+                                     ),
+            tf.keras.metrics.Recall(thresholds=self._classificationThreshold,
+                                  name="recall"),
+            tf.keras.metrics.AUC(num_thresholds=100, name='auc'),
+                             tf.keras.metrics.MeanSquaredError(name='rmse')
+        ]
         self.listOfMetrics = ["accuracy", "precision", "recall", "auc", "rmse"]
+

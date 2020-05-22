@@ -12,3 +12,4 @@ class ListingPriceUpdatedEvent(Event):
     def __init__(self, ticker: str):
         super().__init__("ListingPriceUpdated")
         self.data["Ticker"] = ticker
+        print("Listing price updated: " + ticker)

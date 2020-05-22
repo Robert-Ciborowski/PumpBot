@@ -4,13 +4,14 @@
 # Description: Starts the program.
 import time
 
-from discord_bot import DiscordBot
-from events import EventDispatcher
-from example_bot import ExampleBot
+from discord_bot.DiscordBot import DiscordBot
+from events.EventDispatcher import EventDispatcher
+from example_bot.ExampleBot import ExampleBot
 from filter import StockFilterByPrice
 from filter.PassThroughStockFilter import PassThroughStockFilter
 from listing_obtainers.BinanceObtainer import BinanceObtainer
 from listing_obtainers.NASDAQObtainer import NASDAQObtainer
+from models.CryptoPumpAndDumpDetector import CryptoPumpAndDumpDetector
 from models.DummyPumpAndDumpDetector import DummyPumpAndDumpDetector
 from datetime import datetime
 
@@ -30,7 +31,7 @@ if __name__ == "__main__":
     database = TrackedStockDatabase.getInstance()
     database.useObtainer(dataObtainer)\
            .trackStocksInFilter(filter)\
-           .setSecondsBetweenStockUpdates(15)
+           .setSecondsBetweenStockUpdates(60)
 
     bot = ExampleBot()
     EventDispatcher.getInstance().addListener(bot, "PumpAndDump")
@@ -40,7 +41,14 @@ if __name__ == "__main__":
     bot.runOnSeperateThread()
     EventDispatcher.getInstance().addListener(bot, "PumpAndDump")
 
-    model = DummyPumpAndDumpDetector(0.001)
+    # model = DummyPumpAndDumpDetector(0.001)
+    # EventDispatcher.getInstance().addListener(model, "ListingPriceUpdated")
+
+    model = CryptoPumpAndDumpDetector()
+    model.setupUsingDefaults()
+    model.createModelUsingDefaults()
+    model.exportPath = "./models/model_exports/cryptopumpanddumpdetector"
+    model.loadWeights()
     EventDispatcher.getInstance().addListener(model, "ListingPriceUpdated")
 
     database.startSelfUpdating()

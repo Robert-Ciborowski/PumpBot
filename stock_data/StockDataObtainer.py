@@ -40,6 +40,9 @@ class StockDataObtainer:
     def obtainPrices(self, ticker: str, numberOfPrices=-1) -> List[float]:
         return []
 
+    def obtainPricesAndVolumes(self, ticker: str, numberOfPrices=-1):
+        return []
+
     """
     Useful helper method for getting just the most recent price from a
     yahoo finance pandas dataframe.

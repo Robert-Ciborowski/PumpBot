@@ -51,9 +51,9 @@ if __name__ == "__main__":
     # and all other neighborhoods will be labeled 0.
     threshold = 265000
     train_df_norm["median_house_value_is_high"] = (
-                train_df["median_house_value"] > threshold).astype(float)
+            train_df["median_house_value"] > threshold).astype(float)
     test_df_norm["median_house_value_is_high"] = (
-                test_df["median_house_value"] > threshold).astype(float)
+            test_df["median_house_value"] > threshold).astype(float)
     train_df_norm["median_house_value_is_high"].head(8000)
 
     # Alternatively, instead of picking the threshold
@@ -93,9 +93,11 @@ if __name__ == "__main__":
     labelName = "median_house_value_is_high"
     classificationThreshold = 0.85
 
-    model = CryptoPumpAndDumpDetector(classificationThreshold,
-                                      Hyperparameters(learningRate, epochs,
-                                                      batchSize))
+    model = CryptoPumpAndDumpDetector()
+    model.setup(classificationThreshold,
+                Hyperparameters(learningRate, epochs,
+                                batchSize))
+
     layerParameters = [
         LayerParameter(1, "sigmoid")
     ]

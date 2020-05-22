@@ -13,7 +13,8 @@ import csv
 import threading as th
 import json
 
-from events import EventListener, Event
+from events.Event import Event
+from events.EventListener import EventListener
 from stock_data.StockDataObtainer import StockDataObtainer
 
 
@@ -76,7 +77,7 @@ class DiscordBot(discord.Client, EventListener):
         if event.type == "PumpAndDump":
             channel = self.get_channel(self._stockUpdatesID)
             await channel.send("Pump & dump detected! " + event.data["Ticker"]
-                               + " at ${:.2f}".format(event.data["Price"]))
+                               + " at {:.7f}".format(event.data["Price"]))
 
     async def _processCommand(self, message):
         filteredContent = message.content[1:len(message.content)]

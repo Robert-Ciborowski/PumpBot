@@ -30,7 +30,8 @@ class TrackedStockDatabase:
     secondsBetweenStockUpdates: int
 
     # PRIVATE:
-    _entries: Dict
+    _prices: Dict
+    _volumes: Dict
     _updateTimestamps: Dict
     _entriesLock: th.Lock
     _stopThread: bool
@@ -44,8 +45,9 @@ class TrackedStockDatabase:
         else:
             print("Only one instance of EventDispatcher is allowed!")
 
-        self.pricesToKeepTrackOf = 5
-        self._entries = {}
+        self.pricesToKeepTrackOf = 25
+        self._prices = {}
+        self._volumes = {}
         self._updateTimestamps = {}
         self.obtainer = None
         self._entriesLock = th.Lock()
@@ -84,13 +86,14 @@ class TrackedStockDatabase:
 
         for item in series.iteritems():
             ticker = item[1]
-            if self._entries.get(ticker):
+            if self._prices.get(ticker):
                 print("Stock " + ticker + " is already being tracked!")
             else:
-                self._entries[ticker] = [filter.filtered_stocks.at[item[0], "Price"]]
+                self._prices[ticker] = [filter.filtered_stocks.at[item[0], "Price"]]
+                self._volumes[ticker] = [filter.filtered_stocks.at[item[0], "Volume"]]
                 self._updateTimestamps[ticker] = filter.timestampOfDownload
 
-        self.obtainer.trackStocks(self._entries.keys())
+        self.obtainer.trackStocks(self._prices.keys())
         return self
 
     def startSelfUpdating(self):
@@ -108,16 +111,35 @@ class TrackedStockDatabase:
     def getCurrentStockPrice(self, ticker: str) -> float:
         with self._entriesLock:
             try:
-                return self._entries[ticker][-1]
+                return self._prices[ticker][-1]
             except KeyError as e:
                 print("Tried to obtain " + ticker + "from the database, but "
                                                     "that stock isn't tracked!")
                 return -1
 
+    def getCurrentStockVolume(self, ticker: str) -> float:
+        with self._entriesLock:
+            try:
+                return self._volumes[ticker][-1]
+            except KeyError as e:
+                print(
+                    "Tried to obtain " + ticker + "from the database, but "
+                                                  "that stock isn't tracked!")
+                return -1
+
     def getRecentStockPrices(self, ticker: str) -> List[float]:
         with self._entriesLock:
             try:
-                return self._entries[ticker]
+                return self._prices[ticker]
+            except KeyError as e:
+                print("Tried to obtain " + ticker + "from the database, but "
+                                                    "that stock isn't tracked!")
+                return []
+
+    def getRecentStockVolumes(self, ticker: str) -> List[float]:
+        with self._entriesLock:
+            try:
+                return self._volumes[ticker]
             except KeyError as e:
                 print("Tried to obtain " + ticker + "from the database, but "
                                                     "that stock isn't tracked!")
@@ -125,7 +147,7 @@ class TrackedStockDatabase:
 
     def update(self):
         while not self._stopThread:
-            for ticker in self._entries.keys():
+            for ticker in self._prices.keys():
                 self._updateStock(ticker)
 
     def _updateStock(self, ticker: str):
@@ -133,15 +155,18 @@ class TrackedStockDatabase:
         diff = currDateTime - self._updateTimestamps[ticker]
 
         if int(diff.total_seconds() / self.secondsBetweenStockUpdates) > 0:
-            lst = self.obtainer.obtainPrices(ticker, self.pricesToKeepTrackOf)
+            prices, volumes = self.obtainer.obtainPricesAndVolumes(ticker, self.pricesToKeepTrackOf)
 
-            if len(lst) != 0:
-                self._updateEntryAndTimeStamp(ticker, lst)
+            if len(prices) != 0:
+                print("Ummmm " + ticker)
+                self._updateEntryAndTimeStamp(ticker, prices, volumes)
                 EventDispatcher.getInstance().dispatchEvent(ListingPriceUpdatedEvent(ticker))
+            else:
+                print(prices)
 
 
-
-    def _updateEntryAndTimeStamp(self, ticker: str, values: List[float]):
+    def _updateEntryAndTimeStamp(self, ticker: str, prices: List[float], volumes: List[float]):
         with self._entriesLock:
-            self._entries[ticker] = values
+            self._prices[ticker] = prices
+            self._volumes[ticker] = volumes
             self._updateTimestamps[ticker] = datetime.now()

@@ -36,14 +36,15 @@ class StockFilterByPrice(StockFilter):
 
     def getDataForFiltering(self):
         self.timestampOfDownload = datetime.now()
-        data2 = {"Ticker": [], "Price": []}
+        data2 = {"Ticker": [], "Price": [], "Volume": []}
 
         for ticker in self.data["Ticker"]:
-            lst = self.dataObtainer.obtainPrices(ticker, 1)
+            lst, lst2 = self.dataObtainer.obtainPricesAndVolumes(ticker, 1)
 
             if len(lst) != 0:
                 data2["Ticker"].append(ticker)
                 data2["Price"].append(lst[0])
+                data2["Volume"].append(lst2[0])
 
         self.data = data2
         return self
@@ -57,7 +58,8 @@ class StockFilterByPrice(StockFilter):
     def filter(self):
         dictionary = {
             "Ticker": [],
-            "Price": []
+            "Price": [],
+            "Volume": []
         }
 
         toRemove = []
@@ -66,10 +68,11 @@ class StockFilterByPrice(StockFilter):
             if self.data["Price"][i] <= self.priceThreshold:
                 dictionary["Ticker"].append(self.data["Ticker"][i])
                 dictionary["Price"].append(self.data["Price"][i])
+                dictionary["Volume"].append(self.data["Volume"][i])
             else:
                 toRemove.append(self.data["Ticker"][i])
 
         self.filtered_stocks = pd.DataFrame(dictionary,
-                                            columns=["Ticker", "Price"])
+                                            columns=["Ticker", "Price", "Volume"])
         self.dataObtainer.stopTrackingStocks(toRemove)
         return self
