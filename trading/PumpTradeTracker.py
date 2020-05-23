@@ -12,6 +12,18 @@ class PumpTradeTracker:
     def addNewTrade(self, trade: PumpTrade):
         self.trades.append(trade)
 
+    def addNewTradeIfNotOwned(self, trade: PumpTrade) -> bool:
+        """
+        Adds a trade only if the stock with the ticker is not currently owned.
+        :param trade: the trade
+        :return: if the trade was successfully tracked
+        """
+        if not self.containsUnsoldTrade(trade):
+            self.addNewTrade(trade)
+            return True
+
+        return False
+
     def containsUnsoldTrade(self, ticker: str) -> bool:
         for trade in self.trades:
             if trade.ticker == ticker and not trade.wasSold():
