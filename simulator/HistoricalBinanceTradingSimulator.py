@@ -4,7 +4,7 @@ from datetime import datetime
 from events.EventDispatcher import EventDispatcher
 from filter.PassThroughStockFilter import PassThroughStockFilter
 from listing_obtainers.BinanceListingObtainer import BinanceListingObtainer
-from listing_obtainers.SpecifiedObtainer import SpecifiedListingObtainer
+from listing_obtainers.SpecifiedListingObtainer import SpecifiedListingObtainer
 from models.CryptoPumpAndDumpDetector import CryptoPumpAndDumpDetector
 from stock_data.HistoricalBinanceDataObtainer import \
     HistoricalBinanceDataObtainer
@@ -25,7 +25,7 @@ class HistoricalBinanceTradingSimulator:
         self._setup()
 
     def _setup(self):
-        dataObtainer = HistoricalBinanceDataObtainer(self.startDate)
+        dataObtainer = HistoricalBinanceDataObtainer(self.startDate, self.endDate, filePathPrefix="../data_set/")
         listings_obtainer = SpecifiedListingObtainer(["OAXBTC", "YOYOBTC"])
         filter = PassThroughStockFilter(dataObtainer)
         filter.addListings(listings_obtainer) \
@@ -40,12 +40,12 @@ class HistoricalBinanceTradingSimulator:
         model = CryptoPumpAndDumpDetector()
         model.setupUsingDefaults()
         model.createModelUsingDefaults()
-        model.exportPath = "./models/model_exports/cryptopumpanddumpdetector"
+        model.exportPath = "../models/model_exports/cryptopumpanddumpdetector"
         model.loadWeights()
         EventDispatcher.getInstance().addListener(model, "ListingPriceUpdated")
 
         print("DATA -----")
-        print(dataObtainer.data["OAXBTC"])
+        print(dataObtainer.data)
 
         self.trader = MinutePumpTrader(self.minutesBeforeSell)
         EventDispatcher.getInstance().addListener(self.trader, "PumpAndDump")

@@ -1,4 +1,4 @@
-# Name: SpecifiedObtainer
+# Name: SpecifiedListingObtainer
 # Author: Robert Ciborowski
 # Date: 18/04/2020
 # Description: Gives back a set of specified listings.
