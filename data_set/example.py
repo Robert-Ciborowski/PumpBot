@@ -2,7 +2,7 @@ from data_set.BinanceDataSetCreator import BinanceDataSetCreator
 
 if __name__ == "__main__":
     from filter.PassThroughStockFilter import PassThroughStockFilter
-    from listing_obtainers.TestObtainer import TestObtainer
+    from listing_obtainers.TestListingObtainer import TestListingObtainer
     from datetime import datetime
     from stock_data.HistoricalBinanceDataObtainer import \
         HistoricalBinanceDataObtainer

@@ -137,11 +137,14 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
     def obtainPrice(self, ticker: str) -> float:
         return 0.0
 
-    """
-    - data: in the form {"Ticker": []}
-    """
-
     def obtainPrices(self, ticker: str, numberOfPrices=-1) -> List[float]:
+        return []
+
+    def obtainPricesAndVolumes(self, ticker: str, numberOfPrices=-1):
+        now = datetime.now()
+        deltaTime = now - self._startTime
+        timeToObtain = self.dateOfStart + deltaTime
+
         return []
 
     def _addRA(self, df, windowSize, col, name):

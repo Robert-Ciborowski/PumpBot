@@ -8,7 +8,7 @@ from discord_bot import DiscordBot
 from events import EventDispatcher
 from example_bot import ExampleBot
 from filter import StockFilterByPrice
-from listing_obtainers.NASDAQObtainer import NASDAQObtainer
+from listing_obtainers.NASDAQListingObtainer import NASDAQListingObtainer
 from models.DummyPumpAndDumpDetector import DummyPumpAndDumpDetector
 from datetime import datetime
 
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     # April 1st, 2020 at 11:30 am.
     # stockDataObtainer = HistoricStockDataObtainer(datetime(2020, 4, 1, 11, 30))
     stockDataObtainer = CurrentStockDataObtainer()
-    nasdaq_obtainer = NASDAQObtainer(20)
+    nasdaq_obtainer = NASDAQListingObtainer(20)
     filter = StockFilterByPrice(10, stockDataObtainer)
     filter.addListings(nasdaq_obtainer)\
         .getDataForFiltering()\

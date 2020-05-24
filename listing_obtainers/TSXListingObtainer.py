@@ -1,4 +1,4 @@
-# Name: TSXObtainer
+# Name: TSXListingObtainer
 # Author: Robert Ciborowski
 # Date: 12/04/2020
 # Description: Obtains all listings from the Toronto Stock Exchange.
@@ -10,7 +10,7 @@ import urllib.request, json
 
 from listing_obtainers.ListingObtainer import ListingObtainer
 
-class TSXObtainer(ListingObtainer):
+class TSXListingObtainer(ListingObtainer):
     amount_to_obtain: int
 
     """

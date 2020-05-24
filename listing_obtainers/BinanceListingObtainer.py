@@ -1,4 +1,4 @@
-# Name: TestObtainer
+# Name: BinanceListingObtainer
 # Author: Robert Ciborowski
 # Date: 18/04/2020
 # Description: Gets listings for Binance crypto.
@@ -11,7 +11,7 @@ from listing_obtainers.ListingObtainer import ListingObtainer
 import json
 from binance.client import Client
 
-class BinanceObtainer(ListingObtainer):
+class BinanceListingObtainer(ListingObtainer):
     _client: Client
 
     def __init__(self, propertiesFile="binance_properties.json"):

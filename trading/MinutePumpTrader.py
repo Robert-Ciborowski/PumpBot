@@ -26,8 +26,8 @@ class MinutePumpTrader(PumpTrader):
     _stopThread: bool
     _updaterThread: th.Thread
 
-    def __init__(self, stockDatabase: TrackedStockDatabase, minutesBeforeSell=1):
-        super().__init__(stockDatabase)
+    def __init__(self, minutesBeforeSell=1):
+        super().__init__()
         self.tracker = PumpTradeTracker()
         self.ongoingTrades = {}
         self.minutesBeforeSell = minutesBeforeSell

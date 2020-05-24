@@ -1,4 +1,4 @@
-# Name: TestObtainer
+# Name: TestListingObtainer
 # Author: Robert Ciborowski
 # Date: 12/04/2020
 # Description: Generates a few listings.
@@ -10,7 +10,7 @@ import urllib.request, json
 
 from listing_obtainers.ListingObtainer import ListingObtainer
 
-class TestObtainer(ListingObtainer):
+class TestListingObtainer(ListingObtainer):
     dummyTicker: str
 
     def __init__(self, dummyTicker="AAPL"):

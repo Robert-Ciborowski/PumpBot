@@ -9,8 +9,8 @@ from events.EventDispatcher import EventDispatcher
 from example_bot.ExampleBot import ExampleBot
 from filter import StockFilterByPrice
 from filter.PassThroughStockFilter import PassThroughStockFilter
-from listing_obtainers.BinanceObtainer import BinanceObtainer
-from listing_obtainers.NASDAQObtainer import NASDAQObtainer
+from listing_obtainers.BinanceListingObtainer import BinanceListingObtainer
+from listing_obtainers.NASDAQListingObtainer import NASDAQListingObtainer
 from models.CryptoPumpAndDumpDetector import CryptoPumpAndDumpDetector
 from models.DummyPumpAndDumpDetector import DummyPumpAndDumpDetector
 from datetime import datetime
@@ -22,7 +22,7 @@ from stock_data.TrackedStockDatabase import TrackedStockDatabase
 
 if __name__ == "__main__":
     dataObtainer = CurrentBinanceDataObtainer()
-    binance_obtainer = BinanceObtainer()
+    binance_obtainer = BinanceListingObtainer()
     filter = PassThroughStockFilter(dataObtainer)
     filter.addListings(binance_obtainer)\
         .getDataForFiltering()\

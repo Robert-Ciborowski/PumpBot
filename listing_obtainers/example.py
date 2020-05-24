@@ -1,6 +1,6 @@
 if __name__ == "__main__":
-    from listing_obtainers.TSXObtainer import TSXObtainer
+    from listing_obtainers.TSXListingObtainer import TSXListingObtainer
 
-    obtainer = TSXObtainer()
+    obtainer = TSXListingObtainer()
     df = obtainer.obtain()
     print("Yay")

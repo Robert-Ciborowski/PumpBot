@@ -1,4 +1,4 @@
-# Name: NASDAQObtainer
+# Name: NASDAQListingObtainer
 # Author: Robert Ciborowski
 # Date: 12/04/2020
 # Description: Obtains all listings from the NASDAQ.
@@ -13,7 +13,7 @@ import csv
 from listing_obtainers.ListingObtainer import ListingObtainer
 
 
-class NASDAQObtainer(ListingObtainer):
+class NASDAQListingObtainer(ListingObtainer):
     amount_to_obtain: int
 
     """

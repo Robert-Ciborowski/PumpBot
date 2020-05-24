@@ -9,9 +9,9 @@ class PumpTrader(EventListener):
     tracker: PumpTradeTracker
     stockDatabase: TrackedStockDatabase
 
-    def __init__(self, stockDatabase: TrackedStockDatabase):
+    def __init__(self):
         self.tracker = PumpTradeTracker()
-        self.stockDatabase = stockDatabase
+        self.stockDatabase = TrackedStockDatabase.getInstance()
 
     def onEvent(self, event: Event):
         if event.type == "PumpAndDump":

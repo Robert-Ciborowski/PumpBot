@@ -1,6 +1,6 @@
 if __name__ == "__main__":
     from filter.PassThroughStockFilter import PassThroughStockFilter
-    from listing_obtainers.TestObtainer import TestObtainer
+    from listing_obtainers.TestListingObtainer import TestListingObtainer
     # from stock_data.CurrentStockDataObtainer import CurrentStockDataObtainer
     # from stock_data import TrackedStockDatabase
     import time
@@ -9,7 +9,7 @@ if __name__ == "__main__":
     from stock_data.HistoricalBinanceDataObtainer import \
         HistoricalBinanceDataObtainer
 
-    obtainer = TestObtainer("TEST")
+    obtainer = TestListingObtainer("TEST")
     historicalObtainer = HistoricalBinanceDataObtainer(
         datetime(day=14, month=7, year=2017, hour=4, minute=0), datetime(day=14, month=7, year=2017, hour=4, minute=21),
         "../binance_historical_data/")
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     print(historicalObtainer.data)
 
 
-    # tsx_obtainer = NASDAQObtainer(20)
+    # tsx_obtainer = NASDAQListingObtainer(20)
     # filter = StockFilterByPrice(10, CurrentStockDataObtainer())
     # filter.addListings(tsx_obtainer)\
     #     .getDataForFiltering()\
