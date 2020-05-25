@@ -60,12 +60,11 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         if data is None or len(data) < CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES * 2:
             print("CryptoPumpAndDumpDetector detect() was not given enough "
                   "data to work with!")
-            print(len(data))
             return False
 
         result = self.model.predict(data)[0][0]
         print("Gave out a result of " + str(result))
-        return result <= self._classificationThreshold
+        return result >= self._classificationThreshold
 
     """
     Creates a brand new neural network for this model.
@@ -168,14 +167,13 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         learningRate = 0.008
         epochs = 500
         batchSize = 30
-        classificationThreshold = 0.5
+        classificationThreshold = 0.105
         self.setup(classificationThreshold,
                     Hyperparameters(learningRate, epochs,
                                     batchSize))
 
     def _turnListOfFloatsToInputData(self, data: List[float]) -> Dict:
         if len(data) < CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES * 2:
-            print("DATA LEN: " + str(len(data)))
             return None
 
         features = {}
@@ -204,4 +202,13 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
                              tf.keras.metrics.MeanSquaredError(name='rmse')
         ]
         self.listOfMetrics = ["accuracy", "precision", "recall", "auc", "rmse"]
+
+    def prepareForUse(self):
+        """
+        Makes sure this model is ready to be used for predictions.
+        """
+        # We need to tell the model to make a test prediction so that all of
+        # the additional GPU DLLs get loaded.
+        lst = [np.array([0]) in range(self._NUMBER_OF_SAMPLES * 2)]
+        self.detect(lst)
 

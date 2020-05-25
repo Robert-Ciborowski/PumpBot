@@ -111,7 +111,6 @@ class HistoricStockDataObtainer(StockDataObtainer):
                 lastIndex = i
                 break
 
-        print("lastIndex: " + str(keys[lastIndex]))
         if pricesToObtain < 0 or pricesToObtain >= lastIndex:
             return series[:lastIndex]
         else:

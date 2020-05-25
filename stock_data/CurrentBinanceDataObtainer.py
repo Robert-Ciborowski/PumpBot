@@ -85,7 +85,6 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
         numberOfTrades = 0
 
         for trade in trades:
-            print(trade)
             priceTotal += float(trade["price"])
             volumeTotal += float(trade["qty"])
             numberOfTrades += 1

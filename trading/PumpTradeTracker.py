@@ -46,7 +46,7 @@ class PumpTradeTracker:
         returnDict = {}
 
         for trade in self.trades:
-            if trade.wasSold():
+            if not trade.wasSold():
                 profit = 0.0
             else:
                 profit = trade.sellPrice - trade.buyPrice

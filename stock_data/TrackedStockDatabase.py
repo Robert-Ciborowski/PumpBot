@@ -18,7 +18,7 @@ from stock_data.StockDataObtainer import StockDataObtainer
 
 """
 Representation invariants:
-- _updateTimestamps is a Dict of lists, and each list contains x datetimes, 
+- _updateTimestamps is a Dict of lists, and each list contains x datetimes,
   where 0 < x <= pricesToKeepTrackOf
 - _entries is a Dict of lists, and each list contains x floats, 
   where 0 < x <= pricesToKeepTrackOf. Last element in each list contains most
@@ -27,7 +27,7 @@ Representation invariants:
 class TrackedStockDatabase:
     pricesToKeepTrackOf: int
     obtainer: StockDataObtainer
-    secondsBetweenStockUpdates: int
+    _secondsBetweenStockUpdates: float
 
     # PRIVATE:
     _prices: Dict
@@ -51,7 +51,7 @@ class TrackedStockDatabase:
         self._updateTimestamps = {}
         self.obtainer = None
         self._entriesLock = th.Lock()
-        self.secondsBetweenStockUpdates = 60
+        self._secondsBetweenStockUpdates = 60.0
 
     @staticmethod
     def getInstance():
@@ -77,8 +77,8 @@ class TrackedStockDatabase:
         self.pricesToKeepTrackOf = pricesToKeepTrackOf
         return self
 
-    def setSecondsBetweenStockUpdates(self, secondsBetweenStockUpdates: int):
-        self.secondsBetweenStockUpdates = secondsBetweenStockUpdates
+    def setSecondsBetweenStockUpdates(self, secondsBetweenStockUpdates: float):
+        self._secondsBetweenStockUpdates = secondsBetweenStockUpdates
         return self
 
     def trackStocksInFilter(self, filter: StockFilter):
@@ -154,15 +154,14 @@ class TrackedStockDatabase:
         currDateTime = datetime.now()
         diff = currDateTime - self._updateTimestamps[ticker]
 
-        if int(diff.total_seconds() / self.secondsBetweenStockUpdates) > 0:
+        if int(diff.total_seconds() / self._secondsBetweenStockUpdates) > 0:
             prices, volumes = self.obtainer.obtainPricesAndVolumes(ticker, self.pricesToKeepTrackOf)
 
             if len(prices) != 0:
-                print("Ummmm " + ticker)
                 self._updateEntryAndTimeStamp(ticker, prices, volumes)
                 EventDispatcher.getInstance().dispatchEvent(ListingPriceUpdatedEvent(ticker))
             else:
-                print(prices)
+                print("Whoa, " + ticker + " had 0 prices!? (TrackedStockDatabase)")
 
 
     def _updateEntryAndTimeStamp(self, ticker: str, prices: List[float], volumes: List[float]):

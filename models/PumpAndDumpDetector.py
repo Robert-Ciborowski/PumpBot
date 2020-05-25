@@ -40,6 +40,11 @@ class PumpAndDumpDetector(EventListener):
         if event.type == "ListingPriceUpdated":
             prices = TrackedStockDatabase.getInstance().getRecentStockPrices(event.data["Ticker"])
             volumes = TrackedStockDatabase.getInstance().getRecentStockVolumes(event.data["Ticker"])
+
+            if prices is None or volumes is None or len(prices) == 0 or len(volumes) == 0 or prices[0] is None or len(volumes) is None:
+                print("An urgent error occurred inside of Pump and Dump detector!")
+                return
+
             currentPrice = prices[-1]
             prices, volumes = self._setupDataForModel(prices, volumes)
             probability = self.detect(volumes + prices)

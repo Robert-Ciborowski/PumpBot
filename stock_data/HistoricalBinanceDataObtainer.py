@@ -23,17 +23,22 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
 
     _startTime: datetime
     _obtained: bool
+    _fastForwardAmount: float
 
-    def __init__(self, dateOfStart: datetime, dateOfEnd: datetime, filePathPrefix=""):
+    def __init__(self, dateOfStart: datetime, dateOfEnd: datetime, filePathPrefix="", fastForwardAmount=1):
         self._startTime = datetime.now()
         self.endOfMarket = (4, 0)
         self.data = {}
         self._obtained = False
         self.filePathPrefix = filePathPrefix
         self.timezone = "Etc/GMT-0"
+        self._fastForwardAmount = fastForwardAmount
         timezone = pytz.timezone(self.timezone)
         self.dateOfStart = timezone.localize(dateOfStart)
         self.dateOfEnd = timezone.localize(dateOfEnd)
+
+    def setStartTimeToNow(self):
+        self._startTime = datetime.now()
 
     def trackStocks(self, tickers: List[str]):
         if self._obtained:
@@ -125,27 +130,87 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                         print("Read " + ticker + " data up to " + str(timing))
                         count = 0
 
-            vRA = '24m Volume RA'
-            self._addRA(df, 24, 'Volume', vRA)
-            pRA = '24m Close Price RA'
-            self._addRA(df, 24, 'Close', pRA)
-            self.data[ticker] = df
+            # vRA = '24m Volume RA'
+            # self._addRA(df, 24, 'Volume', vRA)
+            # pRA = '24m Close Price RA'
+            # self._addRA(df, 24, 'Close', pRA)
+            self.data[ticker] = df[["Volume", "Close"]]
 
         except IOError as e:
             print("Could not read " + path + "!")
 
     def obtainPrice(self, ticker: str) -> float:
-        return 0.0
-
-    def obtainPrices(self, ticker: str, numberOfPrices=-1) -> List[float]:
-        return []
-
-    def obtainPricesAndVolumes(self, ticker: str, numberOfPrices=-1):
         now = datetime.now()
-        deltaTime = now - self._startTime
-        timeToObtain = self.dateOfStart + deltaTime
+        diff = (now - self._startTime) * self._fastForwardAmount
+        date = self.dateOfStart + diff
+        start_date_to_use = datetime(date.year, date.month, date.day,
+                                     hour=date.hour, minute=date.minute)
+        timezone = pytz.timezone(self.timezone)
+        d_aware = timezone.localize(start_date_to_use)
+        return self._getValueFromDataframe(self.data[ticker], "Close", d_aware)
 
-        return []
+    def obtainPrices(self, ticker: str, numberOfPrices=1) -> List[float]:
+        now = datetime.now()
+        diff = (now - self._startTime) * self._fastForwardAmount
+        date = self.dateOfStart + diff
+        start_date_to_use = datetime(date.year, date.month, date.day,
+                                     hour=date.hour, minute=date.minute)
+        timezone = pytz.timezone(self.timezone)
+        d_aware = timezone.localize(start_date_to_use)
+        return self._getValuesFromDataframe(self.data[ticker], "Close",
+                                              d_aware)
+
+    def obtainPricesAndVolumes(self, ticker: str, numberOfPrices=1):
+        now = datetime.now()
+        diff = (now - self._startTime) * self._fastForwardAmount
+        date = self.dateOfStart + diff
+        start_date_to_use = datetime(date.year, date.month, date.day,
+                                     hour=date.hour, minute=date.minute)
+        timezone = pytz.timezone(self.timezone)
+        d_aware = timezone.localize(start_date_to_use)
+        prices = self._getValuesFromDataframe(self.data[ticker], "Close", d_aware)
+        volumes = self._getValuesFromDataframe(self.data[ticker], "Volume", d_aware)
+        return prices, volumes
+
+    def _getValueFromDataframe(self, df: pd.DataFrame, value: str, time: datetime) -> float:
+        keys = df.index.tolist()
+
+        if len(keys) == 0:
+            return 0.0
+
+        lastKey = keys[0]
+
+        for key in keys:
+            if key.to_pydatetime() > time:
+                break
+            lastKey = key
+
+        return df.iloc[lastKey][value]
+
+    def _getValuesFromDataframe(self, df: pd.DataFrame, value: str, time: datetime, pricesToObtain=-1) -> List[float]:
+        keys = df.index.tolist()
+
+        if len(keys) == 0:
+            return []
+
+        lastIndex = 0
+
+        for i in range(len(keys)):
+            if keys[i].to_pydatetime() > time:
+                lastIndex = i
+                break
+
+        startIndex = 0
+        endIndex = lastIndex
+        lst = []
+
+        if not (pricesToObtain < 0 or pricesToObtain >= lastIndex):
+            startIndex = lastIndex-pricesToObtain
+
+        for i in range(startIndex, endIndex):
+            lst.append(df.iloc[i][value])
+
+        return lst
 
     def _addRA(self, df, windowSize, col, name):
         df[name] = pd.Series.rolling(df[col], window=windowSize,
