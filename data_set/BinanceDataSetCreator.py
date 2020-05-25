@@ -331,7 +331,7 @@ class BinanceDataSetCreator:
         # -- find spikes --
         newThreshold = priceThreshold * df[pRA]
         # This is where the high is at least p_thresh greater than the x-hr RA.
-        priceSpikeMask = df["High"] > newThreshold
+        priceSpikeMask = df["Close"] > newThreshold
         priceSpikeDF = df[priceSpikeMask]
         return (priceSpikeMask, priceSpikeDF)
 
@@ -387,7 +387,7 @@ class BinanceDataSetCreator:
         newThreshold = priceThreshold * df[pRA]
         # This is where the high is at least priceThreshold greater than the
         # x-hr RA.
-        priceSpikeMask = df["High"] <= newThreshold
+        priceSpikeMask = df["Close"] <= newThreshold
         priceSpikeDF = df[priceSpikeMask]
         return (priceSpikeMask, priceSpikeDF)
 

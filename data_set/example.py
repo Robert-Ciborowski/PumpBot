@@ -9,6 +9,7 @@ if __name__ == "__main__":
 
     historicalObtainer = HistoricalBinanceDataObtainer(
         datetime(day=17, month=8, year=2018, hour=0, minute=1), datetime(day=27, month=12, year=2019, hour=0, minute=1),
+        # datetime(day=17, month=8, year=2018, hour=0, minute=1), datetime(day=31, month=8, year=2018, hour=0, minute=1),
         "../binance_historical_data/")
     print("Reading historical stock data...")
     historicalObtainer.trackStocks(["OAXBTC", "YOYOBTC"])
