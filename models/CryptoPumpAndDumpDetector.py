@@ -71,76 +71,40 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     """
     def createModel(self, featureLayer,
                      layerParameters: List):
-        # self.model = tf.keras.models.Sequential()
-        # self.model.add(featureLayer)
-        #
-        # count = 0
-        # for parameter in layerParameters:
-        #     self.model.add(tf.keras.layers.Dense(units=parameter.units,
-        #                                     activation=parameter.activation,
-        #                                     # kernel_regularizer=tf.keras.regularizers.l2(
-        #                                     #     l=0.04),
-        #                                     name="Hidden_" + str(count)))
-        #     count += 1
-        #
-        # # Define the output layer.
-        # self.model.add(tf.keras.layers.Dense(units=1, input_shape=(1,),
-        #                         activation=tf.sigmoid, name="Output"))
-        #
-        # # Compiles the model with the appropriate loss function.
-        # self.model.compile(
-        #     optimizer=tf.keras.optimizers.RMSprop(lr=self.hyperparameters.learningRate),
-        #     loss=tf.keras.losses.BinaryCrossentropy(), metrics=
         self.model = tf.keras.models.Sequential()
-
-        # Add the feature layer (the list of features and how they are represented)
-        # to the model.
         self.model.add(featureLayer)
 
-        # Funnel the regression value through a sigmoid function.
+        count = 0
+        for parameter in layerParameters:
+            self.model.add(tf.keras.layers.Dense(units=parameter.units,
+                                            activation=parameter.activation,
+                                            # kernel_regularizer=tf.keras.regularizers.l2(
+                                            #     l=0.04),
+                                            name="Hidden_" + str(count)))
+            count += 1
+
+        # Define the output layer.
         self.model.add(tf.keras.layers.Dense(units=1, input_shape=(1,),
-                                        activation=tf.sigmoid), )
+                                activation=tf.sigmoid, name="Output"))
 
-        # Call the compile method to construct the layers into a model that
-        # TensorFlow can execute.  Notice that we're using a different loss
-        # function for classification than for regression.
+        # Compiles the model with the appropriate loss function.
         self.model.compile(
-            optimizer=tf.keras.optimizers.RMSprop(lr=0.001),
-            loss=tf.keras.losses.BinaryCrossentropy(),
-            metrics=self._metrics)
-
-        return self.model
+            optimizer=tf.keras.optimizers.RMSprop(lr=self.hyperparameters.learningRate),
+            loss=tf.keras.losses.BinaryCrossentropy(), metrics=self._metrics)
 
     def trainModel(self, dataset: pd.DataFrame, label_name):
-        # """Train the model by feeding it data."""
-        # # Split the dataset into features and label.
-        # features = {name: np.array(value) for name, value in dataset.items()}
-        # label = np.array(features.pop(label_name))
-        # history = self.model.fit(x=features, y=label, batch_size=self.hyperparameters.batchSize,
-        #                     epochs=self.hyperparameters.epochs, shuffle=True)
-        #
-        # # The list of epochs is stored separately from the rest of history.
-        # epochs = history.epoch
-        #
-        # # To track the progression of training, gather a snapshot
-        # # of the model's mean squared error at each epoch.
-        # hist = pd.DataFrame(history.history)
-        # return epochs, hist
-        # The x parameter of tf.keras.Model.fit can be a list of arrays, where
-        # each array contains the data for one feature.  Here, we're passing
-        # every column in the dataset. Note that the feature_layer will filter
-        # away most of those columns, leaving only the desired columns and their
-        # representations as features.
+        """Train the model by feeding it data."""
+        # Split the dataset into features and label.
         features = {name: np.array(value) for name, value in dataset.items()}
         label = np.array(features.pop(label_name))
-        history = self.model.fit(x=features, y=label,
-                                 batch_size=100,
-                                epochs=20, shuffle=True)
+        history = self.model.fit(x=features, y=label, batch_size=self.hyperparameters.batchSize,
+                            epochs=self.hyperparameters.epochs, shuffle=True)
 
         # The list of epochs is stored separately from the rest of history.
         epochs = history.epoch
 
-        # Isolate the classification metric for each epoch.
+        # To track the progression of training, gather a snapshot
+        # of the model's mean squared error at each epoch.
         hist = pd.DataFrame(history.history)
         return epochs, hist
 
