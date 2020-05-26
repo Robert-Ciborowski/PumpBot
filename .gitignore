@@ -18,6 +18,7 @@ binance_historical_data/*.csv
 data_set/*.csv
 
 venv-3.6.8
+venv-3.6
 
 # C extensions
 *.so

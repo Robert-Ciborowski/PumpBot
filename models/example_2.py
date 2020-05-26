@@ -9,6 +9,8 @@ if __name__ == "__main__":
     from models.Hyperparameters import Hyperparameters
     from models.LayerParameter import LayerParameter
 
+    # CryptoPumpAndDumpDetector.configureForGPU()
+
     model = CryptoPumpAndDumpDetector()
     model.setupUsingDefaults()
     model.createModelUsingDefaults()

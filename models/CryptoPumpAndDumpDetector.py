@@ -24,12 +24,11 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     exportPath: str
 
     _metrics: List
-
     _NUMBER_OF_SAMPLES = 25
 
     def __init__(self):
         super().__init__()
-        self._buildMetrics()
+        self._configureForGPU()
         self.exportPath = "./model_exports/cryptopumpanddumpdetector"
 
         # The following lines adjust the granularity of reporting.
@@ -39,14 +38,15 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
 
     def setup(self, classificationThreshold: float, hyperparameters: Hyperparameters):
         super().setClassificationThreshold(classificationThreshold)
+        self._buildMetrics()
         self.hyperparameters = hyperparameters
 
     """
     Precondition: prices is a pandas dataframe or series.
     """
     def detect(self, prices) -> bool:
-        # if isinstance(prices, pd.DataFrame):
-        #     data = {name: np.array(value) for name, value in prices.items()}
+        if isinstance(prices, pd.DataFrame):
+            data = {name: np.array(value) for name, value in prices.items()}
         if isinstance(prices, pd.Series):
             data = {name: np.array([value]) for name, value in prices.iteritems()}
         elif isinstance(prices, List) or isinstance(prices, np.ndarray):
@@ -71,41 +71,76 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     """
     def createModel(self, featureLayer,
                      layerParameters: List):
+        # self.model = tf.keras.models.Sequential()
+        # self.model.add(featureLayer)
+        #
+        # count = 0
+        # for parameter in layerParameters:
+        #     self.model.add(tf.keras.layers.Dense(units=parameter.units,
+        #                                     activation=parameter.activation,
+        #                                     # kernel_regularizer=tf.keras.regularizers.l2(
+        #                                     #     l=0.04),
+        #                                     name="Hidden_" + str(count)))
+        #     count += 1
+        #
+        # # Define the output layer.
+        # self.model.add(tf.keras.layers.Dense(units=1, input_shape=(1,),
+        #                         activation=tf.sigmoid, name="Output"))
+        #
+        # # Compiles the model with the appropriate loss function.
+        # self.model.compile(
+        #     optimizer=tf.keras.optimizers.RMSprop(lr=self.hyperparameters.learningRate),
+        #     loss=tf.keras.losses.BinaryCrossentropy(), metrics=
         self.model = tf.keras.models.Sequential()
+
+        # Add the feature layer (the list of features and how they are represented)
+        # to the model.
         self.model.add(featureLayer)
 
-        count = 0
-        for parameter in layerParameters:
-            self.model.add(tf.keras.layers.Dense(units=parameter.units,
-                                            activation=parameter.activation,
-                                            kernel_regularizer=tf.keras.regularizers.l2(
-                                                l=0.04),
-                                            name="Hidden_" + str(count)))
-            count += 1
-
-        # Define the output layer.
+        # Funnel the regression value through a sigmoid function.
         self.model.add(tf.keras.layers.Dense(units=1, input_shape=(1,),
-                                activation=tf.sigmoid, name="Output"))
+                                        activation=tf.sigmoid), )
 
-        # Compiles the model with the appropriate loss function.
+        # Call the compile method to construct the layers into a model that
+        # TensorFlow can execute.  Notice that we're using a different loss
+        # function for classification than for regression.
         self.model.compile(
-            optimizer=tf.keras.optimizers.RMSprop(lr=self.hyperparameters.learningRate),
-            loss=tf.keras.losses.BinaryCrossentropy(), metrics=self._metrics)
+            optimizer=tf.keras.optimizers.RMSprop(lr=0.001),
+            loss=tf.keras.losses.BinaryCrossentropy(),
+            metrics=self._metrics)
+
+        return self.model
 
     def trainModel(self, dataset: pd.DataFrame, label_name):
-        """Train the model by feeding it data."""
-
-        # Split the dataset into features and label.
+        # """Train the model by feeding it data."""
+        # # Split the dataset into features and label.
+        # features = {name: np.array(value) for name, value in dataset.items()}
+        # label = np.array(features.pop(label_name))
+        # history = self.model.fit(x=features, y=label, batch_size=self.hyperparameters.batchSize,
+        #                     epochs=self.hyperparameters.epochs, shuffle=True)
+        #
+        # # The list of epochs is stored separately from the rest of history.
+        # epochs = history.epoch
+        #
+        # # To track the progression of training, gather a snapshot
+        # # of the model's mean squared error at each epoch.
+        # hist = pd.DataFrame(history.history)
+        # return epochs, hist
+        # The x parameter of tf.keras.Model.fit can be a list of arrays, where
+        # each array contains the data for one feature.  Here, we're passing
+        # every column in the dataset. Note that the feature_layer will filter
+        # away most of those columns, leaving only the desired columns and their
+        # representations as features.
         features = {name: np.array(value) for name, value in dataset.items()}
         label = np.array(features.pop(label_name))
-        history = self.model.fit(x=features, y=label, batch_size=self.hyperparameters.batchSize,
-                            epochs=self.hyperparameters.epochs, shuffle=True)
+        history = self.model.fit(x=features, y=label,
+                                 batch_size=100,
+                                epochs=20, shuffle=True)
 
         # The list of epochs is stored separately from the rest of history.
         epochs = history.epoch
 
-        # To track the progression of training, gather a snapshot
-        # of the model's mean squared error at each epoch.
+        # Isolate the classification metric for each epoch.
         hist = pd.DataFrame(history.history)
         return epochs, hist
 
@@ -157,6 +192,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         # the model.
         featureLayer = layers.DenseFeatures(featureColumns)
         layerParameters = [
+            LayerParameter(10, "sigmoid"),
             LayerParameter(5, "sigmoid")
         ]
 
@@ -192,16 +228,15 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     def _buildMetrics(self):
         self._metrics = [
             tf.keras.metrics.BinaryAccuracy(name='accuracy',
-                                      threshold=self._classificationThreshold),
+                                            threshold=self._classificationThreshold),
             tf.keras.metrics.Precision(thresholds=self._classificationThreshold,
                                      name='precision'
                                      ),
             tf.keras.metrics.Recall(thresholds=self._classificationThreshold,
                                   name="recall"),
-            tf.keras.metrics.AUC(num_thresholds=100, name='auc'),
-                             tf.keras.metrics.MeanSquaredError(name='rmse')
+            tf.keras.metrics.AUC(num_thresholds=100, name='auc')
         ]
-        self.listOfMetrics = ["accuracy", "precision", "recall", "auc", "rmse"]
+        self.listOfMetrics = ["accuracy", "precision", "recall", "auc"]
 
     def prepareForUse(self):
         """
@@ -212,3 +247,18 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         lst = [np.array([0]) in range(self._NUMBER_OF_SAMPLES * 2)]
         self.detect(lst)
 
+    def _configureForGPU(self):
+        # https://www.tensorflow.org/guide/gpu
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        if gpus:
+            try:
+                # Currently, memory growth needs to be the same across GPUs
+                for gpu in gpus:
+                    tf.config.experimental.set_memory_growth(gpu, True)
+                logical_gpus = tf.config.experimental.list_logical_devices(
+                    'GPU')
+                print(len(gpus), "Physical GPUs,", len(logical_gpus),
+                      "Logical GPUs")
+            except RuntimeError as e:
+                # Memory growth must be set before GPUs have been initialized
+                print("CryptoPumpAndDumpDetector GPU setup error: " + str(e))

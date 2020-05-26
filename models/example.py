@@ -1,6 +1,7 @@
 # Example of how to train a model on a data set. The data set used here is
 # the California data set (I got inspired by that one Google TF Crash Course).
 if __name__ == "__main__":
+
     import numpy as np
     import pandas as pd
     import tensorflow as tf
@@ -9,13 +10,6 @@ if __name__ == "__main__":
     from models.CryptoPumpAndDumpDetector import CryptoPumpAndDumpDetector
     from models.Hyperparameters import Hyperparameters
     from models.LayerParameter import LayerParameter
-
-    # The following lines adjust the granularity of reporting.
-    pd.options.display.max_rows = 10
-    pd.options.display.float_format = "{:.1f}".format
-    # tf.keras.backend.set_floatx('float32')
-
-    print("Ran the import statements.")
 
     # The following lines adjust the granularity of reporting.
     pd.options.display.max_rows = 10
@@ -37,13 +31,17 @@ if __name__ == "__main__":
     train_df_std = train_df.std()
     train_df_norm = (train_df - train_df_mean) / train_df_std
 
+    # Examine some of the values of the normalized training set. Notice that most
+    # Z-scores fall between -2 and +2.
+    train_df_norm.head()
+
+    # Calculate the Z-scores of each column in the test set and
+    # write those Z-scores into a new pandas DataFrame named test_df_norm.
     test_df_mean = test_df.mean()
     test_df_std = test_df.std()
     test_df_norm = (test_df - test_df_mean) / test_df_std
 
-    # Examine some of the values of the normalized training set. Notice that most
-    # Z-scores fall between -2 and +2.
-    train_df_norm.head()
+    # @title Double-click for possible solutions.
 
     # We arbitrarily set the threshold to 265,000, which is
     # the 75th percentile for median house values.  Every neighborhood
@@ -51,9 +49,9 @@ if __name__ == "__main__":
     # and all other neighborhoods will be labeled 0.
     threshold = 265000
     train_df_norm["median_house_value_is_high"] = (
-            train_df["median_house_value"] > threshold).astype(float)
+                train_df["median_house_value"] > threshold).astype(float)
     test_df_norm["median_house_value_is_high"] = (
-            test_df["median_house_value"] > threshold).astype(float)
+                test_df["median_house_value"] > threshold).astype(float)
     train_df_norm["median_house_value_is_high"].head(8000)
 
     # Alternatively, instead of picking the threshold
@@ -68,30 +66,30 @@ if __name__ == "__main__":
     # test_df_norm["median_house_value_is_high"] = (test_df_norm["median_house_value"] > threshold_in_Z).astype(float)
 
     # Create an empty list that will eventually hold all created feature columns.
-    featureColumns = []
+    feature_columns = []
 
     # Create a numerical feature column to represent median_income.
-    medianIncome = tf.feature_column.numeric_column("median_income")
-    featureColumns.append(medianIncome)
+    median_income = tf.feature_column.numeric_column("median_income")
+    feature_columns.append(median_income)
 
     # Create a numerical feature column to represent total_rooms.
     tr = tf.feature_column.numeric_column("total_rooms")
-    featureColumns.append(tr)
+    feature_columns.append(tr)
 
     # Convert the list of feature columns into a layer that will later be fed into
     # the model.
-    featureLayer = layers.DenseFeatures(featureColumns)
+    feature_layer = layers.DenseFeatures(feature_columns)
 
     # Print the first 3 and last 3 rows of the feature_layer's output when applied
     # to train_df_norm:
-    featureLayer(dict(train_df_norm))
+    feature_layer(dict(train_df_norm))
 
     # Hyperparameters!
-    learningRate = 0.15
-    epochs = 25
+    learningRate = 0.001
+    epochs = 20
     batchSize = 100
     labelName = "median_house_value_is_high"
-    classificationThreshold = 0.85
+    classificationThreshold = 0.35
 
     model = CryptoPumpAndDumpDetector()
     model.setup(classificationThreshold,
@@ -99,10 +97,10 @@ if __name__ == "__main__":
                                 batchSize))
 
     layerParameters = [
-        LayerParameter(1, "sigmoid")
+        # LayerParameter(1, "sigmoid")
     ]
 
-    model.createModel(featureLayer, layerParameters)
+    model.createModel(feature_layer, layerParameters)
     epochs, hist = model.trainModel(train_df_norm, labelName)
     list_of_metrics_to_plot = model.listOfMetrics
     model.plotCurve(epochs, hist, list_of_metrics_to_plot)
