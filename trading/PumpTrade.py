@@ -8,12 +8,14 @@ class PumpTrade:
     ticker: str
     buyPrice: float
     sellPrice: float
+    investment: float
     buyTimestamp: datetime
     sellTimestamp: datetime
 
-    def __init__(self, ticker: str, buyPrice: float, buyTimestamp=None, sellTimestamp=None):
+    def __init__(self, ticker: str, buyPrice: float, investment: float, buyTimestamp=None, sellTimestamp=None):
         self.ticker = ticker
         self.buyPrice = buyPrice
+        self.investment = investment
         self.sellPrice = -1.0
 
         if buyTimestamp is None:

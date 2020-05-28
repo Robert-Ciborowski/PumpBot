@@ -8,14 +8,6 @@ from typing import List
 
 from stock_data import HistoricalBinanceDataObtainer
 import pandas as pd
-from datetime import datetime
-#plotting
-from bokeh.plotting import figure, show, output_file
-from bokeh.io import export_svgs
-from bokeh.io import output_notebook
-from bokeh.models import Axis, ColumnDataSource
-from bokeh.layouts import gridplot
-from bokeh.plotting import figure
 from matplotlib import pyplot as plt
 import csv
 

@@ -49,7 +49,7 @@ class PumpTradeTracker:
             if not trade.wasSold():
                 profit = 0.0
             else:
-                profit = trade.sellPrice - trade.buyPrice
+                profit = (trade.sellPrice - trade.buyPrice) * trade.investment
 
             if trade.ticker not in returnDict:
                 returnDict[trade.ticker] = 0.0

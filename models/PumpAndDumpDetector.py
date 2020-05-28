@@ -51,7 +51,7 @@ class PumpAndDumpDetector(EventListener):
 
             if probability >= self._classificationThreshold:
                 # Note: most recent price is at the end.
-                EventDispatcher.getInstance().dispatchEvent(PumpAndDumpEvent(event.data["Ticker"], currentPrice))
+                EventDispatcher.getInstance().dispatchEvent(PumpAndDumpEvent(event.data["Ticker"], currentPrice, probability))
 
     def _setupDataForModel(self, prices, volumes):
         from scipy import stats
