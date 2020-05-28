@@ -43,13 +43,18 @@ class MinutePumpTrader(PumpTrader):
         self._fastForwardAmount = fastForwardAmount
 
     def _onPumpAndDump(self, ticker: str, price: float, confidence: float):
+        if self.wallet.lacksFunds():
+            return
+
         investment = self.investmentStrategy.getAmountToInvest(self.wallet, price, confidence)
+        print("Investing " + str(investment) + "...")
         success = self.tracker.addNewTradeIfNotOwned(PumpTrade(ticker, price, investment))
 
         if success:
             print("MinutePumpTrader is buying " + ticker)
             with self._tradesLock:
                 self.ongoingTrades[ticker] = datetime.now()
+                self.wallet.removeFunds(investment)
 
     def start(self):
         self._stopThread = False
@@ -82,5 +87,6 @@ class MinutePumpTrader(PumpTrader):
     def _sell(self, ticker: str):
         print("MinutePumpTrader is selling " + ticker)
         price = self.stockDatabase.getCurrentStockPrice(ticker)
-        self.tracker.getTradeByTicker(ticker).sell(price)
+        returns = self.tracker.getUnsoldTradeByTicker(ticker).sell(price)
         self.ongoingTrades.pop(ticker)
+        self.wallet.addFunds(returns)

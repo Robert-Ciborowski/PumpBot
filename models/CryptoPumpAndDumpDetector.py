@@ -167,7 +167,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         learningRate = 0.008
         epochs = 500
         batchSize = 30
-        classificationThreshold = 0.105
+        classificationThreshold = 0.75
         self.setup(classificationThreshold,
                     Hyperparameters(learningRate, epochs,
                                     batchSize))

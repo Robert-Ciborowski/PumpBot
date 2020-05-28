@@ -22,7 +22,7 @@ class PumpTrader(EventListener):
 
     def onEvent(self, event: Event):
         if event.type == "PumpAndDump":
-            self._onPumpAndDump(event.data["Ticker"], event.data["Price"], event.data["confidence"])
+            self._onPumpAndDump(event.data["Ticker"], event.data["Price"], event.data["Confidence"])
 
     def _onPumpAndDump(self, ticker: str, price: str, confidence: float):
         pass

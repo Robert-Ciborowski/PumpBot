@@ -21,3 +21,9 @@ class Wallet:
 
     def addFunds(self, amount: float):
         self._funds += amount
+
+    def removeFunds(self, amount: float):
+        self._funds -= amount
+
+    def lacksFunds(self):
+        return self._funds <= 0

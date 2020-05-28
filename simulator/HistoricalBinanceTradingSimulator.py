@@ -77,4 +77,5 @@ class HistoricalBinanceTradingSimulator:
         self.trader.stop()
         print("Finished historical Binance trading simulation.")
         print("Results:")
+        print(self.trader.tracker.tradesStr())
         print(self.trader.tracker.calculateProfits())

@@ -18,7 +18,7 @@ class PumpTradeTracker:
         :param trade: the trade
         :return: if the trade was successfully tracked
         """
-        if not self.containsUnsoldTrade(trade):
+        if not self.containsUnsoldTrade(trade.ticker):
             self.addNewTrade(trade)
             return True
 
@@ -31,9 +31,9 @@ class PumpTradeTracker:
 
         return False
 
-    def getTradeByTicker(self, ticker: str) -> PumpTrade:
+    def getUnsoldTradeByTicker(self, ticker: str) -> PumpTrade:
         for trade in self.trades:
-            if trade.ticker == ticker:
+            if trade.ticker == ticker and not trade.wasSold():
                 return trade
 
         return None
@@ -46,10 +46,7 @@ class PumpTradeTracker:
         returnDict = {}
 
         for trade in self.trades:
-            if not trade.wasSold():
-                profit = 0.0
-            else:
-                profit = (trade.sellPrice - trade.buyPrice) * trade.investment
+            profit = trade.calculateProfit()
 
             if trade.ticker not in returnDict:
                 returnDict[trade.ticker] = 0.0
@@ -57,3 +54,11 @@ class PumpTradeTracker:
             returnDict[trade.ticker] += profit
 
         return returnDict
+
+    def tradesStr(self):
+        string = ""
+
+        for trade in self.trades:
+            string += str(trade)
+
+        return string
