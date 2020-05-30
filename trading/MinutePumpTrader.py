@@ -8,14 +8,19 @@ from typing import Dict
 import threading as th
 
 from stock_data.TrackedStockDatabase import TrackedStockDatabase
+from trading.InvestmentStrategy import InvestmentStrategy
 from trading.PumpTrade import PumpTrade
 from trading.PumpTradeTracker import PumpTradeTracker
 from trading.PumpTrader import PumpTrader
+from trading.Wallet import Wallet
+
 
 class MinutePumpTrader(PumpTrader):
     tracker: PumpTradeTracker
     stockDatabase: TrackedStockDatabase
     minutesBeforeSell: int
+    wallet: Wallet
+    investmentStrategy: InvestmentStrategy
 
     # Stores ongoing trades in a Dict, with the key being ticker (str)
     # and the value being the time of the trade (datetime)
@@ -27,21 +32,29 @@ class MinutePumpTrader(PumpTrader):
     _updaterThread: th.Thread
     _fastForwardAmount: int
 
-    def __init__(self, minutesBeforeSell=1, fastForwardAmount=1):
-        super().__init__()
+    def __init__(self, investmentStrategy: InvestmentStrategy,
+                 minutesBeforeSell=1, fastForwardAmount=1, startingFunds=0.0):
+        super().__init__(investmentStrategy)
+        self.wallet.addFunds(startingFunds)
         self.tracker = PumpTradeTracker()
         self.ongoingTrades = {}
         self.minutesBeforeSell = minutesBeforeSell
         self._tradesLock = th.Lock()
         self._fastForwardAmount = fastForwardAmount
 
-    def _onPumpAndDump(self, ticker: str, price: float):
-        success = self.tracker.addNewTradeIfNotOwned(PumpTrade(ticker, price))
+    def _onPumpAndDump(self, ticker: str, price: float, confidence: float):
+        if self.wallet.lacksFunds():
+            return
+
+        investment = self.investmentStrategy.getAmountToInvest(self.wallet, price, confidence)
+        print("Investing " + str(investment) + "...")
+        success = self.tracker.addNewTradeIfNotOwned(PumpTrade(ticker, price, investment))
 
         if success:
             print("MinutePumpTrader is buying " + ticker)
             with self._tradesLock:
                 self.ongoingTrades[ticker] = datetime.now()
+                self.wallet.removeFunds(investment)
 
     def start(self):
         self._stopThread = False
@@ -74,5 +87,6 @@ class MinutePumpTrader(PumpTrader):
     def _sell(self, ticker: str):
         print("MinutePumpTrader is selling " + ticker)
         price = self.stockDatabase.getCurrentStockPrice(ticker)
-        self.tracker.getTradeByTicker(ticker).sell(price)
+        returns = self.tracker.getUnsoldTradeByTicker(ticker).sell(price)
         self.ongoingTrades.pop(ticker)
+        self.wallet.addFunds(returns)

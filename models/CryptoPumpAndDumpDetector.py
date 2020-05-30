@@ -167,7 +167,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         learningRate = 0.008
         epochs = 500
         batchSize = 30
-        classificationThreshold = 0.105
+        classificationThreshold = 0.75
         self.setup(classificationThreshold,
                     Hyperparameters(learningRate, epochs,
                                     batchSize))
@@ -207,8 +207,8 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         Makes sure this model is ready to be used for predictions.
         """
         # We need to tell the model to make a test prediction so that all of
-        # the additional GPU DLLs get loaded.
-        lst = [np.array([0]) in range(self._NUMBER_OF_SAMPLES * 2)]
+        # the additional GPU DLLs get loaded. Think of it as a warm up :P
+        lst = [np.array([0]) for x in range(self._NUMBER_OF_SAMPLES * 2)]
         self.detect(lst)
 
     def _configureForGPU(self):

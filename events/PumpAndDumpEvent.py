@@ -11,7 +11,8 @@ from events.Event import Event
 
 
 class PumpAndDumpEvent(Event):
-    def __init__(self, ticker: str, price: float):
+    def __init__(self, ticker: str, price: float, confidence: float):
         super().__init__("PumpAndDump")
         self.data["Ticker"] = ticker
         self.data["Price"] = price
+        self.data["Confidence"] = confidence

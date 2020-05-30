@@ -9,24 +9,31 @@ from models.CryptoPumpAndDumpDetector import CryptoPumpAndDumpDetector
 from stock_data.HistoricalBinanceDataObtainer import \
     HistoricalBinanceDataObtainer
 from stock_data.TrackedStockDatabase import TrackedStockDatabase
+from trading.BasicInvestmentStrategy import BasicInvestmentStrategy
 from trading.MinutePumpTrader import MinutePumpTrader
 
 class HistoricalBinanceTradingSimulator:
     startDate: datetime
     endDate: datetime
     minutesBeforeSell: int
-    _fastForwardAmount: int
     trader: MinutePumpTrader
     database: TrackedStockDatabase
     dataObtainer: HistoricalBinanceDataObtainer
     model: CryptoPumpAndDumpDetector
+    startingFunds: float
+    investmentFraction: float
+
+    _fastForwardAmount: int
 
     def __init__(self, startDate: datetime, endDate: datetime,
-                 minutesBeforeSell: int, fastForwardAmount=1):
+                 minutesBeforeSell: int, startingFunds: float,
+                 investmentFraction: float, fastForwardAmount=1):
         self.startDate = startDate
         self.endDate = endDate
         self.minutesBeforeSell = minutesBeforeSell
         self._fastForwardAmount = fastForwardAmount
+        self.startingFunds = startingFunds
+        self.investmentFraction = investmentFraction
         self._setup()
 
     def _setup(self):
@@ -52,7 +59,10 @@ class HistoricalBinanceTradingSimulator:
         self.model.loadWeights()
         self.model.prepareForUse()
         EventDispatcher.getInstance().addListener(self.model, "ListingPriceUpdated")
-        self.trader = MinutePumpTrader(self.minutesBeforeSell, fastForwardAmount=self._fastForwardAmount)
+        self.trader = MinutePumpTrader(BasicInvestmentStrategy(self.investmentFraction),
+                                       minutesBeforeSell=self.minutesBeforeSell,
+                                       fastForwardAmount=self._fastForwardAmount,
+                                       startingFunds=self.startingFunds)
         EventDispatcher.getInstance().addListener(self.trader, "PumpAndDump")
 
     def start(self):
@@ -67,4 +77,5 @@ class HistoricalBinanceTradingSimulator:
         self.trader.stop()
         print("Finished historical Binance trading simulation.")
         print("Results:")
+        print(self.trader.tracker.tradesStr())
         print(self.trader.tracker.calculateProfits())
