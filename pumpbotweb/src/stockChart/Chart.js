@@ -15,6 +15,7 @@ import './components/TimeBar';
 import TimeBar from "./components/TimeBar";
 
 class CandleStickStockScaleChart extends React.Component {
+
 	render() {
 		const { type, data: initialData, width, ratio } = this.props;
 
@@ -32,8 +33,8 @@ class CandleStickStockScaleChart extends React.Component {
 		];
 
 		return (
-			
-			<ChartCanvas height={500}
+			<div>
+				<ChartCanvas height={500}
 				ratio={ratio}
 				width={width*0.5}
 				margin={{ left: 50, right: 50, top: 10, bottom: 30 }}
@@ -55,6 +56,12 @@ class CandleStickStockScaleChart extends React.Component {
 				
 				</TimeBar>
 			</ChartCanvas>
+			<p>Start Time</p>
+			<TimeBar></TimeBar>
+			<p>Current Time</p>
+			<TimeBar></TimeBar>
+			</div>
+			
 			
 		);
 	}
