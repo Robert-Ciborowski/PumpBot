@@ -46,8 +46,13 @@ class PumpTrade:
         investment: float
         buyTimestamp: datetime
         sellTimestamp: datetime
+        if self.sellPrice < 0:
+            sellString = "Unsold"
+        else:
+            sellString = str(self.sellPrice)
+
         return "PumpTrade(" + str(self.ticker) + ", buy: " + str(self.buyPrice)\
-            + " " + str(self.buyTimestamp) + ", sell: " + str(self.sellPrice) + " "\
+            + " " + str(self.buyTimestamp) + ", sell: " + sellString + " "\
             + str(self.sellTimestamp) + ", investment: " + str(self.investment)\
             + ", profit: " + str(self.calculateProfit()) + ")\n"
 

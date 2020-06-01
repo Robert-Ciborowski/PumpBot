@@ -57,6 +57,9 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
             self.data.pop(ticker)
 
     def _readTickerData(self, ticker: str):
+        index = []
+        entries = []
+
         path = self.filePathPrefix + ticker + "-1m-data.csv"
         # df = pd.DataFrame([], columns=["Price", "Volume"])
         df = pd.DataFrame([], columns=["Timestamp", "Open", "High", "Low", "Close", "Volume"])
@@ -120,10 +123,8 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                     price3 = float(row["low"])
                     price4 = float(row["close"])
                     volume = int(row["trades"])
-                    # row = pd.DataFrame([[price, volume]], index=[time], columns=["Price", "Volume"])
-                    row = pd.DataFrame([[timing, price, price2, price3, price4, volume]], index=[timing], columns=["Timestamp", "Open", "High", "Low", "Close", "Volume"])
-                    df = pd.concat([df, row])
-
+                    index.append(timing)
+                    entries.append([timing, price, price2, price3, price4, volume])
                     count += 1
 
                     if count == 10000:
@@ -135,7 +136,9 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
             # pRA = '24m Close Price RA'
             # self._addRA(df, 24, 'Close', pRA)
             # self.data[ticker] = df[["Volume", "Close"]]
+            df = pd.DataFrame(entries, index=index, columns=["Timestamp", "Open", "High", "Low", "Close", "Volume"])
             self.data[ticker] = df
+            print("Done")
 
         except IOError as e:
             print("Could not read " + path + "!")
