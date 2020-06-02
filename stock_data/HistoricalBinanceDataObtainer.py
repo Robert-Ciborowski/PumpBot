@@ -131,10 +131,6 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                         print("Read " + ticker + " data up to " + str(timing))
                         count = 0
 
-            # vRA = '24m Volume RA'
-            # self._addRA(df, 24, 'Volume', vRA)
-            # pRA = '24m Close Price RA'
-            # self._addRA(df, 24, 'Close', pRA)
             # self.data[ticker] = df[["Volume", "Close"]]
             df = pd.DataFrame(entries, index=index, columns=["Timestamp", "Open", "High", "Low", "Close", "Volume"])
             self.data[ticker] = df

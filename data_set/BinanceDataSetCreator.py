@@ -39,7 +39,12 @@ class BinanceDataSetCreator:
                 priceList = ["Price-RA-" + str(i) for i in range(numberOfRAs)]
                 writer.writerow(volumeList + priceList + ["Pump"])
 
+
                 for df in rightBeforePumps:
+                    if "24m Volume RA" not in df.columns:
+                        print("24m Volume RA not in dataframe! Are they pumps: " + str(areTheyPumps))
+                        continue
+
                     mean = df["24m Volume RA"].mean()
                     std = df["24m Volume RA"].std()
                     volumes = (df["24m Volume RA"] - mean) / std
@@ -83,8 +88,21 @@ class BinanceDataSetCreator:
 
     def createFinalPumpsDataSet(self, pumps: List, rightBeforePumps: List):
         # lst = []
-        lst2 = []
+        actualPumps = []
+        falsePositives = []
         length = len(pumps)
+        print("Automatically add all pumps to dataset? (y/n)")
+        input1 = input()
+
+        if input1 == "y":
+            for i in range(0, length):
+                df2 = rightBeforePumps[i]
+                self._addRAs(df2)
+
+            return rightBeforePumps, falsePositives
+
+        print("Please tell me if these are pumps or not.")
+        print("'y' = pump, 'n' = not a pump, 'm' = not a pump, add to non-pump dataset")
 
         for i in range(0, length):
             print("Is this a pump? " + str(i + 1) + "/" + str(length))
@@ -95,14 +113,18 @@ class BinanceDataSetCreator:
 
             if input1 == "y":
                 # lst.append(df)
-                lst2.append(df2)
+                self._addRAs(df2)
+                actualPumps.append(df2)
             elif input1 == "n":
                 continue
+            elif input1 == "m":
+                self._addRAs(df2)
+                falsePositives.append(df2)
             else:
                 print("Invalid input.")
                 i -= 1
 
-        return lst2
+        return actualPumps, falsePositives
 
     def createFinalNonPumpsDataSet(self, pumps: List, rightBeforePumps: List):
         # We don't need to do anything anymore.
@@ -166,8 +188,7 @@ class BinanceDataSetCreator:
         for i in range(0, int((self._getNumberOfRows(df) - amountToIncrement) /
                               (amountToIncrement + 1))):
             rowEntry, df2 = self.findPumpAndDumps(symbol, i * amountToIncrement,
-                                                  amountToIncrement + (i + 1) *
-                                                  amountToIncrement)
+                                                  (i + 1) * amountToIncrement)
 
             if rowEntry["Pump and Dumps"] > 0:
                 dfs.append(df2)
@@ -447,3 +468,9 @@ class BinanceDataSetCreator:
         axes[1][1].set_title("Zoomed In - Volume")
 
         fig.show()
+
+    def _addRAs(self, df2):
+        vRA = '24m Volume RA'
+        self._addRA(df2, 24, 'Volume', vRA)
+        pRA = '24m Close Price RA'
+        self._addRA(df2, 24, 'Close', pRA)
