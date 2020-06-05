@@ -192,7 +192,9 @@ class BinanceDataSetCreator:
 
             if rowEntry["Pump and Dumps"] > 0:
                 dfs.append(df2)
-                dfs2.append(rowEntry["Right Before DF"])
+
+                for df in rowEntry["Right Before DF"]:
+                    dfs2.append(df)
 
         return dfs, dfs2
 
@@ -228,7 +230,8 @@ class BinanceDataSetCreator:
                          plot=False):
         df = self.dataObtainer.data[symbol].iloc[startIndex:endIndex]
         # return self._analyseSymbolForPumps(symbol, df, 3, 1.05), df
-        return self._analyseSymbolForPumps(symbol, df, 2.5, 1.05), df
+        # return self._analyseSymbolForPumps(symbol, df, 2.5, 1.05), df
+        return self._analyseSymbolForPumps(symbol, df, 2.0, 1.05), df
 
     # returns final dataframe
     def _analyseSymbolForPumps(self, symbol: str, df: pd.DataFrame, volumeThreshold: float,
@@ -273,18 +276,19 @@ class BinanceDataSetCreator:
         finalCombined = self._removeSameDayPumps(finalDF)
         finalCombinedAmount = self._getNumberOfRows(finalCombined)
 
-        if finalCombinedAmount == 0:
-            rightBeforeDF = finalCombined
-        else:
-            timeIndex = finalCombined.index[0]
-            endIndex = self.dataObtainer.data[symbol].index.get_loc(timeIndex)\
-                       - self.samplesBeforePumpPeak
-            startIndex = endIndex - self.numberOfSamples
+        pumps = []
 
-            if startIndex < 0:
-                rightBeforeDF = finalCombined
-            else:
-                rightBeforeDF = self.dataObtainer.data[symbol].iloc[startIndex:endIndex]
+        if finalCombinedAmount != 0:
+            for i in range(len(finalCombined.index)):
+                timeIndex = finalCombined.index[0]
+                endIndex = self.dataObtainer.data[symbol].index.get_loc(timeIndex)\
+                           - self.samplesBeforePumpPeak
+                startIndex = endIndex - self.numberOfSamples
+
+                if startIndex < 0:
+                    pumps.append(finalCombined)
+                else:
+                    pumps.append(self.dataObtainer.data[symbol].iloc[startIndex:endIndex])
 
         rowEntry = {'Exchange': exchangeName,
                     'Symbol': symbol,
@@ -292,7 +296,7 @@ class BinanceDataSetCreator:
                     'Volume Spikes': volumeSpikeAmount,
                     'Alleged Pump and Dumps': allegedAmount,
                     'Pump and Dumps': finalCombinedAmount,
-                    "Right Before DF": rightBeforeDF
+                    "Right Before DF": pumps
                     }
 
         return rowEntry

@@ -9,8 +9,8 @@ def train():
     from models.LayerParameter import LayerParameter
 
     print("Loading dataset...")
-    pumps_df = pd.read_csv("../data_set/OAXBTC-YOYOBTC-pumps.csv")
-    non_pumps_df = pd.read_csv("../data_set/OAXBTC-YOYOBTC-non-pumps.csv")
+    pumps_df = pd.read_csv("../data_set/final-dataset-pumps.csv")
+    non_pumps_df = pd.read_csv("../data_set/final-dataset-non-pumps.csv")
     all_df = pumps_df.append(non_pumps_df).reset_index(drop=True)
     all_df = all_df.reindex(
         np.random.permutation(all_df.index))
@@ -19,11 +19,11 @@ def train():
     test_df = all_df.tail(int(numberOfEntries * 0.3))
 
     # Hyperparameters!
-    learningRate = 0.08
-    epochs = 500
-    batchSize = 10
+    learningRate = 0.05
+    epochs = 2000
+    batchSize = 45
     labelName = "Pump"
-    classificationThreshold = 0.5
+    classificationThreshold = 0.75
 
     model = CryptoPumpAndDumpDetector()
     model.setup(classificationThreshold,
