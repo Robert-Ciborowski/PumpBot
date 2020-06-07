@@ -13,6 +13,7 @@ from trading.PumpTrade import PumpTrade
 from trading.PumpTradeTracker import PumpTradeTracker
 from trading.PumpTrader import PumpTrader
 from trading.Wallet import Wallet
+from transactors.Transactor import Transactor
 
 
 class MinutePumpTrader(PumpTrader):
@@ -21,6 +22,7 @@ class MinutePumpTrader(PumpTrader):
     minutesBeforeSell: int
     wallet: Wallet
     investmentStrategy: InvestmentStrategy
+    transactor: Transactor
 
     # Stores ongoing trades in a Dict, with the key being ticker (str)
     # and the value being the time of the trade (datetime)
@@ -33,10 +35,12 @@ class MinutePumpTrader(PumpTrader):
     _fastForwardAmount: int
 
     def __init__(self, investmentStrategy: InvestmentStrategy,
-                 minutesBeforeSell=1, fastForwardAmount=1, startingFunds=0.0):
+                 transactor: Transactor, minutesBeforeSell=1,
+                 fastForwardAmount=1, startingFunds=0.0):
         super().__init__(investmentStrategy)
         self.wallet.addFunds(startingFunds)
         self.tracker = PumpTradeTracker()
+        self.transactor = transactor
         self.ongoingTrades = {}
         self.minutesBeforeSell = minutesBeforeSell
         self._tradesLock = th.Lock()
@@ -52,6 +56,8 @@ class MinutePumpTrader(PumpTrader):
 
         if success:
             print("MinutePumpTrader is buying " + ticker)
+            self.transactor.purchase(ticker, investment)
+
             with self._tradesLock:
                 self.ongoingTrades[ticker] = datetime.now()
                 self.wallet.removeFunds(investment)
@@ -86,6 +92,11 @@ class MinutePumpTrader(PumpTrader):
 
     def _sell(self, ticker: str):
         print("MinutePumpTrader is selling " + ticker)
+
+        # This sells all of the asset.
+        self.transactor.sell(ticker, self.transactor.getBalance(ticker))
+
+        # This keeps track of statistics.
         price = self.stockDatabase.getCurrentStockPrice(ticker)
         returns = self.tracker.getUnsoldTradeByTicker(ticker).sell(price)
         self.ongoingTrades.pop(ticker)

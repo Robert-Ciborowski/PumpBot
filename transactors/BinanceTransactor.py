@@ -56,6 +56,14 @@ class BinanceTransactor(Transactor):
         else:
             return True
 
+    def getBalance(self, ticker: str) -> float:
+        """
+        Returns amount owned of stock/cryptocurrency.
+        :param ticker: the asset
+        :return: amount owned
+        """
+        return self.client.get_asset_balance(asset=ticker)
+
     def getDepositAddress(self, coin="BTC") -> str:
         pass
         # Need to test this since idk its return type
@@ -68,3 +76,6 @@ class BinanceTransactor(Transactor):
 
         withdraws = self.client.get_withdraw_history(asset=coin)
         return withdraws
+
+    def getTradeFee(self, coin: str):
+        return self.client.get_trade_fee(symbol=coin)

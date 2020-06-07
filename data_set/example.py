@@ -7,10 +7,12 @@ if __name__ == "__main__":
     from stock_data.HistoricalBinanceDataObtainer import \
         HistoricalBinanceDataObtainer
 
-    listOfStocks = ["BCCBTC", "BNBBTC", "BQXBTC", "FUNBTC", "GASBTC", "HSRBTC",
-                    "KNCBTC",  "LRCBTC", "LTCBTC", "MCOBTC", "NEOBTC", "OAXBTC",
-                    "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
-                    "YOYOBTC", "ZRXBTC"]
+    # listOfStocks = ["BCCBTC", "BNBBTC", "BQXBTC", "FUNBTC", "GASBTC", "HSRBTC",
+    #                 "KNCBTC",  "LRCBTC", "LTCBTC", "MCOBTC", "NEOBTC", "OAXBTC",
+    #                 "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
+    #                 "YOYOBTC", "ZRXBTC"]
+    # listOfStocks = ["BCCBTC"]
+    listOfStocks = ["BCCBTC", "BQXBTC"]
     historicalObtainer = HistoricalBinanceDataObtainer(
         datetime(day=17, month=8, year=2018, hour=0, minute=1), datetime(day=27, month=12, year=2019, hour=0, minute=1),
         # datetime(day=17, month=8, year=2018, hour=0, minute=1), datetime(day=31, month=8, year=2018, hour=0, minute=1),

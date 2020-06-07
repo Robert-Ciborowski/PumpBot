@@ -11,6 +11,8 @@ from stock_data.HistoricalBinanceDataObtainer import \
 from stock_data.TrackedStockDatabase import TrackedStockDatabase
 from trading.BasicInvestmentStrategy import BasicInvestmentStrategy
 from trading.MinutePumpTrader import MinutePumpTrader
+from transactors.Transactor import Transactor
+
 
 class HistoricalBinanceTradingSimulator:
     startDate: datetime
@@ -60,6 +62,7 @@ class HistoricalBinanceTradingSimulator:
         self.model.prepareForUse()
         EventDispatcher.getInstance().addListener(self.model, "ListingPriceUpdated")
         self.trader = MinutePumpTrader(BasicInvestmentStrategy(self.investmentFraction),
+                                       Transactor(),
                                        minutesBeforeSell=self.minutesBeforeSell,
                                        fastForwardAmount=self._fastForwardAmount,
                                        startingFunds=self.startingFunds)

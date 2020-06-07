@@ -108,6 +108,9 @@ class BinanceDataSetCreator:
             print("Is this a pump? " + str(i + 1) + "/" + str(length))
             df = pumps[i]
             df2 = rightBeforePumps[i]
+            print("DF and DF2 ----------------------")
+            print(df)
+            print(df2)
             self._plotWithPyPlot(df, df2)
             input1 = input()
 
@@ -145,6 +148,7 @@ class BinanceDataSetCreator:
 
         for i in range(1, len(symbols)):
             lst3, lst4 = self.findPumpsForSymbol(symbols[i], amountToIncrement)
+            print(symbols[i] + " had " + str(len(lst4)) + " potential pumps!")
             lst1 += lst3
             lst2 += lst4
 
@@ -185,16 +189,15 @@ class BinanceDataSetCreator:
         dfs = []
         dfs2 = []
 
-        for i in range(0, int((self._getNumberOfRows(df) - amountToIncrement) /
-                              (amountToIncrement + 1))):
-            rowEntry, df2 = self.findPumpAndDumps(symbol, i * amountToIncrement,
+        for i in range(0, int(self._getNumberOfRows(df) /
+                              amountToIncrement) - 1):
+            rowEntry, df = self.findPumpAndDumps(symbol, i * amountToIncrement,
                                                   (i + 1) * amountToIncrement)
 
             if rowEntry["Pump and Dumps"] > 0:
-                dfs.append(df2)
-
-                for df in rowEntry["Right Before DF"]:
-                    dfs2.append(df)
+                for df2 in rowEntry["Right Before DF"]:
+                    dfs.append(df)
+                    dfs2.append(df2)
 
         return dfs, dfs2
 
@@ -285,9 +288,7 @@ class BinanceDataSetCreator:
                            - self.samplesBeforePumpPeak
                 startIndex = endIndex - self.numberOfSamples
 
-                if startIndex < 0:
-                    pumps.append(finalCombined)
-                else:
+                if startIndex >= 0:
                     pumps.append(self.dataObtainer.data[symbol].iloc[startIndex:endIndex])
 
         rowEntry = {'Exchange': exchangeName,
@@ -441,15 +442,22 @@ class BinanceDataSetCreator:
     def _plotWithPyPlot(self, df, df2):
         fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(15, 8))
         fig.tight_layout()
+        # df.to_csv("temporary.csv")
+        # df2.to_csv("temporary2.csv")
+        # df = pd.read_csv("temporary.csv")
+        # df2 = pd.read_csv("temporary2.csv")
 
         # plt.figure()
         # axes[0].xlabel("Timestamp")
         # axes[0].ylabel("Value")
-        axes[0][0].plot(df[["Timestamp"]], df[["High"]], label="High")
-        axes[0][0].plot(df2.iloc[0]["Timestamp"], df2.iloc[0]["High"],
-                        marker='o', markersize=3, color="red")
-        axes[0][0].plot(df2.iloc[-1]["Timestamp"], df2.iloc[-1]["High"],
-                        marker='o', markersize=3, color="red")
+        df.plot(ax=axes[0][0], x="Timestamp", y="High", label="High")
+        # axes[0][0].plot(df[["Timestamp"]], df[["High"]], label="High")
+        # axes[0][0].plot(df[["Timestamp"]], df[["High"]], label="High")
+        df2.plot(ax=axes[0][0], x="Timestamp", y="High", label="High before pump", color="red")
+        # axes[0][0].plot(df2.iloc[0]["Timestamp"], df2.iloc[0]["High"],
+        #                 marker='o', markersize=3, color="red")
+        # axes[0][0].plot(df2.iloc[-1]["Timestamp"], df2.iloc[-1]["High"],
+        #                 marker='o', markersize=3, color="red")
         axes[0][0].set_title("Zoomed Out - Price High")
         # axes[0].legend()
         # plt.show()
@@ -457,18 +465,24 @@ class BinanceDataSetCreator:
         # plt.figure()
         # axes[1].xlabel("Timestamp")
         # axes[1].ylabel("Value")
-        axes[1][0].plot(df[["Timestamp"]], df[["Volume"]], label="Volume")
-        axes[1][0].plot(df2.iloc[0]["Timestamp"], df2.iloc[0]["Volume"],
-                        marker='o', markersize=3, color="red")
-        axes[1][0].plot(df2.iloc[-1]["Timestamp"], df2.iloc[-1]["Volume"],
-                        marker='o', markersize=3, color="red")
+        df.plot(ax=axes[1][0], x="Timestamp", y="Volume", label="Volume")
+        # axes[1][0].plot(df[["Timestamp"]], df[["Volume"]], label="Volume")
+        df2.plot(ax=axes[1][0], x="Timestamp", y="Volume", label="Volume before pump", color="red")
+        # axes[1][0].plot(df2.iloc[0]["Timestamp"], df2.iloc[0]["Volume"],
+        #                 marker='o', markersize=3, color="red")
+        # axes[1][0].plot(df2.iloc[-1]["Timestamp"], df2.iloc[-1]["Volume"],
+        #                 marker='o', markersize=3, color="red")
         axes[1][0].set_title("Zoomed Out - Volume")
         # axes[1].legend()
         # plt.show()
 
-        axes[0][1].plot(df2[["Timestamp"]], df2[["High"]], label="High")
+        df2.plot(ax=axes[0][1], x="Timestamp", y="High", label="High",
+                 color="red")
+        # axes[0][1].plot(df2[["Timestamp"]], df2[["High"]], label="High")
         axes[0][1].set_title("Zoomed In - Price High")
-        axes[1][1].plot(df2[["Timestamp"]], df2[["Volume"]], label="Volume")
+        df2.plot(ax=axes[1][1], x="Timestamp", y="Volume", label="Volume",
+                 color="red")
+        # axes[1][1].plot(df2[["Timestamp"]], df2[["Volume"]], label="Volume")
         axes[1][1].set_title("Zoomed In - Volume")
 
         fig.show()

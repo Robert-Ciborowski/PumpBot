@@ -20,3 +20,11 @@ class Transactor:
         :return: success of the transaction
         """
         pass
+
+    def getBalance(self, ticker: str) -> float:
+        """
+        Returns amount owned of stock/cryptocurrency.
+        :param ticker: the asset
+        :return: amount owned
+        """
+        pass
