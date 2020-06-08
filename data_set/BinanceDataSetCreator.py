@@ -108,9 +108,6 @@ class BinanceDataSetCreator:
             print("Is this a pump? " + str(i + 1) + "/" + str(length))
             df = pumps[i]
             df2 = rightBeforePumps[i]
-            print("DF and DF2 ----------------------")
-            print(df)
-            print(df2)
             self._plotWithPyPlot(df, df2)
             input1 = input()
 
