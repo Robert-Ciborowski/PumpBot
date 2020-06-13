@@ -140,9 +140,7 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
             print("Could not read " + path + "!")
 
     def obtainPrice(self, ticker: str) -> float:
-        now = datetime.now()
-        diff = (now - self._startTime) * self._fastForwardAmount
-        date = self.dateOfStart + diff
+        date = self._getCurrentHistoricalDate()
         start_date_to_use = datetime(date.year, date.month, date.day,
                                      hour=date.hour, minute=date.minute)
         timezone = pytz.timezone(self.timezone)
@@ -171,6 +169,9 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
         prices = self._getValuesFromDataframe(self.data[ticker], "Close", d_aware)
         volumes = self._getValuesFromDataframe(self.data[ticker], "Volume", d_aware)
         return prices, volumes
+
+    def getCurrentDate(self) -> datetime:
+        return self._getCurrentHistoricalDate()
 
     def _getValueFromDataframe(self, df: pd.DataFrame, value: str, time: datetime) -> float:
         keys = df.index.tolist()
@@ -215,5 +216,10 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
     def _addRA(self, df, windowSize, col, name):
         df[name] = pd.Series.rolling(df[col], window=windowSize,
                                      center=False).mean()
+
+    def _getCurrentHistoricalDate(self):
+        now = datetime.now()
+        diff = (now - self._startTime) * self._fastForwardAmount
+        return self.dateOfStart + diff
 
 

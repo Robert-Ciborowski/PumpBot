@@ -11,6 +11,9 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import csv
 
+from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT
+
+
 class BinanceDataSetCreator:
     dataObtainer: HistoricalBinanceDataObtainer
     numberOfSamples: int
@@ -18,7 +21,7 @@ class BinanceDataSetCreator:
 
     def __init__(self, dataObtainer: HistoricalBinanceDataObtainer):
         self.dataObtainer = dataObtainer
-        self.numberOfSamples = 25
+        self.numberOfSamples = MINUTES_OF_DATA_TO_LOOK_AT
         self.samplesBeforePumpPeak = 7
 
     def exportPumpsToCSV(self, symbol: str, rightBeforePumps: List,

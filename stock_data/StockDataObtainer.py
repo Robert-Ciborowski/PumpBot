@@ -4,7 +4,7 @@
 # Description: Keeps track of stock prices to the minute.
 
 # from __future__ import annotations
-
+from datetime import datetime
 from typing import Dict, List
 import pandas as pd
 import yfinance as yf
@@ -42,6 +42,9 @@ class StockDataObtainer:
 
     def obtainPricesAndVolumes(self, ticker: str, numberOfPrices=-1):
         return []
+
+    def getCurrentDate(self) -> datetime:
+        pass
 
     """
     Useful helper method for getting just the most recent price from a

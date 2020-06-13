@@ -11,6 +11,8 @@ from stock_data.HistoricalBinanceDataObtainer import \
 from stock_data.TrackedStockDatabase import TrackedStockDatabase
 from trading.BasicInvestmentStrategy import BasicInvestmentStrategy
 from trading.MinutePumpTrader import MinutePumpTrader
+from trading.ProfitPumpTrader import ProfitPumpTrader
+from trading.PumpTrader import PumpTrader
 from transactors.Transactor import Transactor
 
 
@@ -18,7 +20,8 @@ class HistoricalBinanceTradingSimulator:
     startDate: datetime
     endDate: datetime
     minutesBeforeSell: int
-    trader: MinutePumpTrader
+    minutesAfterSell: int
+    trader: PumpTrader
     database: TrackedStockDatabase
     dataObtainer: HistoricalBinanceDataObtainer
     model: CryptoPumpAndDumpDetector
@@ -28,11 +31,12 @@ class HistoricalBinanceTradingSimulator:
     _fastForwardAmount: int
 
     def __init__(self, startDate: datetime, endDate: datetime,
-                 minutesBeforeSell: int, startingFunds: float,
+                 minutesBeforeSell: int, minutesAfterSell: int, startingFunds: float,
                  investmentFraction: float, fastForwardAmount=1):
         self.startDate = startDate
         self.endDate = endDate
         self.minutesBeforeSell = minutesBeforeSell
+        self.minutesAfterSell = minutesAfterSell
         self._fastForwardAmount = fastForwardAmount
         self.startingFunds = startingFunds
         self.investmentFraction = investmentFraction
@@ -42,7 +46,7 @@ class HistoricalBinanceTradingSimulator:
         self.dataObtainer = HistoricalBinanceDataObtainer(self.startDate, self.endDate,
                                                      filePathPrefix="../binance_historical_data/",
                                                      fastForwardAmount=self._fastForwardAmount)
-        listings_obtainer = SpecifiedListingObtainer(["OAXBTC"])
+        listings_obtainer = SpecifiedListingObtainer(["BQXBTC"])
         filter = PassThroughStockFilter(self.dataObtainer)
         filter.addListings(listings_obtainer) \
             .getDataForFiltering() \
@@ -61,11 +65,20 @@ class HistoricalBinanceTradingSimulator:
         self.model.loadWeights()
         self.model.prepareForUse()
         EventDispatcher.getInstance().addListener(self.model, "ListingPriceUpdated")
-        self.trader = MinutePumpTrader(BasicInvestmentStrategy(self.investmentFraction),
-                                       Transactor(),
-                                       minutesBeforeSell=self.minutesBeforeSell,
-                                       fastForwardAmount=self._fastForwardAmount,
-                                       startingFunds=self.startingFunds)
+        # self.trader = MinutePumpTrader(BasicInvestmentStrategy(self.investmentFraction),
+        #                                Transactor(),
+        #                                minutesBeforeSell=self.minutesBeforeSell,
+        #                                minutesAfterSell=self.minutesAfterSell,
+        #                                fastForwardAmount=self._fastForwardAmount,
+        #                                startingFunds=self.startingFunds)
+        self.trader = ProfitPumpTrader(
+            BasicInvestmentStrategy(self.investmentFraction),
+            Transactor(),
+            profitRatioToAimFor=0.1,
+            acceptableLossRatio=0.1,
+            minutesAfterSell=self.minutesAfterSell,
+            fastForwardAmount=self._fastForwardAmount,
+            startingFunds=self.startingFunds)
         EventDispatcher.getInstance().addListener(self.trader, "PumpAndDump")
 
     def start(self):

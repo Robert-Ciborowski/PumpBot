@@ -16,6 +16,7 @@ from tensorflow.keras import layers
 from models.LayerParameter import LayerParameter
 from models.Hyperparameters import Hyperparameters
 from models.PumpAndDumpDetector import PumpAndDumpDetector
+from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT
 
 
 class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
@@ -24,7 +25,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     exportPath: str
 
     _metrics: List
-    _NUMBER_OF_SAMPLES = 25
+    _NUMBER_OF_SAMPLES = MINUTES_OF_DATA_TO_LOOK_AT
 
     def __init__(self):
         super().__init__()
@@ -167,7 +168,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         learningRate = 0.008
         epochs = 500
         batchSize = 30
-        classificationThreshold = 0.85
+        classificationThreshold = 0.7
         self.setup(classificationThreshold,
                     Hyperparameters(learningRate, epochs,
                                     batchSize))

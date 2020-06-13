@@ -25,7 +25,7 @@ class PumpTrade:
 
         self.sellTimestamp = sellTimestamp
 
-    def sell(self, sellPrice: float) -> float:
+    def sell(self, sellPrice: float, sellTimestamp=None) -> float:
         """
         Sells the asset.
         :param sellPrice: the price at which the asset was sold.
@@ -33,7 +33,12 @@ class PumpTrade:
         """
         print("Selling " + self.ticker + "...")
         self.sellPrice = sellPrice
-        self.sellTimestamp = datetime.now()
+
+        if sellTimestamp is None:
+            self.sellTimestamp = datetime.now()
+        else:
+            self.sellTimestamp = sellTimestamp
+
         return (sellPrice / self.buyPrice) * self.investment
 
     def wasSold(self) -> bool:
@@ -60,6 +65,6 @@ class PumpTrade:
         if not self.wasSold():
             profit = 0.0
         else:
-            profit = (self.sellPrice - self.buyPrice) * self.investment
+            profit = (self.sellPrice / self.buyPrice) * self.investment
 
         return profit

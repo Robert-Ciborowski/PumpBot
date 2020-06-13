@@ -4,7 +4,7 @@
 # Description: Obtains the updated Binance crypto prices.
 
 # from __future__ import annotations
-
+from datetime import datetime
 from typing import Dict, List
 import json
 
@@ -97,6 +97,9 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
                 numberOfTrades = 0
 
         return prices, volumes
+
+    def getCurrentDate(self) -> datetime:
+        return datetime.now()
 
     def _getKeysFromFile(self, propertiesFile: str):
         try:
