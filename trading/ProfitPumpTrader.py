@@ -29,7 +29,8 @@ class ProfitPumpTrader(PumpTrader):
     transactor: Transactor
 
     # Stores ongoing trades in a Dict, with the key being ticker (str)
-    # and the value being the time of the trade (datetime)
+    # and the value being a list with the time of the trade (datetime) and the
+    # highest price it reached (float)
     ongoingTrades: Dict
 
     # Multithreading stuff
@@ -59,16 +60,19 @@ class ProfitPumpTrader(PumpTrader):
             return
 
         investment = self.investmentStrategy.getAmountToInvest(self.wallet, price, confidence)
-        print("Investing " + str(investment) + "...")
         time = self.stockDatabase.getCurrentTime()
+
+        if not self.timeOfLastSell + timedelta(minutes=self.minutesAfterSell) <= datetime.now():
+            return
+
         success = self.tracker.addNewTradeIfNotOwned(PumpTrade(ticker, price, investment, buyTimestamp=time))
 
-        if success and self.timeOfLastSell + timedelta(minutes=self.minutesAfterSell) <= datetime.now():
-            print("MinutePumpTrader is buying " + ticker)
+        if success:
+            print("MinutePumpTrader is buying " + ticker + " with " + str(investment) + "...")
             self.transactor.purchase(ticker, investment)
 
             with self._tradesLock:
-                self.ongoingTrades[ticker] = datetime.now()
+                self.ongoingTrades[ticker] = [datetime.now(), price]
                 self.wallet.removeFunds(investment)
 
     def start(self):
@@ -95,17 +99,19 @@ class ProfitPumpTrader(PumpTrader):
 
         with self._tradesLock:
             trade = self.tracker.getUnsoldTradeByTicker(ticker)
-            time = self.ongoingTrades[ticker]
+            time = self.ongoingTrades[ticker][0]
 
             if trade.buyPrice * (1 + self.profitRatioToAimFor) <= currentPrice:
                 print("Making profit on a trade!")
                 self._sell(ticker)
-            elif trade.buyPrice * (1 - self.acceptableLossRatio) >= currentPrice:
-                print("Losing from a trade.")
+            elif self.ongoingTrades[ticker][1] * (1 - self.acceptableLossRatio) >= currentPrice:
+                print("Stock's price dipped too much from its peak. Selling stock.")
                 self._sell(ticker)
             elif (now - time).total_seconds() * self._fastForwardAmount / 60 >= self.maxTimeToHoldStock:
                 print("Held a stock for too long and decided to sell it.")
                 self._sell(ticker)
+            elif currentPrice > self.ongoingTrades[ticker][1]:
+                self.ongoingTrades[ticker][1] = currentPrice
 
 
     def _sell(self, ticker: str):

@@ -65,6 +65,6 @@ class PumpTrade:
         if not self.wasSold():
             profit = 0.0
         else:
-            profit = (self.sellPrice / self.buyPrice) * self.investment
+            profit = (self.sellPrice / self.buyPrice) * self.investment - self.investment
 
         return profit

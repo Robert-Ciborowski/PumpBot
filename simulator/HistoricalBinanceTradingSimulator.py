@@ -46,7 +46,7 @@ class HistoricalBinanceTradingSimulator:
         self.dataObtainer = HistoricalBinanceDataObtainer(self.startDate, self.endDate,
                                                      filePathPrefix="../binance_historical_data/",
                                                      fastForwardAmount=self._fastForwardAmount)
-        listings_obtainer = SpecifiedListingObtainer(["BQXBTC"])
+        listings_obtainer = SpecifiedListingObtainer(["OAXBTC"])
         filter = PassThroughStockFilter(self.dataObtainer)
         filter.addListings(listings_obtainer) \
             .getDataForFiltering() \
@@ -74,8 +74,8 @@ class HistoricalBinanceTradingSimulator:
         self.trader = ProfitPumpTrader(
             BasicInvestmentStrategy(self.investmentFraction),
             Transactor(),
-            profitRatioToAimFor=0.1,
-            acceptableLossRatio=0.1,
+            profitRatioToAimFor=0.07,
+            acceptableLossRatio=0.065,
             minutesAfterSell=self.minutesAfterSell,
             fastForwardAmount=self._fastForwardAmount,
             startingFunds=self.startingFunds)
@@ -94,4 +94,5 @@ class HistoricalBinanceTradingSimulator:
         print("Finished historical Binance trading simulation.")
         print("Results:")
         print(self.trader.tracker.tradesStr())
+        print("=== Profits (in BTC) ===")
         print(self.trader.tracker.calculateProfits())
