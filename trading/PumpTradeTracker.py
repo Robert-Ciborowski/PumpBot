@@ -44,15 +44,18 @@ class PumpTradeTracker:
         0!
         """
         returnDict = {}
+        total = 0.0
 
         for trade in self.trades:
             profit = trade.calculateProfit()
+            total += profit
 
             if trade.ticker not in returnDict:
                 returnDict[trade.ticker] = 0.0
 
             returnDict[trade.ticker] += profit
 
+        returnDict["Total"] = total
         return returnDict
 
     def tradesStr(self):

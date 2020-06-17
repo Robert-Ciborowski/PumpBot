@@ -19,8 +19,9 @@ from transactors.Transactor import Transactor
 class HistoricalBinanceTradingSimulator:
     startDate: datetime
     endDate: datetime
-    minutesBeforeSell: int
+    maxTimeToHoldStock: int
     minutesAfterSell: int
+    minutesAfterSellIfPriceInactivity: int
     trader: PumpTrader
     database: TrackedStockDatabase
     dataObtainer: HistoricalBinanceDataObtainer
@@ -31,22 +32,33 @@ class HistoricalBinanceTradingSimulator:
     _fastForwardAmount: int
 
     def __init__(self, startDate: datetime, endDate: datetime,
-                 minutesBeforeSell: int, minutesAfterSell: int, startingFunds: float,
+                 minutesBeforeSell: int, minutesAfterSell: int,
+                 minutesAfterSellIfPriceInactivity: int, startingFunds: float,
                  investmentFraction: float, fastForwardAmount=1):
         self.startDate = startDate
         self.endDate = endDate
-        self.minutesBeforeSell = minutesBeforeSell
+        self.maxTimeToHoldStock = minutesBeforeSell
         self.minutesAfterSell = minutesAfterSell
+        self.minutesAfterSellIfPriceInactivity = minutesAfterSellIfPriceInactivity
         self._fastForwardAmount = fastForwardAmount
         self.startingFunds = startingFunds
         self.investmentFraction = investmentFraction
         self._setup()
 
     def _setup(self):
-        self.dataObtainer = HistoricalBinanceDataObtainer(self.startDate, self.endDate,
-                                                     filePathPrefix="../binance_historical_data/",
-                                                     fastForwardAmount=self._fastForwardAmount)
-        listings_obtainer = SpecifiedListingObtainer(["OAXBTC"])
+        self.dataObtainer = HistoricalBinanceDataObtainer(self.startDate,
+                                                          self.endDate,
+                                                          filePathPrefix="../binance_historical_data/",
+                                                          fastForwardAmount=self._fastForwardAmount)
+        # tickers = ["BNBBTC", "BQXBTC", "FUNBTC", "GASBTC", "HSRBTC",
+        #            "KNCBTC", "LRCBTC", "LTCBTC", "MCOBTC", "NEOBTC", "OAXBTC",
+        #            "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
+        #            "YOYOBTC", "ZRXBTC"]
+        # tickers = ["LRCBTC", "YOYOBTC"]
+        tickers = ["LRCBTC", "YOYOBTC", "FUNBTC", "HSRBTC", "LTCBTC", "WTCBTC"]
+        # tickers = ["GASBTC", "KNCBTC", "STRATBTC", "MCOBTC", "NEOBTC", "QTUMBTC"]
+        # listings_obtainer = SpecifiedListingObtainer(["OAXBTC"])
+        listings_obtainer = SpecifiedListingObtainer(tickers)
         filter = PassThroughStockFilter(self.dataObtainer)
         filter.addListings(listings_obtainer) \
             .getDataForFiltering() \
@@ -56,7 +68,7 @@ class HistoricalBinanceTradingSimulator:
         self.database.useObtainer(self.dataObtainer) \
             .trackStocksInFilter(filter) \
             .setSecondsBetweenStockUpdates(60 / self._fastForwardAmount)
-            # .setSecondsBetweenStockUpdates(60)
+        # .setSecondsBetweenStockUpdates(60)
 
         self.model = CryptoPumpAndDumpDetector()
         self.model.setupUsingDefaults()
@@ -64,7 +76,8 @@ class HistoricalBinanceTradingSimulator:
         self.model.exportPath = "../models/model_exports/cryptopumpanddumpdetector"
         self.model.loadWeights()
         self.model.prepareForUse()
-        EventDispatcher.getInstance().addListener(self.model, "ListingPriceUpdated")
+        EventDispatcher.getInstance().addListener(self.model,
+                                                  "ListingPriceUpdated")
         # self.trader = MinutePumpTrader(BasicInvestmentStrategy(self.investmentFraction),
         #                                Transactor(),
         #                                minutesBeforeSell=self.minutesBeforeSell,
@@ -75,8 +88,10 @@ class HistoricalBinanceTradingSimulator:
             BasicInvestmentStrategy(self.investmentFraction),
             Transactor(),
             profitRatioToAimFor=0.07,
-            acceptableLossRatio=0.065,
+            acceptableLossRatio=0.02,
             minutesAfterSell=self.minutesAfterSell,
+            minutesAfterSellIfPriceInactivity=self.minutesAfterSellIfPriceInactivity,
+            maxTimeToHoldStock=self.maxTimeToHoldStock,
             fastForwardAmount=self._fastForwardAmount,
             startingFunds=self.startingFunds)
         EventDispatcher.getInstance().addListener(self.trader, "PumpAndDump")
@@ -87,7 +102,8 @@ class HistoricalBinanceTradingSimulator:
         self.trader.start()
         self.dataObtainer.setStartTimeToNow()
         print("Started historical Binance trading simulator.")
-        time.sleep((self.endDate - self.startDate).total_seconds() // self._fastForwardAmount)
+        time.sleep((
+                               self.endDate - self.startDate).total_seconds() // self._fastForwardAmount)
         print("It is time to stop.")
         self.database.stopSelfUpdating()
         self.trader.stop()

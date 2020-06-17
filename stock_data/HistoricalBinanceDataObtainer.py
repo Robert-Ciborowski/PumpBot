@@ -134,7 +134,7 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
             # self.data[ticker] = df[["Volume", "Close"]]
             df = pd.DataFrame(entries, index=index, columns=["Timestamp", "Open", "High", "Low", "Close", "Volume"])
             self.data[ticker] = df
-            print("Done")
+            print("Done reading " + ticker + " historical data.")
 
         except IOError as e:
             print("Could not read " + path + "!")
@@ -166,8 +166,10 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                                      hour=date.hour, minute=date.minute)
         timezone = pytz.timezone(self.timezone)
         d_aware = timezone.localize(start_date_to_use)
+        print("Obtaining price and volume data of " + ticker + " at " + str(d_aware) + ".")
         prices = self._getValuesFromDataframe(self.data[ticker], "Close", d_aware)
         volumes = self._getValuesFromDataframe(self.data[ticker], "Volume", d_aware)
+        print("Price of " + ticker + ": " + str(prices[-1]))
         return prices, volumes
 
     def getCurrentDate(self) -> datetime:
