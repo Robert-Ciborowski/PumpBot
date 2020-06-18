@@ -17,6 +17,9 @@ discord_bot/bot_properties.csv
 binance_historical_data/*.csv
 data_set/*.csv
 
+# Models
+models/model_exports/*
+
 venv-3.6.8
 venv-3.6
 
