@@ -13,7 +13,7 @@ from trading.BasicInvestmentStrategy import BasicInvestmentStrategy
 from trading.MinutePumpTrader import MinutePumpTrader
 from trading.ProfitPumpTrader import ProfitPumpTrader
 from trading.PumpTrader import PumpTrader
-from transactors.Transactor import Transactor
+from wallet.Transactor import Transactor
 
 
 class HistoricalBinanceTradingSimulator:
@@ -55,8 +55,8 @@ class HistoricalBinanceTradingSimulator:
         #            "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
         #            "YOYOBTC", "ZRXBTC"]
         # tickers = ["LRCBTC", "YOYOBTC"]
-        tickers = ["LRCBTC", "YOYOBTC", "QTUMBTC", "FUNBTC", "LTCBTC", "WTCBTC"]
-        # tickers = ["GASBTC", "KNCBTC", "STRATBTC", "MCOBTC", "NEOBTC", "QTUMBTC"]
+        # tickers = ["LRCBTC", "YOYOBTC", "QTUMBTC", "FUNBTC", "LTCBTC", "WTCBTC"]
+        tickers = ["GASBTC", "KNCBTC", "STRATBTC", "MCOBTC", "NEOBTC", "QTUMBTC"]
         # listings_obtainer = SpecifiedListingObtainer(["OAXBTC"])
         listings_obtainer = SpecifiedListingObtainer(tickers)
         filter = PassThroughStockFilter(self.dataObtainer)

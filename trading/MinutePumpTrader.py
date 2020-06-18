@@ -13,7 +13,7 @@ from trading.PumpTrade import PumpTrade
 from trading.PumpTradeTracker import PumpTradeTracker
 from trading.PumpTrader import PumpTrader
 from trading.Wallet import Wallet
-from transactors.Transactor import Transactor
+from wallet.Transactor import Transactor
 
 
 class MinutePumpTrader(PumpTrader):
@@ -76,6 +76,8 @@ class MinutePumpTrader(PumpTrader):
         self._updaterThread.join()
 
     def update(self):
+        super().update()
+
         while not self._stopThread:
             # We will be deleting items as we iterate over them, so we make a
             # copy of the keys first.
