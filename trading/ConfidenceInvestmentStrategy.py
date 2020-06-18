@@ -4,7 +4,7 @@ a linear function of confidence of the investment. You can also multiply the
 determined investment amount by a predefined fraction.
 """
 from trading.InvestmentStrategy import InvestmentStrategy
-from trading.Wallet import Wallet
+from wallet.Wallet import Wallet
 
 
 class BasicInvestmentStrategy(InvestmentStrategy):
@@ -30,4 +30,4 @@ class BasicInvestmentStrategy(InvestmentStrategy):
         else:
             confidenceMultiplier = confidence / self.confidenceForFullInvestment
 
-        return wallet.getPortionOfFunds(self.investmentFraction) * confidenceMultiplier
+        return wallet.getPortionOfBalance(self.investmentFraction) * confidenceMultiplier

@@ -1,5 +1,5 @@
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from events.EventDispatcher import EventDispatcher
 from filter.PassThroughStockFilter import PassThroughStockFilter
@@ -13,7 +13,8 @@ from trading.BasicInvestmentStrategy import BasicInvestmentStrategy
 from trading.MinutePumpTrader import MinutePumpTrader
 from trading.ProfitPumpTrader import ProfitPumpTrader
 from trading.PumpTrader import PumpTrader
-from wallet.Transactor import Transactor
+
+from wallet.SimpleWallet import SimpleWallet
 
 
 class HistoricalBinanceTradingSimulator:
@@ -46,8 +47,9 @@ class HistoricalBinanceTradingSimulator:
         self._setup()
 
     def _setup(self):
+        # We add an hour to the end date just in case.
         self.dataObtainer = HistoricalBinanceDataObtainer(self.startDate,
-                                                          self.endDate,
+                                                          self.endDate + timedelta(days=1),
                                                           filePathPrefix="../binance_historical_data/",
                                                           fastForwardAmount=self._fastForwardAmount)
         # tickers = ["BNBBTC", "BQXBTC", "FUNBTC", "GASBTC", "HSRBTC",
@@ -55,8 +57,9 @@ class HistoricalBinanceTradingSimulator:
         #            "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
         #            "YOYOBTC", "ZRXBTC"]
         # tickers = ["LRCBTC", "YOYOBTC"]
+        # tickers = ["LRCBTC"]
         # tickers = ["LRCBTC", "YOYOBTC", "QTUMBTC", "FUNBTC", "LTCBTC", "WTCBTC"]
-        tickers = ["GASBTC", "KNCBTC", "STRATBTC", "MCOBTC", "NEOBTC", "QTUMBTC"]
+        # tickers = ["GASBTC", "KNCBTC", "STRATBTC", "MCOBTC", "NEOBTC", "QTUMBTC"]
         # listings_obtainer = SpecifiedListingObtainer(["OAXBTC"])
         listings_obtainer = SpecifiedListingObtainer(tickers)
         filter = PassThroughStockFilter(self.dataObtainer)
@@ -86,14 +89,13 @@ class HistoricalBinanceTradingSimulator:
         #                                startingFunds=self.startingFunds)
         self.trader = ProfitPumpTrader(
             BasicInvestmentStrategy(self.investmentFraction),
-            Transactor(),
+            SimpleWallet(self.startingFunds),
             profitRatioToAimFor=0.07,
             acceptableLossRatio=0.02,
             minutesAfterSell=self.minutesAfterSell,
             minutesAfterSellIfPriceInactivity=self.minutesAfterSellIfPriceInactivity,
             maxTimeToHoldStock=self.maxTimeToHoldStock,
-            fastForwardAmount=self._fastForwardAmount,
-            startingFunds=self.startingFunds)
+            fastForwardAmount=self._fastForwardAmount)
         EventDispatcher.getInstance().addListener(self.trader, "PumpAndDump")
 
     def start(self):

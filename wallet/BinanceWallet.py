@@ -1,16 +1,16 @@
 """
-Makes transactions on Binance.
+A wallet tied to Binance.
 """
 import json
 
 import binance
 
-from wallet.Transactor import Transactor
+from wallet.Wallet import Wallet
 from binance.client import Client
 from binance.exceptions import BinanceAPIException, BinanceWithdrawException
 
 
-class BinanceTransactor(Transactor):
+class BinanceWallet(Wallet):
     client: Client
     withdrawAddress: str
 
@@ -77,18 +77,6 @@ class BinanceTransactor(Transactor):
         :param amount: the amount to sell
         :return: success of the transaction
         """
-        # try:
-        #     result = self.client.withdraw(asset=ticker,
-        #                                   address=self.withdrawAddress,
-        #                                   amount=amount)
-        # except BinanceAPIException as e:
-        #     print(e)
-        #     return False
-        # except BinanceWithdrawException as e:
-        #     print(e)
-        #     return False
-        # else:
-        #     return True
         try:
             if test:
                 self.client.create_test_order(
@@ -129,9 +117,7 @@ class BinanceTransactor(Transactor):
         return self.client.get_asset_balance(asset=ticker)["free"]
 
     def getDepositAddress(self, coin="BTC") -> str:
-        pass
-        # Need to test this since idk its return type
-        # return self.client.get_deposit_address(asset=coin)
+        return self.client.get_deposit_address(asset=coin)["address"]
 
     def getWithdrawals(self, coin=""):
         if coin == "":

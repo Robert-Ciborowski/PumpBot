@@ -2,7 +2,7 @@
 An abstract class which is used by PumpTrader to figure out how
 much to invest.
 """
-from trading.Wallet import Wallet
+from wallet.Wallet import Wallet
 
 
 class InvestmentStrategy:

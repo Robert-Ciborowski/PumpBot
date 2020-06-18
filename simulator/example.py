@@ -23,11 +23,11 @@ if __name__ == "__main__":
     # start = datetime(2020, 1, 17, 5, 0)
     # end = datetime(2020, 1, 17, 20, 0)
     # start = datetime(2020, 1, 17, 5, 0)
-    # end = datetime(2020, 1, 17, 11, 0)
+    # end = datetime(2020, 1, 17, 9, 30)
 
     # LRCBTC, YOYOBTC, FUNBTC, GASBTC, KNCBTC, STRATBTC
     start = datetime(2020, 1, 17, 0, 0)
-    end = datetime(2020, 1, 19, 0, 0)
+    end = datetime(2020, 1, 18, 0, 0)
 
     # BQXBTC
     # start = datetime(2019, 5, 10, 11, 45)
