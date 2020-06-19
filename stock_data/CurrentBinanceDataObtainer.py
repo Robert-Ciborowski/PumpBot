@@ -9,6 +9,7 @@ from typing import Dict, List
 import json
 
 import binance
+import pytz
 from binance.client import Client
 
 from stock_data.StockDataObtainer import StockDataObtainer
@@ -16,12 +17,14 @@ from stock_data.StockDataObtainer import StockDataObtainer
 class CurrentBinanceDataObtainer(StockDataObtainer):
     _client: Client
     _recentTradesLimit: int
+    _timezone: pytz.timezone
 
     def __init__(self, propertiesFile="binance_properties.json"):
         super().__init__()
         api_key, api_secret = self._getKeysFromFile(propertiesFile)
         self._client = Client(api_key=api_key, api_secret=api_secret)
         self._recentTradesLimit = 10
+        self._timezone = pytz.timezone("Etc/GMT-0")
 
     def obtainPrice(self, ticker: str) -> float:
         # COULD ALSO USE client.get_avg_price, but that uses a 5 minute interval.
@@ -96,10 +99,14 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
                 volumeTotal = 0
                 numberOfTrades = 0
 
+        print("Obtained price and volume data of " + ticker + " at " + str(
+            datetime.now()) + ".")
         return prices, volumes
 
     def getCurrentDate(self) -> datetime:
-        return datetime.now()
+        now = datetime.now()
+        now = self._timezone.localize(now)
+        return now
 
     def _getKeysFromFile(self, propertiesFile: str):
         try:

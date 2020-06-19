@@ -1,0 +1,8 @@
+{
+	"Investment Ratio": 0.3,
+	"Target Profit Ratio": 0.07,
+	"Acceptable Loss Ratio": 0.02,
+	"Minutes After Price-Active Sell": 120,
+	"Minutes After Price-Inactive Sell": 10,
+	"Max Time To Hold Stock": 240
+}

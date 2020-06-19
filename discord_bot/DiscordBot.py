@@ -171,7 +171,7 @@ class DiscordBot(discord.Client, EventListener):
                     "available or is invalid!")
         else:
             await message.channel.send(
-                (str(message.author.mention) + " **" + lst[1] + "**: ${:." + self._priceFormat + "f}") \
+                (str(message.author.mention) + " **" + lst[1] + "**: {:." + self._priceFormat + "f}") \
                     .format(price))
 
 

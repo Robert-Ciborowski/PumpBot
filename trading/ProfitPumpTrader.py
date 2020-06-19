@@ -12,6 +12,7 @@ from trading.InvestmentStrategy import InvestmentStrategy
 from trading.PumpTrade import PumpTrade
 from trading.PumpTradeTracker import PumpTradeTracker
 from trading.PumpTrader import PumpTrader
+from util.Constants import TEST_MODE
 from wallet.Wallet import Wallet
 
 
@@ -67,7 +68,7 @@ class ProfitPumpTrader(PumpTrader):
         success = self.tracker.addNewTradeIfNotOwned(PumpTrade(ticker, price, investment, buyTimestamp=time))
 
         if success:
-            if self.wallet.purchase(ticker, investment, test=True):
+            if self.wallet.purchase(ticker, investment, test=TEST_MODE):
                 print("MinutePumpTrader is buying " + ticker + " with " + str(
                     investment) + "...")
 
@@ -100,7 +101,6 @@ class ProfitPumpTrader(PumpTrader):
     def _updateTrade(self, ticker: str):
         currentPrice = self.stockDatabase.getCurrentStockPrice(ticker)
         now = self.stockDatabase.getCurrentTime()
-        print("HAHAHAHAHAHAHHA")
 
         with self._tradesLock:
             trade = self.tracker.getUnsoldTradeByTicker(ticker)
@@ -128,7 +128,7 @@ class ProfitPumpTrader(PumpTrader):
             self.sellCooldown[ticker] = self.stockDatabase.getCurrentTime() + timedelta(minutes=self.minutesAfterSell)
 
         # This sells all of the asset.
-        self.wallet.sell(ticker, self.wallet.getBalance(ticker), test=True)
+        self.wallet.sell(ticker, self.wallet.getBalance(ticker), test=TEST_MODE)
 
         # This keeps track of statistics.
         price = self.stockDatabase.getCurrentStockPrice(ticker)

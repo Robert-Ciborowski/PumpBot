@@ -15,6 +15,7 @@ from trading.ProfitPumpTrader import ProfitPumpTrader
 from trading.PumpTrader import PumpTrader
 
 from wallet.SimpleWallet import SimpleWallet
+from wallet.Wallet import Wallet
 
 
 class HistoricalBinanceTradingSimulator:
@@ -27,14 +28,14 @@ class HistoricalBinanceTradingSimulator:
     database: TrackedStockDatabase
     dataObtainer: HistoricalBinanceDataObtainer
     model: CryptoPumpAndDumpDetector
-    startingFunds: float
     investmentFraction: float
+    wallet: Wallet
 
     _fastForwardAmount: int
 
-    def __init__(self, startDate: datetime, endDate: datetime,
+    def __init__(self, startDate: datetime, endDate: datetime, wallet: Wallet,
                  minutesBeforeSell: int, minutesAfterSell: int,
-                 minutesAfterSellIfPriceInactivity: int, startingFunds: float,
+                 minutesAfterSellIfPriceInactivity: int,
                  investmentFraction: float, fastForwardAmount=1):
         self.startDate = startDate
         self.endDate = endDate
@@ -42,8 +43,8 @@ class HistoricalBinanceTradingSimulator:
         self.minutesAfterSell = minutesAfterSell
         self.minutesAfterSellIfPriceInactivity = minutesAfterSellIfPriceInactivity
         self._fastForwardAmount = fastForwardAmount
-        self.startingFunds = startingFunds
         self.investmentFraction = investmentFraction
+        self.wallet = wallet
         self._setup()
 
     def _setup(self):
@@ -57,9 +58,10 @@ class HistoricalBinanceTradingSimulator:
         #            "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
         #            "YOYOBTC", "ZRXBTC"]
         # tickers = ["LRCBTC", "YOYOBTC"]
-        # tickers = ["LRCBTC"]
-        # tickers = ["LRCBTC", "YOYOBTC", "QTUMBTC", "FUNBTC", "LTCBTC", "WTCBTC"]
-        # tickers = ["GASBTC", "KNCBTC", "STRATBTC", "MCOBTC", "NEOBTC", "QTUMBTC"]
+        tickers = ["LRCBTC"]
+        # tickers = ["OAXBTC"]
+        # tickers = ["LRCBTC", "YOYOBTC", "QTUMBTC", "FUNBTC", "LTCBTC", "SNGLSBTC"]
+        # tickers = ["GASBTC", "KNCBTC", "STRATBTC", "MCOBTC", "NEOBTC", "ZRXBTC"]
         # listings_obtainer = SpecifiedListingObtainer(["OAXBTC"])
         listings_obtainer = SpecifiedListingObtainer(tickers)
         filter = PassThroughStockFilter(self.dataObtainer)
@@ -89,7 +91,7 @@ class HistoricalBinanceTradingSimulator:
         #                                startingFunds=self.startingFunds)
         self.trader = ProfitPumpTrader(
             BasicInvestmentStrategy(self.investmentFraction),
-            SimpleWallet(self.startingFunds),
+            self.wallet,
             profitRatioToAimFor=0.07,
             acceptableLossRatio=0.02,
             minutesAfterSell=self.minutesAfterSell,

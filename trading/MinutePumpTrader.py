@@ -12,6 +12,7 @@ from trading.InvestmentStrategy import InvestmentStrategy
 from trading.PumpTrade import PumpTrade
 from trading.PumpTradeTracker import PumpTradeTracker
 from trading.PumpTrader import PumpTrader
+from util.Constants import TEST_MODE
 from wallet.Wallet import Wallet
 
 
@@ -56,7 +57,7 @@ class MinutePumpTrader(PumpTrader):
         success = self.tracker.addNewTradeIfNotOwned(PumpTrade(ticker, price, investment, buyTimestamp=time))
 
         if success and self.timeOfLastSell + timedelta(minutes=self.minutesAfterSell) <= datetime.now():
-            if self.wallet.purchase(ticker, investment):
+            if self.wallet.purchase(ticker, investment, test=TEST_MODE):
                 print("MinutePumpTrader is buying " + ticker)
 
                 with self._tradesLock:
@@ -98,7 +99,7 @@ class MinutePumpTrader(PumpTrader):
         self.timeOfLastSell = datetime.now()
 
         # This sells all of the asset.
-        self.wallet.sell(ticker, self.wallet.getBalance(ticker))
+        self.wallet.sell(ticker, self.wallet.getBalance(ticker), test=TEST_MODE)
 
         # This keeps track of statistics.
         price = self.stockDatabase.getCurrentStockPrice(ticker)
