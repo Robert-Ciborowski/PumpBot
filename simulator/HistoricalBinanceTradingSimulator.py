@@ -58,9 +58,9 @@ class HistoricalBinanceTradingSimulator:
         #            "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
         #            "YOYOBTC", "ZRXBTC"]
         # tickers = ["LRCBTC", "YOYOBTC"]
-        tickers = ["LRCBTC"]
+        # tickers = ["LRCBTC"]
         # tickers = ["OAXBTC"]
-        # tickers = ["LRCBTC", "YOYOBTC", "QTUMBTC", "FUNBTC", "LTCBTC", "SNGLSBTC"]
+        tickers = ["LRCBTC", "YOYOBTC", "QTUMBTC", "FUNBTC", "LTCBTC", "SNGLSBTC"]
         # tickers = ["GASBTC", "KNCBTC", "STRATBTC", "MCOBTC", "NEOBTC", "ZRXBTC"]
         # listings_obtainer = SpecifiedListingObtainer(["OAXBTC"])
         listings_obtainer = SpecifiedListingObtainer(tickers)

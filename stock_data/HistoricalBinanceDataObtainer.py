@@ -61,8 +61,6 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
         entries = []
 
         path = self.filePathPrefix + ticker + "-1m-data.csv"
-        # df = pd.DataFrame([], columns=["Price", "Volume"])
-        df = pd.DataFrame([], columns=["Timestamp", "Open", "High", "Low", "Close", "Volume"])
         count = 0
         timezone = pytz.timezone(self.timezone)
         # minuteCount = 0
@@ -72,23 +70,6 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                 reader = csv.DictReader(csvfile)
 
                 for row in reader:
-                    # if count > 428576:
-                    #     break
-                    # count += 1
-                    #
-                    # if count < 425697:
-                    #     continue
-
-                    # minuteCount += 1
-                    #
-                    # if minuteCount == 60:
-                    #     minuteCount = 0
-                    #
-                    # if minuteCount != 1:
-                    #     continue
-
-                    # print(count)
-
                     timestamp = row["timestamp"]
                     times = re.split(r'[-/:\s]\s*', timestamp)
 

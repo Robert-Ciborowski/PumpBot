@@ -22,14 +22,14 @@ if __name__ == "__main__":
     # end = datetime(2020, 1, 15, 0, 0)
 
     # LRCBTC, YOYOBTC
-    start = datetime(2020, 1, 17, 5, 0)
-    end = datetime(2020, 1, 17, 10, 0)
+    # start = datetime(2020, 1, 17, 5, 0)
+    # end = datetime(2020, 1, 17, 10, 0)
     # start = datetime(2020, 1, 17, 5, 0)
     # end = datetime(2020, 1, 17, 9, 30)
 
     # LRCBTC, YOYOBTC, FUNBTC, GASBTC, KNCBTC, STRATBTC
-    # start = datetime(2020, 1, 17, 0, 0)
-    # end = datetime(2020, 1, 18, 0, 0)
+    start = datetime(2020, 1, 17, 0, 0)
+    end = datetime(2020, 1, 18, 0, 0)
 
     # BQXBTC
     # start = datetime(2019, 5, 10, 11, 45)
@@ -40,5 +40,5 @@ if __name__ == "__main__":
     # wallet.useBinanceKeysFromFile("../binance_properties.json")
     wallet = SimpleWallet(1.0)
     simulator = HistoricalBinanceTradingSimulator(start, end, wallet, 240, 120, 10,
-                                                  0.3, fastForwardAmount=8)
+                                                  0.3, fastForwardAmount=4)
     simulator.start()

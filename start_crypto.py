@@ -40,10 +40,11 @@ def getProperties(propertiesFile: str) -> Dict:
                                                   "help.")
 
 if __name__ == "__main__":
-    tickers = ["BNBBTC", "BQXBTC", "FUNBTC", "GASBTC", "HSRBTC",
-               "KNCBTC", "LRCBTC", "LTCBTC", "MCOBTC", "NEOBTC", "OAXBTC",
-               "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
-               "YOYOBTC", "ZRXBTC"]
+    # tickers = ["BNBBTC", "BQXBTC", "FUNBTC", "GASBTC", "HSRBTC",
+    #            "KNCBTC", "LRCBTC", "LTCBTC", "MCOBTC", "NEOBTC", "OAXBTC",
+    #            "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
+    #            "YOYOBTC", "ZRXBTC"]
+    tickers = ["SNGLSBTC", "STRATBTC"]
 
     properties = getProperties("crypto_properties.json")
 
