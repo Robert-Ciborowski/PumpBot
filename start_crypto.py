@@ -90,8 +90,9 @@ if __name__ == "__main__":
         wallet,
         profitRatioToAimFor=properties["Target Profit Ratio"],
         acceptableLossRatio=properties["Acceptable Loss Ratio"],
-        minutesAfterSell=properties["Minutes After Price-Active Sell"],
+        minutesAfterSellIfPump=properties["Minutes After Pump Sell"],
         minutesAfterSellIfPriceInactivity=properties["Minutes After Price-Inactive Sell"],
+        minutesAfterSellIfLoss=properties["Minutes After Loss Sell"],
         maxTimeToHoldStock=properties["Max Time To Hold Stock"],
         fastForwardAmount=1)
     EventDispatcher.getInstance().addListener(trader, "PumpAndDump")

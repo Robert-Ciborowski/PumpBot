@@ -21,8 +21,9 @@ class ProfitPumpTrader(PumpTrader):
     stockDatabase: TrackedStockDatabase
     profitRatioToAimFor: float
     acceptableLossRatio: float
-    minutesAfterSell: int
+    minutesAfterSellIfPump: int
     minutesAfterSellIfPriceInactivity: int
+    minutesAfterSellIfLoss: int
     maxTimeToHoldStock: int
     wallet: Wallet
     investmentStrategy: InvestmentStrategy
@@ -42,15 +43,17 @@ class ProfitPumpTrader(PumpTrader):
     def __init__(self, investmentStrategy: InvestmentStrategy,
                  wallet: Wallet, profitRatioToAimFor=0.1,
                  acceptableLossRatio=0.1, maxTimeToHoldStock=30,
-                 minutesAfterSell=0, minutesAfterSellIfPriceInactivity=0,
+                 minutesAfterSellIfPump=0, minutesAfterSellIfPriceInactivity=0,
+                 minutesAfterSellIfLoss=0,
                  fastForwardAmount=1):
         super().__init__(investmentStrategy, wallet)
         self.ongoingTrades = {}
         self.sellCooldown = {}
         self.profitRatioToAimFor = profitRatioToAimFor
         self.acceptableLossRatio = acceptableLossRatio
-        self.minutesAfterSell = minutesAfterSell
+        self.minutesAfterSellIfPump = minutesAfterSellIfPump
         self.minutesAfterSellIfPriceInactivity = minutesAfterSellIfPriceInactivity
+        self.minutesAfterSellIfLoss = minutesAfterSellIfLoss
         self.maxTimeToHoldStock = maxTimeToHoldStock
         self._tradesLock = th.Lock()
         self._fastForwardAmount = fastForwardAmount
@@ -77,6 +80,8 @@ class ProfitPumpTrader(PumpTrader):
             else:
                 print("MinutePumpTrader failed to buy " + ticker + " with " + str(
                     investment) + "...")
+        # elif self.tracker.containsUnsoldTrade(ticker):
+        #     self.ongoingTrades[ticker] = [self.stockDatabase.getCurrentTime(), price]
 
     def start(self):
         self._stopThread = False
@@ -108,24 +113,20 @@ class ProfitPumpTrader(PumpTrader):
 
             if trade.buyPrice * (1 + self.profitRatioToAimFor) <= currentPrice:
                 print("Making profit on a trade!")
-                self._sell(ticker)
+                self._sell(ticker, self.minutesAfterSellIfPump)
             elif self.ongoingTrades[ticker][1] * (1 - self.acceptableLossRatio) >= currentPrice:
                 print("Stock's price dipped too much from its peak. Selling stock.")
-                self._sell(ticker)
+                self._sell(ticker, self.minutesAfterSellIfPriceInactivity)
             elif (now - time).total_seconds() / 60 >= self.maxTimeToHoldStock:
                 print("Held a stock for too long and decided to sell it.")
-                self._sell(ticker, soldDueToPriceInactivity=True)
+                self._sell(ticker, self.minutesAfterSellIfLoss)
             elif currentPrice > self.ongoingTrades[ticker][1]:
                 self.ongoingTrades[ticker][1] = currentPrice
 
-
-    def _sell(self, ticker: str, soldDueToPriceInactivity=False):
+    def _sell(self, ticker: str, cooldown: int):
         print("MinutePumpTrader is selling " + ticker)
-
-        if soldDueToPriceInactivity:
-            self.sellCooldown[ticker] = self.stockDatabase.getCurrentTime() + timedelta(minutes=self.minutesAfterSellIfPriceInactivity)
-        else:
-            self.sellCooldown[ticker] = self.stockDatabase.getCurrentTime() + timedelta(minutes=self.minutesAfterSell)
+        self.sellCooldown[ticker] = self.stockDatabase.getCurrentTime() + \
+                                    timedelta(minutes=cooldown)
 
         # This sells all of the asset.
         self.wallet.sell(ticker, self.wallet.getBalance(ticker), test=TEST_MODE)
@@ -135,3 +136,5 @@ class ProfitPumpTrader(PumpTrader):
         time = self.stockDatabase.getCurrentTime()
         returns = self.tracker.getUnsoldTradeByTicker(ticker).sell(price, sellTimestamp=time)
         self.ongoingTrades.pop(ticker)
+
+

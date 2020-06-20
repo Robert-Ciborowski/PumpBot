@@ -39,6 +39,7 @@ if __name__ == "__main__":
     # wallet = BinanceWallet()
     # wallet.useBinanceKeysFromFile("../binance_properties.json")
     wallet = SimpleWallet(1.0)
-    simulator = HistoricalBinanceTradingSimulator(start, end, wallet, 240, 120, 10,
-                                                  0.3, fastForwardAmount=4)
+    simulator = HistoricalBinanceTradingSimulator(start, end, wallet, 240, 120,
+                                                  10, 40, 0.3,
+                                                  fastForwardAmount=4)
     simulator.start()

@@ -67,7 +67,7 @@ def readTickerData(path: str, dateOfStart: datetime, dateOfEnd: datetime) -> pd.
 
 start = datetime(2020, 1, 17, 0, 0)
 end = datetime(2020, 1, 18, 0, 0)
-df = readTickerData("../binance_historical_data/FUNBTC-1m-data.csv", start, end)
+df = readTickerData("../binance_historical_data/GASBTC-1m-data.csv", start, end)
 
 plt.figure()
 fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(12, 8))

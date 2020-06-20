@@ -22,8 +22,9 @@ class HistoricalBinanceTradingSimulator:
     startDate: datetime
     endDate: datetime
     maxTimeToHoldStock: int
-    minutesAfterSell: int
+    minutesAfterSellIfPump: int
     minutesAfterSellIfPriceInactivity: int
+    minutesAfterSellIfLoss: int
     trader: PumpTrader
     database: TrackedStockDatabase
     dataObtainer: HistoricalBinanceDataObtainer
@@ -36,12 +37,14 @@ class HistoricalBinanceTradingSimulator:
     def __init__(self, startDate: datetime, endDate: datetime, wallet: Wallet,
                  minutesBeforeSell: int, minutesAfterSell: int,
                  minutesAfterSellIfPriceInactivity: int,
-                 investmentFraction: float, fastForwardAmount=1):
+                 minutesAfterSellIfLoss: int, investmentFraction: float,
+                 fastForwardAmount=1):
         self.startDate = startDate
         self.endDate = endDate
         self.maxTimeToHoldStock = minutesBeforeSell
-        self.minutesAfterSell = minutesAfterSell
+        self.minutesAfterSellIfPump = minutesAfterSell
         self.minutesAfterSellIfPriceInactivity = minutesAfterSellIfPriceInactivity
+        self.minutesAfterSellIfLoss = minutesAfterSellIfLoss
         self._fastForwardAmount = fastForwardAmount
         self.investmentFraction = investmentFraction
         self.wallet = wallet
@@ -94,8 +97,9 @@ class HistoricalBinanceTradingSimulator:
             self.wallet,
             profitRatioToAimFor=0.07,
             acceptableLossRatio=0.02,
-            minutesAfterSell=self.minutesAfterSell,
+            minutesAfterSellIfPump=self.minutesAfterSellIfPump,
             minutesAfterSellIfPriceInactivity=self.minutesAfterSellIfPriceInactivity,
+            minutesAfterSellIfLoss=self.minutesAfterSellIfLoss,
             maxTimeToHoldStock=self.maxTimeToHoldStock,
             fastForwardAmount=self._fastForwardAmount)
         EventDispatcher.getInstance().addListener(self.trader, "PumpAndDump")
