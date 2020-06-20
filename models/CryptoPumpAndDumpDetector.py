@@ -4,11 +4,13 @@
 # Description: Detects pump and dumps from Binance crypto data.
 
 # from __future__ import annotations
+from datetime import datetime
 from typing import Dict, List
 import random
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import tensorflow_model_optimization as tfmot
 from tensorflow import feature_column
 from matplotlib import pyplot as plt
 from tensorflow.keras import layers
@@ -31,6 +33,13 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         super().__init__()
         self._configureForGPU()
         self.exportPath = "./model_exports/cryptopumpanddumpdetector"
+
+        # Experimental
+        # tf.config.optimizer.set_jit(True)
+        # from tensorflow.keras.mixed_precision import \
+        #     experimental as mixed_precision
+        # policy = mixed_precision.Policy('mixed_float16')
+        # mixed_precision.set_policy(policy)
 
         # The following lines adjust the granularity of reporting.
         pd.options.display.max_rows = 10
@@ -63,8 +72,10 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
                   "data to work with!")
             return False
 
+        time1 = datetime.now()
         result = self.model.predict(data)[0][0]
-        print("Gave out a result of " + str(result))
+        time2 = datetime.now()
+        print("Gave out a result of " + str(result) + ", took " + str(time2 - time1))
         return result >= self._classificationThreshold
 
     """
@@ -107,6 +118,14 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         # To track the progression of training, gather a snapshot
         # of the model's mean squared error at each epoch.
         hist = pd.DataFrame(history.history)
+
+        # Experimental
+        # pruning_schedule = tfmot.sparsity.keras.PolynomialDecay(
+        #     initial_sparsity=0.0, final_sparsity=0.5,
+        #     begin_step=1000, end_step=3000)
+        #
+        # self.model = tfmot.sparsity.keras.prune_low_magnitude(self.model,
+        #                                                              pruning_schedule=pruning_schedule)
         return epochs, hist
 
     """
