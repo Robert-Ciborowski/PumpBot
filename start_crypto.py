@@ -63,13 +63,13 @@ if __name__ == "__main__":
            .setSecondsBetweenStockUpdates(60)
 
     # This sets up bots that output messages.
-    bot = ExampleBot()
-    EventDispatcher.getInstance().addListener(bot, "PumpAndDump")
-
-    bot = DiscordBot(CurrentBinanceDataObtainer(), "bot_properties.json",
-                     "bot_secret_properties.json", "8")
-    bot.runOnSeperateThread()
-    EventDispatcher.getInstance().addListener(bot, "PumpAndDump")
+    # bot = ExampleBot()
+    # EventDispatcher.getInstance().addListener(bot, "PumpAndDump")
+    #
+    # bot = DiscordBot(CurrentBinanceDataObtainer(), "bot_properties.json",
+    #                  "bot_secret_properties.json", "8")
+    # bot.runOnSeperateThread()
+    # EventDispatcher.getInstance().addListener(bot, "PumpAndDump")
 
     # This sets up the model.
     model = CryptoPumpAndDumpDetector()

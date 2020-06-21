@@ -1,5 +1,6 @@
 import time
 from datetime import datetime, timedelta
+from typing import List
 
 from events.EventDispatcher import EventDispatcher
 from filter.PassThroughStockFilter import PassThroughStockFilter
@@ -31,6 +32,7 @@ class HistoricalBinanceTradingSimulator:
     model: CryptoPumpAndDumpDetector
     investmentFraction: float
     wallet: Wallet
+    tickers: List
 
     _fastForwardAmount: int
 
@@ -38,7 +40,7 @@ class HistoricalBinanceTradingSimulator:
                  minutesBeforeSell: int, minutesAfterSell: int,
                  minutesAfterSellIfPriceInactivity: int,
                  minutesAfterSellIfLoss: int, investmentFraction: float,
-                 fastForwardAmount=1):
+                 coins: List, fastForwardAmount=1):
         self.startDate = startDate
         self.endDate = endDate
         self.maxTimeToHoldStock = minutesBeforeSell
@@ -48,6 +50,7 @@ class HistoricalBinanceTradingSimulator:
         self._fastForwardAmount = fastForwardAmount
         self.investmentFraction = investmentFraction
         self.wallet = wallet
+        self.tickers = coins
         self._setup()
 
     def _setup(self):
@@ -56,17 +59,7 @@ class HistoricalBinanceTradingSimulator:
                                                           self.endDate + timedelta(days=1),
                                                           filePathPrefix="../binance_historical_data/",
                                                           fastForwardAmount=self._fastForwardAmount)
-        # tickers = ["BNBBTC", "BQXBTC", "FUNBTC", "GASBTC", "HSRBTC",
-        #            "KNCBTC", "LRCBTC", "LTCBTC", "MCOBTC", "NEOBTC", "OAXBTC",
-        #            "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
-        #            "YOYOBTC", "ZRXBTC"]
-        # tickers = ["LRCBTC", "YOYOBTC"]
-        # tickers = ["LRCBTC"]
-        # tickers = ["OAXBTC"]
-        tickers = ["LRCBTC", "YOYOBTC", "QTUMBTC", "FUNBTC", "LTCBTC", "SNGLSBTC"]
-        # tickers = ["GASBTC", "KNCBTC", "STRATBTC", "MCOBTC", "NEOBTC", "ZRXBTC"]
-        # listings_obtainer = SpecifiedListingObtainer(["OAXBTC"])
-        listings_obtainer = SpecifiedListingObtainer(tickers)
+        listings_obtainer = SpecifiedListingObtainer(self.tickers)
         filter = PassThroughStockFilter(self.dataObtainer)
         filter.addListings(listings_obtainer) \
             .getDataForFiltering() \
