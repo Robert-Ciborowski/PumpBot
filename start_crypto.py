@@ -16,12 +16,13 @@ from listing_obtainers.NASDAQListingObtainer import NASDAQListingObtainer
 from listing_obtainers.SpecifiedListingObtainer import SpecifiedListingObtainer
 from models.CryptoPumpAndDumpDetector import CryptoPumpAndDumpDetector
 from models.DummyPumpAndDumpDetector import DummyPumpAndDumpDetector
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from stock_data import CurrentStockDataObtainer
 from stock_data.CurrentBinanceDataObtainer import CurrentBinanceDataObtainer
 from stock_data.HistoricStockDataObtainer import HistoricStockDataObtainer
 from stock_data.TrackedStockDatabase import TrackedStockDatabase
+from thread_runner.ThreadRunner import ThreadRunner
 from trading.BasicInvestmentStrategy import BasicInvestmentStrategy
 from trading.ProfitPumpTrader import ProfitPumpTrader
 from wallet.BinanceWallet import BinanceWallet
@@ -97,17 +98,23 @@ if __name__ == "__main__":
         fastForwardAmount=1)
     EventDispatcher.getInstance().addListener(trader, "PumpAndDump")
 
-    # This starts the trading!
-    database.startSelfUpdating()
-    trader.start()
+    threadRunner = ThreadRunner(endTime=datetime.now() + timedelta(seconds=60))
+    database.useThreadRunner(threadRunner)
+    trader.useThreadRunner(threadRunner)
 
-    time.sleep(190885)
+    print("Started trading crypto!")
+    threadRunner.start()
+
+
+    # This starts the trading!
+    # database.startSelfUpdating()
+    # trader.start()
 
     # This stops the trading.
     print("It is time to stop.")
-    database.stopSelfUpdating()
-    trader.stop()
-    bot.stopRunning()
+    # database.stopSelfUpdating()
+    # trader.stop()
+    # bot.stopRunning()
 
     # This outputs statistics.
     print("Ended cryptocurrency trading.")
