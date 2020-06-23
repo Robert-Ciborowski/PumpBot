@@ -3,6 +3,7 @@ import pytz
 from events.Event import Event
 from events.EventListener import EventListener
 from stock_data.TrackedStockDatabase import TrackedStockDatabase
+from thread_runner.ThreadRunner import ThreadRunner
 from trading.InvestmentStrategy import InvestmentStrategy
 from trading.PumpTradeTracker import PumpTradeTracker
 from datetime import datetime, timedelta
@@ -48,4 +49,10 @@ class PumpTrader(EventListener):
         pass
 
     def stop(self):
+        pass
+
+    def runUntil(self, endTime: datetime):
+        pass
+
+    def useThreadRunner(self, threadRunner: ThreadRunner):
         pass

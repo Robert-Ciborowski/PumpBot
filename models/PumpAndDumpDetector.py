@@ -13,6 +13,7 @@ from events.EventDispatcher import EventDispatcher
 from events.PumpAndDumpEvent import PumpAndDumpEvent
 from stock_data.TrackedStockDatabase import TrackedStockDatabase
 import numpy as np
+import pandas as pd
 
 """
 Representation invariants:

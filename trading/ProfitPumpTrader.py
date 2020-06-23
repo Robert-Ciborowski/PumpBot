@@ -8,6 +8,7 @@ from typing import Dict
 import threading as th
 
 from stock_data.TrackedStockDatabase import TrackedStockDatabase
+from thread_runner.ThreadRunner import ThreadRunner
 from trading.InvestmentStrategy import InvestmentStrategy
 from trading.PumpTrade import PumpTrade
 from trading.PumpTradeTracker import PumpTradeTracker
@@ -92,16 +93,30 @@ class ProfitPumpTrader(PumpTrader):
         self._stopThread = True
         self._updaterThread.join()
 
-    def update(self):
-        while not self._stopThread:
-            self._outputProfitsSoFar()
+    def runUntil(self, endTime: datetime):
+        self.update(endTime=endTime)
 
-            # We will be deleting items as we iterate over them, so we make a
-            # copy of the keys first.
-            keys = list(self.ongoingTrades.keys())
+    def useThreadRunner(self, threadRunner: ThreadRunner):
+        f = lambda: self._update()
+        threadRunner.runPerdiodically(f)
 
-            for ticker in keys:
-                self._updateTrade(ticker)
+    def update(self, endTime=None):
+        if endTime is None:
+            while not self._stopThread:
+                self._update()
+        else:
+            while datetime.now() < endTime:
+                self._update()
+
+    def _update(self):
+        self._outputProfitsSoFar()
+
+        # We will be deleting items as we iterate over them, so we make a
+        # copy of the keys first.
+        keys = list(self.ongoingTrades.keys())
+
+        for ticker in keys:
+            self._updateTrade(ticker)
 
     def _updateTrade(self, ticker: str):
         currentPrice = self.stockDatabase.getCurrentStockPrice(ticker)
@@ -136,5 +151,3 @@ class ProfitPumpTrader(PumpTrader):
         time = self.stockDatabase.getCurrentTime()
         returns = self.tracker.getUnsoldTradeByTicker(ticker).sell(price, sellTimestamp=time)
         self.ongoingTrades.pop(ticker)
-
-

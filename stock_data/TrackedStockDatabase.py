@@ -15,6 +15,7 @@ from events.EventDispatcher import EventDispatcher
 from events.ListingPriceUpdatedEvent import ListingPriceUpdatedEvent
 from filter.StockFilter import StockFilter
 from stock_data.StockDataObtainer import StockDataObtainer
+from thread_runner.ThreadRunner import ThreadRunner
 from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT
 
 """
@@ -102,6 +103,12 @@ class TrackedStockDatabase:
         self._updaterThread = th.Thread(target=self.update, daemon=True)
         self._updaterThread.start()
 
+
+        # Memery
+        # self.update()
+        # while True:
+        #     pass
+
     def stopSelfUpdating(self):
         self._stopThread = True
         self._updaterThread.join()
@@ -148,11 +155,18 @@ class TrackedStockDatabase:
 
     def update(self):
         while not self._stopThread:
-            for ticker in self._prices.keys():
-                self._updateStock(ticker)
+            self._update()
+
+    def _update(self):
+        for ticker in self._prices.keys():
+            self._updateStock(ticker)
 
     def getCurrentTime(self) -> datetime:
         return self.obtainer.getCurrentDate()
+
+    def useThreadRunner(self, threadRunner: ThreadRunner):
+        f = lambda: self._update()
+        threadRunner.runPerdiodically(f)
 
     def _updateStock(self, ticker: str):
         currDateTime = datetime.now()
