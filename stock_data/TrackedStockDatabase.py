@@ -66,15 +66,6 @@ class TrackedStockDatabase:
         self.obtainer = obtainer
         return self
 
-    # def trackStock(self, ticker: str) -> TrackedStockDatabase:
-    #     if self._entries.get(ticker):
-    #         print("Stock " + ticker + " is already being tracked!")
-    #     else:
-    #         self._entries[ticker] = []
-    #         self._updateTimestamps[ticker] = [datetime(1970, 1, 1)]
-    #
-    #     return self
-
     def setPricesToKeepTrackOf(self, pricesToKeepTrackOf: int):
         self.pricesToKeepTrackOf = pricesToKeepTrackOf
         return self
@@ -102,12 +93,6 @@ class TrackedStockDatabase:
         self._stopThread = False
         self._updaterThread = th.Thread(target=self.update, daemon=True)
         self._updaterThread.start()
-
-
-        # Memery
-        # self.update()
-        # while True:
-        #     pass
 
     def stopSelfUpdating(self):
         self._stopThread = True

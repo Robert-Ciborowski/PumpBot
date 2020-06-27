@@ -6,11 +6,10 @@
 # from __future__ import annotations
 import csv
 from datetime import datetime, timedelta
-from typing import Dict, List, Tuple
+from typing import Dict, List
 import pandas as pd
 import re
 import pytz
-import time
 
 from stock_data.StockDataObtainer import StockDataObtainer
 from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT
@@ -62,7 +61,11 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
 
         for ticker in tickers:
             self._dataAsDataFrames.pop(ticker)
+            self._dataAsListOfDicts.pop(ticker)
 
+    """
+    Reads ticker data into both self._dataAsDataFrames and self._dataAsListOfDicts
+    """
     def _readTickerData(self, ticker: str):
         listOfDicts = []
         index = []
@@ -150,8 +153,6 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
         timezone = pytz.timezone(self.timezone)
         d_aware = timezone.localize(start_date_to_use)
         return self._getValues(ticker, ["Close"], d_aware)["Close"]
-        # return self._getValuesFromDataframe(self._dataAsDataFrames[ticker], ["Close"],
-        #                                     d_aware)["Close"]
 
     def obtainPricesAndVolumes(self, ticker: str, numberOfPrices=1):
         now = datetime.now()
@@ -166,8 +167,7 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
         # values = self._getValuesFromDataframe(self._dataAsDataFrames[ticker], ["Close", "Volume"], d_aware)
         print("Price of " + ticker + ": " + str(values["Close"][-1]))
         time2 = datetime.now()
-        print("obtainPricesAndVolumes (2) took " + str(time2 - now) + ".")
-        print(len(values["Close"]))
+        print("obtainPricesAndVolumes took " + str(time2 - now) + ".")
         return values["Close"], values["Volume"]
 
     def getHistoricalDataAsDataframe(self, symbol: str) -> pd.DataFrame:
@@ -212,51 +212,6 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                 lst[v].append(d[v])
 
         return lst
-
-    # def _getValuesFromDataframe(self, df: pd.DataFrame, values: List, endTime: datetime, pricesToObtain=-1) -> Dict:
-    #     if pricesToObtain < 0:
-    #         pricesToObtain = MINUTES_OF_DATA_TO_LOOK_AT
-    #
-    #     startTime = endTime - timedelta(minutes=pricesToObtain)
-    #     lst = {}
-    #
-    #     for v in values:
-    #         lst[v] = []
-    #
-    #     for i, j in df.iterrows():
-    #         if i > endTime:
-    #             break
-    #
-    #         if i <= startTime:
-    #             continue
-    #
-    #         for v in values:
-    #             lst[v].append(j[v])
-    #
-    #
-    #     # keys = df.index.tolist()
-    #     #
-    #     # if len(keys) == 0:
-    #     #     return []
-    #     #
-    #     # lastIndex = 0
-    #     #
-    #     # for i in range(len(keys)):
-    #     #     if keys[i].to_pydatetime() > time:
-    #     #         lastIndex = i
-    #     #         break
-    #     #
-    #     # startIndex = 0
-    #     # endIndex = lastIndex
-    #     # lst = []
-    #     #
-    #     # if not (pricesToObtain < 0 or pricesToObtain >= lastIndex):
-    #     #     startIndex = lastIndex-pricesToObtain
-    #     #
-    #     # for i in range(startIndex, endIndex):
-    #     #     lst.append(df.iloc[i][value])
-    #
-    #     return lst
 
     def _addRA(self, df, windowSize, col, name):
         df[name] = pd.Series.rolling(df[col], window=windowSize,
