@@ -41,25 +41,28 @@ if __name__ == "__main__":
     # end = datetime(2020, 1, 17, 9, 30)
 
     # LRCBTC, YOYOBTC, FUNBTC, GASBTC, KNCBTC, STRATBTC
-    start = datetime(2020, 1, 17, 0, 0)
-    end = datetime(2020, 1, 18, 0, 0)
+    # start = datetime(2020, 1, 17, 0, 0)
+    # end = datetime(2020, 1, 18, 0, 0)
+    start = datetime(2020, 2, 1, 0, 0)
+    end = datetime(2020, 2, 27, 0, 0)
 
     # BQXBTC
     # start = datetime(2019, 5, 10, 11, 45)
     # end = datetime(2019, 5, 10, 15, 45)
     # start = datetime(2019, 5, 10, 5, 45)
     # end = datetime(2019, 5, 10, 15, 45)
+    # start = datetime(2020, 1, 17, 3, 0)
+    # end = datetime(2020, 1, 17, 10, 0)
+
     # wallet = BinanceWallet()
     # wallet.useBinanceKeysFromFile("../binance_properties.json")
-
-    start = datetime(2020, 1, 17, 3, 0)
-    end = datetime(2020, 1, 17, 10, 0)
     wallet = SimpleWallet(1.0)
     simulator = HistoricalBinanceTradingSimulator(start, end, wallet, 240, 120,
                                                   10, 40, 0.3, tickers,
-                                                  fastForwardAmount=60,
+                                                  fastForwardAmount=300,
                                                   modelLocation="models/model_exports/cryptopumpanddumpdetector",
                                                   historicalDataLocation="binance_historical_data")
     simulator.start()
+
     while True:
         pass

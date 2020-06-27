@@ -18,7 +18,7 @@ if __name__ == "__main__":
         .getDataForFiltering() \
         .filter()
 
-    print(historicalObtainer.data)
+    print(historicalObtainer._dataAsDataFrames)
 
 
     # tsx_obtainer = NASDAQListingObtainer(20)

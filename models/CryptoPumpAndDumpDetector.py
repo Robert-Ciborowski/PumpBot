@@ -82,8 +82,8 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
 
     def _detect(self, data):
         time1 = datetime.now()
-        # result = self.model.predict(data)[0][0]
-        result = self.model(data).numpy()[0][0]
+        result = self.model.predict(data)[0][0]
+        # result = self.model(data).numpy()[0][0]
         time2 = datetime.now()
         print("Gave out a result of " + str(result) + ", took " + str(
             time2 - time1))

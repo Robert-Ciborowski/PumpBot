@@ -4,7 +4,7 @@
 # Description: A super class for models that detect pump and dumps.
 
 # from __future__ import annotations
-
+from datetime import datetime
 from typing import List
 
 from events.EventListener import EventListener

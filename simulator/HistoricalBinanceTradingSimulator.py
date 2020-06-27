@@ -62,8 +62,7 @@ class HistoricalBinanceTradingSimulator:
         self.tickers = coins
         self.modelLocation = modelLocation
         self.historicalDataLocation = historicalDataLocation
-        sleepAmount = (self.endDate - self.startDate).total_seconds() // self._fastForwardAmount
-        self.threadRunner = ThreadRunner(endTime=datetime.now() + timedelta(seconds=sleepAmount))
+        self.threadRunner = ThreadRunner()
         self._setup()
 
     def _setup(self):
@@ -84,7 +83,7 @@ class HistoricalBinanceTradingSimulator:
             .setSecondsBetweenStockUpdates(60 / self._fastForwardAmount)
         # .setSecondsBetweenStockUpdates(60)
 
-        self.model = CryptoPumpAndDumpDetector(tryUsingGPU=False, threadRunner=self.threadRunner)
+        self.model = CryptoPumpAndDumpDetector(tryUsingGPU=False)
         self.model.setupUsingDefaults()
         self.model.createModelUsingDefaults()
         self.model.exportPath = self.modelLocation
@@ -124,6 +123,8 @@ class HistoricalBinanceTradingSimulator:
         # If using threadrunner:
         self.database.useThreadRunner(self.threadRunner)
         self.trader.useThreadRunner(self.threadRunner)
+        sleepAmount = (self.endDate - self.startDate).total_seconds() // self._fastForwardAmount
+        self.threadRunner.endTime = datetime.now() + timedelta(seconds=sleepAmount)
 
         self.dataObtainer.setStartTimeToNow()
 

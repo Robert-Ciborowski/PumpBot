@@ -12,7 +12,7 @@ from typing import List
 import threading as th
 
 class ThreadRunner:
-    _endTime: datetime
+    endTime: datetime
     _functionsToRun: List
     _functionsToRunLock: th.Lock
     _resultLock: th.Lock
@@ -20,7 +20,7 @@ class ThreadRunner:
     _functionsToRunPeriodicallyLock: th.Lock
 
     def __init__(self, endTime=None):
-        self._endTime = endTime
+        self.endTime = endTime
         self._functionsToRun = []
         self._functionsToRunPeriodically = []
         self._result = None
@@ -29,11 +29,11 @@ class ThreadRunner:
         self._resultLock = th.Lock()
 
     def start(self):
-        if self._endTime is None:
+        if self.endTime is None:
             while True:
                 self._update()
         else:
-            while datetime.now() < self._endTime:
+            while datetime.now() < self.endTime:
                 self._update()
 
     def _update(self):

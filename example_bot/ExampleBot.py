@@ -14,5 +14,5 @@ class ExampleBot(EventListener):
     def onEvent(self, event: Event):
         if event.type == "PumpAndDump":
             # or you can do if isinstance(event, PumpAndDumpEvent)
-            print("Pump and Dump is occurring! " + event.data["Ticker"] + \
-                  " at price " + str(event.data["Price"]))
+            print("Pump and Dump is occurring! " + event._dataAsDataFrames["Ticker"] + \
+                  " at price " + str(event._dataAsDataFrames["Price"]))

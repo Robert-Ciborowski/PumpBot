@@ -13,13 +13,19 @@ import pytz
 import time
 
 from stock_data.StockDataObtainer import StockDataObtainer
+from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT
+
 
 class HistoricalBinanceDataObtainer(StockDataObtainer):
     dateOfStart: datetime
     dateOfEnd: datetime
     filePathPrefix: str
-    data: Dict[str, pd.DataFrame]
     timezone: str
+
+    # Pandas makes life easy but is very slow, so we use both Pandas and a
+    # list of dicts. :clown:
+    _dataAsDataFrames: Dict[str, pd.DataFrame]
+    _dataAsListOfDicts: Dict[str, List[Dict]]
 
     _startTime: datetime
     _obtained: bool
@@ -28,7 +34,8 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
     def __init__(self, dateOfStart: datetime, dateOfEnd: datetime, filePathPrefix="", fastForwardAmount=1):
         self._startTime = datetime.now()
         self.endOfMarket = (4, 0)
-        self.data = {}
+        self._dataAsDataFrames = {}
+        self._dataAsListOfDicts = {}
         self._obtained = False
         self.filePathPrefix = filePathPrefix
         self.timezone = "Etc/GMT-0"
@@ -54,16 +61,16 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
             return
 
         for ticker in tickers:
-            self.data.pop(ticker)
+            self._dataAsDataFrames.pop(ticker)
 
     def _readTickerData(self, ticker: str):
+        listOfDicts = []
         index = []
         entries = []
 
         path = self.filePathPrefix + ticker + "-1m-data.csv"
         count = 0
         timezone = pytz.timezone(self.timezone)
-        # minuteCount = 0
 
         try:
             with open(path, newline='') as csvfile:
@@ -86,10 +93,8 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                                             int(times[0]), int(times[3]),
                                             int(times[4]))
                     except:
-                        print("Error:")
-                        print(timestamp)
+                        print("Error reading historical timestamp " + str(timestamp) + " for " + ticker + ".")
                         continue
-                        # time.sleep(1)
 
                     timing = timezone.localize(timing)
 
@@ -99,13 +104,20 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                     if timing > self.dateOfEnd:
                         break
 
-                    price = float(row["open"])
-                    price2 = float(row["high"])
-                    price3 = float(row["low"])
-                    price4 = float(row["close"])
-                    volume = int(row["trades"])
+                    entry = {
+                        "Timestamp": timing,
+                        "Open": float(row["open"]),
+                        "High": float(row["high"]),
+                        "Low": float(row["low"]),
+                        "Close": float(row["close"]),
+                        "Volume": int(row["trades"])
+                    }
+
+                    listOfDicts.append(entry)
                     index.append(timing)
-                    entries.append([timing, price, price2, price3, price4, volume])
+                    entries.append([timing, float(row["open"]), float(row["high"]),
+                                    float(row["low"]), float(row["close"]),
+                                    int(row["trades"])])
                     count += 1
 
                     if count == 10000:
@@ -114,7 +126,8 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
 
             # self.data[ticker] = df[["Volume", "Close"]]
             df = pd.DataFrame(entries, index=index, columns=["Timestamp", "Open", "High", "Low", "Close", "Volume"])
-            self.data[ticker] = df
+            self._dataAsDataFrames[ticker] = df
+            self._dataAsListOfDicts[ticker] = listOfDicts
             print("Done reading " + ticker + " historical data.")
 
         except IOError as e:
@@ -126,7 +139,7 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                                      hour=date.hour, minute=date.minute)
         timezone = pytz.timezone(self.timezone)
         d_aware = timezone.localize(start_date_to_use)
-        return self._getValueFromDataframe(self.data[ticker], "Close", d_aware)
+        return self._getValueFromDataframe(self._dataAsDataFrames[ticker], "Close", d_aware)
 
     def obtainPrices(self, ticker: str, numberOfPrices=1) -> List[float]:
         now = datetime.now()
@@ -136,8 +149,9 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                                      hour=date.hour, minute=date.minute)
         timezone = pytz.timezone(self.timezone)
         d_aware = timezone.localize(start_date_to_use)
-        return self._getValuesFromDataframe(self.data[ticker], "Close",
-                                              d_aware)
+        return self._getValues(ticker, ["Close"], d_aware)["Close"]
+        # return self._getValuesFromDataframe(self._dataAsDataFrames[ticker], ["Close"],
+        #                                     d_aware)["Close"]
 
     def obtainPricesAndVolumes(self, ticker: str, numberOfPrices=1):
         now = datetime.now()
@@ -148,10 +162,16 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
         timezone = pytz.timezone(self.timezone)
         d_aware = timezone.localize(start_date_to_use)
         print("Obtaining price and volume data of " + ticker + " at " + str(d_aware) + ".")
-        prices = self._getValuesFromDataframe(self.data[ticker], "Close", d_aware)
-        volumes = self._getValuesFromDataframe(self.data[ticker], "Volume", d_aware)
-        print("Price of " + ticker + ": " + str(prices[-1]))
-        return prices, volumes
+        values = self._getValues(ticker, ["Close", "Volume"], d_aware)
+        # values = self._getValuesFromDataframe(self._dataAsDataFrames[ticker], ["Close", "Volume"], d_aware)
+        print("Price of " + ticker + ": " + str(values["Close"][-1]))
+        time2 = datetime.now()
+        print("obtainPricesAndVolumes (2) took " + str(time2 - now) + ".")
+        print(len(values["Close"]))
+        return values["Close"], values["Volume"]
+
+    def getHistoricalDataAsDataframe(self, symbol: str) -> pd.DataFrame:
+        return self._dataAsDataFrames[symbol]
 
     def getCurrentDate(self) -> datetime:
         return self._getCurrentHistoricalDate()
@@ -171,30 +191,72 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
 
         return df.iloc[lastKey][value]
 
-    def _getValuesFromDataframe(self, df: pd.DataFrame, value: str, time: datetime, pricesToObtain=-1) -> List[float]:
-        keys = df.index.tolist()
+    def _getValues(self, symbol: str, values: List, endTime: datetime, pricesToObtain=-1) -> Dict:
+        if pricesToObtain < 0:
+            pricesToObtain = MINUTES_OF_DATA_TO_LOOK_AT
 
-        if len(keys) == 0:
-            return []
+        startTime = endTime - timedelta(minutes=pricesToObtain)
+        lst = {}
 
-        lastIndex = 0
+        for v in values:
+            lst[v] = []
 
-        for i in range(len(keys)):
-            if keys[i].to_pydatetime() > time:
-                lastIndex = i
+        for d in self._dataAsListOfDicts[symbol]:
+            if d["Timestamp"] > endTime:
                 break
 
-        startIndex = 0
-        endIndex = lastIndex
-        lst = []
+            if d["Timestamp"] <= startTime:
+                continue
 
-        if not (pricesToObtain < 0 or pricesToObtain >= lastIndex):
-            startIndex = lastIndex-pricesToObtain
-
-        for i in range(startIndex, endIndex):
-            lst.append(df.iloc[i][value])
+            for v in values:
+                lst[v].append(d[v])
 
         return lst
+
+    # def _getValuesFromDataframe(self, df: pd.DataFrame, values: List, endTime: datetime, pricesToObtain=-1) -> Dict:
+    #     if pricesToObtain < 0:
+    #         pricesToObtain = MINUTES_OF_DATA_TO_LOOK_AT
+    #
+    #     startTime = endTime - timedelta(minutes=pricesToObtain)
+    #     lst = {}
+    #
+    #     for v in values:
+    #         lst[v] = []
+    #
+    #     for i, j in df.iterrows():
+    #         if i > endTime:
+    #             break
+    #
+    #         if i <= startTime:
+    #             continue
+    #
+    #         for v in values:
+    #             lst[v].append(j[v])
+    #
+    #
+    #     # keys = df.index.tolist()
+    #     #
+    #     # if len(keys) == 0:
+    #     #     return []
+    #     #
+    #     # lastIndex = 0
+    #     #
+    #     # for i in range(len(keys)):
+    #     #     if keys[i].to_pydatetime() > time:
+    #     #         lastIndex = i
+    #     #         break
+    #     #
+    #     # startIndex = 0
+    #     # endIndex = lastIndex
+    #     # lst = []
+    #     #
+    #     # if not (pricesToObtain < 0 or pricesToObtain >= lastIndex):
+    #     #     startIndex = lastIndex-pricesToObtain
+    #     #
+    #     # for i in range(startIndex, endIndex):
+    #     #     lst.append(df.iloc[i][value])
+    #
+    #     return lst
 
     def _addRA(self, df, windowSize, col, name):
         df[name] = pd.Series.rolling(df[col], window=windowSize,
