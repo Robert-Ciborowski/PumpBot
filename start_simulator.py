@@ -13,11 +13,12 @@ if __name__ == "__main__":
     #            "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
     #            "YOYOBTC", "ZRXBTC"]
     # tickers = ["LRCBTC", "YOYOBTC"]
-    tickers = ["LRCBTC"]
+    # tickers = ["LRCBTC"]
     # tickers = ["OAXBTC"]
     # tickers = ["LRCBTC", "YOYOBTC", "QTUMBTC", "FUNBTC", "LTCBTC", "SNGLSBTC"]
     # tickers = ["GASBTC", "KNCBTC", "STRATBTC", "MCOBTC", "NEOBTC", "ZRXBTC"]
     # tickers = ["LRCBTC", "YOYOBTC", "FUNBTC", "GASBTC", "KNCBTC", "STRATBTC"]
+    tickers = ["BQXBTC", "GASBTC", "OAXBTC", "FUNBTC", "YOYOBTC", "LRCBTC"]
 
     # Dates
     # OAXBTC
@@ -43,8 +44,12 @@ if __name__ == "__main__":
     # LRCBTC, YOYOBTC, FUNBTC, GASBTC, KNCBTC, STRATBTC
     # start = datetime(2020, 1, 17, 0, 0)
     # end = datetime(2020, 1, 18, 0, 0)
+    # start = datetime(2020, 2, 1, 0, 0)
+    # end = datetime(2020, 2, 27, 0, 0)
+
+    # BQXBTC, GASBTC, OAXBTC, FUNBTC, YOYOBTC, LRCBTC
     start = datetime(2020, 2, 1, 0, 0)
-    end = datetime(2020, 2, 27, 0, 0)
+    end = datetime(2020, 2, 6, 0, 0)
 
     # BQXBTC
     # start = datetime(2019, 5, 10, 11, 45)
@@ -59,7 +64,7 @@ if __name__ == "__main__":
     wallet = SimpleWallet(1.0)
     simulator = HistoricalBinanceTradingSimulator(start, end, wallet, 240, 120,
                                                   10, 40, 0.3, tickers,
-                                                  fastForwardAmount=300,
+                                                  fastForwardAmount=10,
                                                   modelLocation="models/model_exports/cryptopumpanddumpdetector",
                                                   historicalDataLocation="binance_historical_data")
     simulator.start()

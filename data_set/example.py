@@ -7,11 +7,11 @@ if __name__ == "__main__":
     from stock_data.HistoricalBinanceDataObtainer import \
         HistoricalBinanceDataObtainer
 
-    # listOfStocks = ["BCCBTC", "BNBBTC", "BQXBTC", "FUNBTC", "GASBTC", "HSRBTC",
-    #                 "KNCBTC",  "LRCBTC", "LTCBTC", "MCOBTC", "NEOBTC", "OAXBTC",
-    #                 "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
-    #                 "YOYOBTC", "ZRXBTC"]
-    listOfStocks = ["LRCBTC", "YOYOBTC", "FUNBTC", "GASBTC", "KNCBTC", "STRATBTC"]
+    listOfStocks = ["BNBBTC", "BQXBTC", "FUNBTC", "GASBTC", "HSRBTC",
+                    "KNCBTC",  "LRCBTC", "LTCBTC", "MCOBTC", "NEOBTC", "OAXBTC",
+                    "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
+                    "YOYOBTC", "ZRXBTC"]
+    # listOfStocks = ["LRCBTC", "YOYOBTC", "FUNBTC", "GASBTC", "KNCBTC", "STRATBTC"]
     # listOfStocks = ["BCCBTC"]
     # listOfStocks = ["OAXBTC"]
     # listOfStocks = ["BCCBTC", "BQXBTC"]

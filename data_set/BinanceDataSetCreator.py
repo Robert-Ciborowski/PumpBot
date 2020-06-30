@@ -185,7 +185,7 @@ class BinanceDataSetCreator:
         :return: a tuple (df, df2) of dataframes where df contains pump & dumps,
                  df2 contains the moment before the pump.
         """
-        df = self.dataObtainer.getHistoricalDataAsDataframe(symbol)[symbol]
+        df = self.dataObtainer.getHistoricalDataAsDataframe(symbol)
         dfs = []
         dfs2 = []
 
@@ -212,7 +212,7 @@ class BinanceDataSetCreator:
         :return: a tuple (df, df2) of dataframes where df contains non-pumps,
                  df2 contains non-pumps of size self.numberOfSamples
         """
-        df = self.dataObtainer.getHistoricalDataAsDataframe(symbol)[symbol]
+        df = self.dataObtainer.getHistoricalDataAsDataframe(symbol)
         dfs = []
         dfs2 = []
 
@@ -284,12 +284,12 @@ class BinanceDataSetCreator:
         if finalCombinedAmount != 0:
             for i in range(len(finalCombined.index)):
                 timeIndex = finalCombined.index[0]
-                endIndex = self.dataObtainer.getHistoricalDataAsDataframe(symbol)[symbol].index.get_loc(timeIndex)\
+                endIndex = self.dataObtainer.getHistoricalDataAsDataframe(symbol).index.get_loc(timeIndex)\
                            - self.samplesBeforePumpPeak
                 startIndex = endIndex - self.numberOfSamples
 
                 if startIndex >= 0:
-                    pumps.append(self.dataObtainer.getHistoricalDataAsDataframe(symbol)[symbol].iloc[startIndex:endIndex])
+                    pumps.append(self.dataObtainer.getHistoricalDataAsDataframe(symbol).iloc[startIndex:endIndex])
 
         rowEntry = {'Exchange': exchangeName,
                     'Symbol': symbol,
