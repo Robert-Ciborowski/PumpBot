@@ -135,7 +135,17 @@ class HistoricalBinanceTradingSimulator:
         # self.database.stopSelfUpdating()
         # self.trader.stop()
         print("Finished historical Binance trading simulation.")
+
+        trades = self.trader.tracker.tradesStr()
+        profits = str(self.trader.tracker.calculateProfits())
+
         print("Results:")
-        print(self.trader.tracker.tradesStr())
+        print(trades)
         print("=== Profits (in BTC) ===")
-        print(self.trader.tracker.calculateProfits())
+        print(profits)
+
+        f = open("simulator_trades.txt", "w")
+        f.write(trades)
+        f.write("\n")
+        f.write(profits)
+        f.close()
