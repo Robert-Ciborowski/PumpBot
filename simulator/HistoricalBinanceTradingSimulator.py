@@ -30,6 +30,7 @@ class HistoricalBinanceTradingSimulator:
     minutesAfterSellIfPump: int
     minutesAfterSellIfPriceInactivity: int
     minutesAfterSellIfLoss: int
+    unprofitableTradesPerDay: int
     trader: PumpTrader
     database: TrackedStockDatabase
     dataObtainer: HistoricalBinanceDataObtainer
@@ -47,7 +48,7 @@ class HistoricalBinanceTradingSimulator:
                  minutesBeforeSell: int, minutesAfterSell: int,
                  minutesAfterSellIfPriceInactivity: int,
                  minutesAfterSellIfLoss: int, investmentFraction: float,
-                 coins: List, fastForwardAmount=1,
+                 coins: List, unprofitableTradesPerDay: int, fastForwardAmount=1,
                  modelLocation="../models/model_exports/cryptopumpanddumpdetector",
                  historicalDataLocation="../binance_historical_data"):
         self.startDate = startDate
@@ -58,6 +59,7 @@ class HistoricalBinanceTradingSimulator:
         self.minutesAfterSellIfLoss = minutesAfterSellIfLoss
         self._fastForwardAmount = fastForwardAmount
         self.investmentFraction = investmentFraction
+        self.unprofitableTradesPerDay = unprofitableTradesPerDay
         self.wallet = wallet
         self.tickers = coins
         self.modelLocation = modelLocation
@@ -110,6 +112,7 @@ class HistoricalBinanceTradingSimulator:
             minutesAfterSellIfPriceInactivity=self.minutesAfterSellIfPriceInactivity,
             minutesAfterSellIfLoss=self.minutesAfterSellIfLoss,
             maxTimeToHoldStock=self.maxTimeToHoldStock,
+            unprofitableTradesPerDay=self.unprofitableTradesPerDay,
             fastForwardAmount=self._fastForwardAmount)
         EventDispatcher.getInstance().addListener(self.trader, "PumpAndDump")
 

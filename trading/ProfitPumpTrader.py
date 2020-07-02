@@ -26,6 +26,7 @@ class ProfitPumpTrader(PumpTrader):
     minutesAfterSellIfPriceInactivity: int
     minutesAfterSellIfLoss: int
     maxTimeToHoldStock: int
+    unprofitableTradesPerDay: int
     wallet: Wallet
     investmentStrategy: InvestmentStrategy
     sellCooldown: Dict
@@ -45,7 +46,7 @@ class ProfitPumpTrader(PumpTrader):
                  wallet: Wallet, profitRatioToAimFor=0.1,
                  acceptableLossRatio=0.1, maxTimeToHoldStock=30,
                  minutesAfterSellIfPump=0, minutesAfterSellIfPriceInactivity=0,
-                 minutesAfterSellIfLoss=0,
+                 minutesAfterSellIfLoss=0, unprofitableTradesPerDay=5,
                  fastForwardAmount=1):
         super().__init__(investmentStrategy, wallet)
         self.ongoingTrades = {}
@@ -56,6 +57,7 @@ class ProfitPumpTrader(PumpTrader):
         self.minutesAfterSellIfPriceInactivity = minutesAfterSellIfPriceInactivity
         self.minutesAfterSellIfLoss = minutesAfterSellIfLoss
         self.maxTimeToHoldStock = maxTimeToHoldStock
+        self.unprofitableTradesPerDay = unprofitableTradesPerDay
         self._tradesLock = th.Lock()
         self._fastForwardAmount = fastForwardAmount
 
@@ -66,7 +68,10 @@ class ProfitPumpTrader(PumpTrader):
         investment = self.investmentStrategy.getAmountToInvest(self.wallet, price, confidence)
         time = self.stockDatabase.getCurrentTime()
 
-        if ticker in self.sellCooldown and self.sellCooldown[ticker] > self.stockDatabase.getCurrentTime():
+        if ticker in self.sellCooldown and self.sellCooldown[ticker] > time:
+            return
+
+        if self.tracker.getNumberOfUnprofitableTradesOnDay(ticker, time) >= self.unprofitableTradesPerDay:
             return
 
         success = self.tracker.addNewTradeIfNotOwned(PumpTrade(ticker, price, investment, buyTimestamp=time))

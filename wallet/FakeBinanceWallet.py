@@ -6,14 +6,18 @@ from typing import Dict
 
 from wallet.Wallet import Wallet
 
-class SimpleWallet(Wallet):
+class FakeBinanceWallet(Wallet):
     baseCurrencyAmount: float
     baseCurrencyName: str
+    binanceFee: float
+    minimumTradeAmount: float
     balances: Dict
 
-    def __init__(self, baseCurrencyAmount=0.0):
+    def __init__(self, baseCurrencyAmount=0.0, binanceFee=0.1, minimumTradeAmount=0.0001):
         self.baseCurrencyAmount = baseCurrencyAmount
         self.baseCurrencyName = "BTC"
+        self.binanceFee = binanceFee
+        self.minimumTradeAmount = minimumTradeAmount
         self.balances = {}
 
     def purchase(self, ticker: str, amount: float, test=True) -> bool:
@@ -24,14 +28,19 @@ class SimpleWallet(Wallet):
         :param test: whether this is a test order or a real one
         :return: success of the transaction
         """
+        if amount < self.minimumTradeAmount:
+            print(
+                "Tried to purchase " + ticker + " but amount is too small: " + str(amount) + " (FakeBinanceWallet).")
+            return False
+
         if self.baseCurrencyAmount <= amount:
-            print("Tried to purchase " + ticker + " with more funds than available (SimpleWallet).")
+            print("Tried to purchase " + ticker + " with more funds than available (FakeBinanceWallet).")
             return False
 
         if ticker in self.balances:
-            self.balances[ticker] += amount
+            self.balances[ticker] += (1 - self.binanceFee) * amount
         else:
-            self.balances[ticker] = amount
+            self.balances[ticker] = (1 - self.binanceFee) * amount
 
         self.baseCurrencyAmount -= amount
         return True
@@ -47,10 +56,10 @@ class SimpleWallet(Wallet):
         if ticker in self.balances:
             self.balances[ticker] -= amount
         else:
-            print("Tried to sell " + ticker + " but not enough is owned (SimpleWallet).")
+            print("Tried to sell " + ticker + " but not enough is owned (FakeBinanceWallet).")
             return False
 
-        self.baseCurrencyAmount += amount
+        self.baseCurrencyAmount += (1 - self.binanceFee) * amount
         return True
 
     def getBalance(self, ticker="BTC") -> float:
@@ -65,5 +74,5 @@ class SimpleWallet(Wallet):
             if ticker in self.balances:
                 return self.balances[ticker]
             else:
-                print("Tried to get balance of " + ticker + ", which is not owned (SimpleWallet).")
+                print("Tried to get balance of " + ticker + ", which is not owned (FakeBinanceWallet).")
                 return 0.0

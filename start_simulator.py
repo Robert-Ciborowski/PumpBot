@@ -4,6 +4,7 @@ from simulator.HistoricalBinanceTradingSimulator import \
     HistoricalBinanceTradingSimulator
 from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT
 from wallet.BinanceWallet import BinanceWallet
+from wallet.FakeBinanceWallet import FakeBinanceWallet
 from wallet.SimpleWallet import SimpleWallet
 
 if __name__ == "__main__":
@@ -61,9 +62,10 @@ if __name__ == "__main__":
 
     # wallet = BinanceWallet()
     # wallet.useBinanceKeysFromFile("../binance_properties.json")
-    wallet = SimpleWallet(1.0)
+    # wallet = SimpleWallet(1.0)
+    wallet = FakeBinanceWallet(1.0)
     simulator = HistoricalBinanceTradingSimulator(start, end, wallet, 240, 120,
-                                                  10, 40, 0.3, tickers,
+                                                  10, 40, 0.3, tickers, 5,
                                                   fastForwardAmount=10,
                                                   modelLocation="models/model_exports/cryptopumpanddumpdetector",
                                                   historicalDataLocation="binance_historical_data")

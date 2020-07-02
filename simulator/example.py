@@ -13,6 +13,6 @@ if __name__ == "__main__":
     end = datetime(2020, 1, 18, 0, 0)
     wallet = SimpleWallet(1.0)
     simulator = HistoricalBinanceTradingSimulator(start, end, wallet, 240, 120,
-                                                  10, 40, 0.3, tickers,
+                                                  10, 40, 0.3, tickers, 5,
                                                   fastForwardAmount=4)
     simulator.start()

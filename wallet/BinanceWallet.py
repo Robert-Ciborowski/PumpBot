@@ -39,7 +39,7 @@ class BinanceWallet(Wallet):
                                                       "@mail.utoronto.ca) for "
                                                       "help.")
 
-    def purchase(self, ticker: str, amount: float, test=True) -> float:
+    def purchase(self, ticker: str, amount: float, test=True) -> bool:
         """
         Purchases a cryptocurrency.
         :param ticker: what to purchase

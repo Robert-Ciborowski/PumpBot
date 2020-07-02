@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Dict, List
 
 from trading.PumpTrade import PumpTrade
@@ -65,3 +66,13 @@ class PumpTradeTracker:
             string += str(trade)
 
         return string
+
+    def getNumberOfUnprofitableTradesOnDay(self, ticker: str, day: datetime):
+        date = day.date()
+        count = 0
+
+        for trade in self.trades:
+            if trade.ticker == ticker and trade.buyTimestamp.date() == date:
+                count += 1
+
+        return count
