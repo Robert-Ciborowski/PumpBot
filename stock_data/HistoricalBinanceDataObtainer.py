@@ -165,7 +165,12 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
         print("Obtaining price and volume data of " + ticker + " at " + str(d_aware) + ".")
         values = self._getValues(ticker, ["Close", "Volume"], d_aware)
         # values = self._getValuesFromDataframe(self._dataAsDataFrames[ticker], ["Close", "Volume"], d_aware)
-        print("Price of " + ticker + ": " + str(values["Close"][-1]))
+
+        if len(values["Close"]) != 0:
+            print("Price of " + ticker + ": " + str(values["Close"][-1]))
+        else:
+            print("Price of " + ticker + ": 0 prices!")
+
         time2 = datetime.now()
         print("obtainPricesAndVolumes took " + str(time2 - now) + ".")
         return values["Close"], values["Volume"]
