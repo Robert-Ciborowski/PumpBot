@@ -5,9 +5,13 @@ __pycache__/
 
 /PumpBot-API/config
 
-# New properties:
+# Discord bot properties
 bot_secret_properties.json
+
+# Binance properties
 binance_properties.json
+
+# Web backend properties
 post_request_properties.json
 
 # Old properties:

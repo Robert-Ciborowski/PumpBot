@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 
 if __name__ == "__main__":
     pd.plotting.register_matplotlib_converters()
-    df = pd.read_csv("file_name.csv")
+    df = pd.read_csv("../file_name.csv")
     # print(df)
     # print(df.columns)
     # print(df[["Timestamp"]])
