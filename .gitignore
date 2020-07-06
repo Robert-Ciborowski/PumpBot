@@ -22,7 +22,7 @@ binance_historical_data/*.csv
 data_set/*.csv
 
 # Models
-models/model_exports/*
+# models/model_exports/*
 
 # Output
 simulator_output.txt
