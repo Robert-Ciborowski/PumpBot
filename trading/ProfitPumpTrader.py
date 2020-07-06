@@ -69,9 +69,11 @@ class ProfitPumpTrader(PumpTrader):
         time = self.stockDatabase.getCurrentTime()
 
         if ticker in self.sellCooldown and self.sellCooldown[ticker] > time:
+            print("Did not buy " + ticker + " due to sell cooldown.")
             return
 
         if self.tracker.getNumberOfUnprofitableTradesOnDay(ticker, time) >= self.unprofitableTradesPerDay:
+            print("Did not buy " + ticker + " due to too many unprofitable trades.")
             return
 
         success = self.tracker.addNewTradeIfNotOwned(PumpTrade(ticker, price, investment, buyTimestamp=time))
