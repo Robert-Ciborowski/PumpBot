@@ -26,6 +26,7 @@ models/model_exports/*
 
 # Output
 simulator_output.txt
+simulator_trades.txt
 
 venv-3.6.8
 venv-3.6
