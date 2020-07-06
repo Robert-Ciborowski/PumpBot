@@ -18,9 +18,9 @@ from trading.BasicInvestmentStrategy import BasicInvestmentStrategy
 from trading.MinutePumpTrader import MinutePumpTrader
 from trading.ProfitPumpTrader import ProfitPumpTrader
 from trading.PumpTrader import PumpTrader
-
 from wallet.SimpleWallet import SimpleWallet
 from wallet.Wallet import Wallet
+from logger.Logger import Logger
 
 
 class HistoricalBinanceTradingSimulator:
@@ -68,6 +68,9 @@ class HistoricalBinanceTradingSimulator:
         self._setup()
 
     def _setup(self):
+        import sys
+        sys.stdout = Logger("simulator_output.txt")
+
         # We add an hour to the end date just in case.
         self.dataObtainer = HistoricalBinanceDataObtainer(self.startDate,
                                                           self.endDate + timedelta(days=1),
