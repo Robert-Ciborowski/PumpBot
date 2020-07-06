@@ -1,9 +1,14 @@
 # PumpBot
 A machine learning cryptocurrency robot which detects and sends alerts about pump &amp; dump schemes on cryptocurrency exchanges. This program is meant to run on a server and send out alerts when it detects a pump &amp; dump. The program now supports Python 3.8!
 
+This bot is in active development! It is not finished. We are currently in our **testing stage**.
+
 ## Experimental
 - [Web Interface for Displaying Pumps and Dumps] (https://pumpbot.netlify.app/) (work in progress)
 - [PumpBot Web Back-End API Documentation](https://documenter.getpostman.com/view/10732808/SzfDy63J?version=latest)
+
+## How to setup
+Once the bot has finished the testing stage, we will add detailed instructions on how to set it up.
 
 ## Inspiration
 This project is meant to expand on research on cryptocurrency pump &amp; dumps, which is an emerging problem in the field of criminal science. Specifically, this project is a continuation of the research done by Josh Kamps and Bennett Kleinberg of University College London on cryptocurrency pump &amp; dumps. (Kamps, J; Kleinberg, B; (2018) To the moon: defining and detecting cryptocurrency pump-and-dumps. Crime Science, 7, Article 18.) Their article can be found [here](https://discovery.ucl.ac.uk/id/eprint/10069142/).
@@ -24,7 +29,6 @@ After a pump &amp; dump is detected, a Discord bot sends out an alert to a Disco
 
 ### Database
 Pump &amp; dump alerts are sent to a database. This database is read by a website, which serves as our front-end.
-
 
 ## Development Team
 - [Robert Ciborowski](https://github.com/Robert-Ciborowski) - Machine learning developer and data analytics
