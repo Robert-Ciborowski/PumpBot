@@ -22,6 +22,7 @@ class BinanceDataSetCreator:
     def __init__(self, dataObtainer: HistoricalBinanceDataObtainer):
         self.dataObtainer = dataObtainer
         self.numberOfSamples = MINUTES_OF_DATA_TO_LOOK_AT
+        # self.samplesBeforePumpPeak = 12
         self.samplesBeforePumpPeak = 7
 
     def exportPumpsToCSV(self, symbol: str, rightBeforePumps: List,
@@ -144,9 +145,9 @@ class BinanceDataSetCreator:
         :return: a tuple (df, df2) of dataframe lists where df contains pumps,
                  df2 contains the moment before the pumps.
         """
-        lst1, lst2 = self.findPumpsForSymbol(symbols[0], amountToIncrement)
+        lst1, lst2 = [], []
 
-        for i in range(1, len(symbols)):
+        for i in range(0, len(symbols)):
             lst3, lst4 = self.findPumpsForSymbol(symbols[i], amountToIncrement)
             print(symbols[i] + " had " + str(len(lst4)) + " potential pumps!")
             lst1 += lst3

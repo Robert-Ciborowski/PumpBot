@@ -1,22 +1,26 @@
 """
 An abstract class which makes transactions.
 """
+from stock_data.StockDataObtainer import StockDataObtainer
+
 
 class Wallet:
-    def purchase(self, ticker: str, amount: float) -> bool:
+    def purchase(self, ticker: str, amountInBaseCurrency: float,
+                 amountInPurchaseCurrency: float, test=True) -> bool:
         """
         Purschases a stock/cryptocurrency.
         :param ticker: what to purchase
-        :param amount: the amount to purchase
+        :param amount: the amount to purchase, units: ticker
         :return: success of the transaction
         """
         pass
 
-    def sell(self, ticker: str, amount: float) -> bool:
+    def sell(self, ticker: str, amountInBaseCurrency: float,
+             amountInSellCurrency: float, test=True) -> bool:
         """
         Sells a stock/cryptocurrency.
         :param ticker: what to sell
-        :param amount: the amount to sell
+        :param amount: the amount to sell, units: ticker
         :return: success of the transaction
         """
         pass

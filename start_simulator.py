@@ -51,8 +51,12 @@ if __name__ == "__main__":
     # end = datetime(2020, 2, 27, 0, 0)
 
     # BQXBTC, GASBTC, OAXBTC, FUNBTC, YOYOBTC, LRCBTC
+    # start = datetime(2019, 8, 1, 0, 0)
+    # end = datetime(2019, 9, 15, 0, 0)
+
+    # LRCBTC, OAXBTC, YOYOBTC
     start = datetime(2019, 8, 1, 0, 0)
-    end = datetime(2019, 9, 15, 0, 0)
+    end = datetime(2019, 8, 16, 0, 0)
 
     # BQXBTC
     # start = datetime(2019, 5, 10, 11, 45)
@@ -66,7 +70,7 @@ if __name__ == "__main__":
     # wallet.useBinanceKeysFromFile("../binance_properties.json")
     # wallet = SimpleWallet(1.0)
     wallet = FakeBinanceWallet(1.0)
-    simulator = HistoricalBinanceTradingSimulator(start, end, wallet, 240, 120,
+    simulator = HistoricalBinanceTradingSimulator(start, end, wallet, 120, 120,
                                                   10, 40, 0.3, tickers, 5,
                                                   fastForwardAmount=270,
                                                   modelLocation="models/model_exports/cryptopumpanddumpdetector",

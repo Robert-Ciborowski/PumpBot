@@ -63,6 +63,7 @@ class ProfitPumpTrader(PumpTrader):
 
     def _onPumpAndDump(self, ticker: str, price: float, confidence: float):
         if self.wallet.lacksFunds():
+            print("Did not buy " + ticker + " because wallet lacks funds.")
             return
 
         investment = self.investmentStrategy.getAmountToInvest(self.wallet, price, confidence)
@@ -79,7 +80,7 @@ class ProfitPumpTrader(PumpTrader):
         success = self.tracker.addNewTradeIfNotOwned(PumpTrade(ticker, price, investment, buyTimestamp=time))
 
         if success:
-            if self.wallet.purchase(ticker, investment, test=TEST_MODE):
+            if self.wallet.purchase(ticker, investment, investment / price, test=TEST_MODE):
                 print("MinutePumpTrader is buying " + ticker + " with " + str(
                     investment) + "...")
 
@@ -135,23 +136,24 @@ class ProfitPumpTrader(PumpTrader):
 
             if trade.buyPrice * (1 + self.profitRatioToAimFor) <= currentPrice:
                 print("Making profit on a trade!")
-                self._sell(ticker, self.minutesAfterSellIfPump)
+                self._sell(ticker, currentPrice, self.minutesAfterSellIfPump)
             elif self.ongoingTrades[ticker][1] * (1 - self.acceptableLossRatio) >= currentPrice:
                 print("Stock's price dipped too much from its peak. Selling stock.")
-                self._sell(ticker, self.minutesAfterSellIfPriceInactivity)
+                self._sell(ticker, currentPrice, self.minutesAfterSellIfPriceInactivity)
             elif (now - time).total_seconds() / 60 >= self.maxTimeToHoldStock:
                 print("Held a stock for too long and decided to sell it.")
-                self._sell(ticker, self.minutesAfterSellIfLoss)
+                self._sell(ticker, currentPrice, self.minutesAfterSellIfLoss)
             elif currentPrice > self.ongoingTrades[ticker][1]:
                 self.ongoingTrades[ticker][1] = currentPrice
 
-    def _sell(self, ticker: str, cooldown: int):
+    def _sell(self, ticker: str, price: float, cooldown: int):
         print("MinutePumpTrader is selling " + ticker)
         self.sellCooldown[ticker] = self.stockDatabase.getCurrentTime() + \
                                     timedelta(minutes=cooldown)
 
         # This sells all of the asset.
-        self.wallet.sell(ticker, self.wallet.getBalance(ticker), test=TEST_MODE)
+        amount = self.wallet.getBalance(ticker)
+        self.wallet.sell(ticker, amount * price, amount, test=TEST_MODE)
 
         # This keeps track of statistics.
         price = self.stockDatabase.getCurrentStockPrice(ticker)

@@ -16,41 +16,42 @@ class SimpleWallet(Wallet):
         self.baseCurrencyName = "BTC"
         self.balances = {}
 
-    def purchase(self, ticker: str, amount: float, test=True) -> bool:
+    def purchase(self, ticker: str, amountInBaseCurrency: float,
+             amountInPurchaseCurrency: float, test=True) -> bool:
         """
         Purchases a cryptocurrency.
         :param ticker: what to purchase
-        :param amount: the amount to purchase
+        :param amount: the amount to purchase, units: ticker
         :param test: whether this is a test order or a real one
         :return: success of the transaction
         """
-        if self.baseCurrencyAmount <= amount:
+        if self.baseCurrencyAmount <= amountInBaseCurrency:
             print("Tried to purchase " + ticker + " with more funds than available (SimpleWallet).")
             return False
 
         if ticker in self.balances:
-            self.balances[ticker] += amount
+            self.balances[ticker] += amountInPurchaseCurrency
         else:
-            self.balances[ticker] = amount
+            self.balances[ticker] = amountInPurchaseCurrency
 
-        self.baseCurrencyAmount -= amount
+        self.baseCurrencyAmount -= amountInBaseCurrency
         return True
 
-
-    def sell(self, ticker: str, amount: float, test=True) -> bool:
+    def sell(self, ticker: str, amountInBaseCurrency: float,
+             amountInSellCurrency: float, test=True) -> bool:
         """
         Sells a cryptocurrency.
         :param ticker: what to sell
-        :param amount: the amount to sell
+        :param amount: the amount to sell, units: ticker
         :return: success of the transaction
         """
         if ticker in self.balances:
-            self.balances[ticker] -= amount
+            self.balances[ticker] -= amountInSellCurrency
         else:
             print("Tried to sell " + ticker + " but not enough is owned (SimpleWallet).")
             return False
 
-        self.baseCurrencyAmount += amount
+        self.baseCurrencyAmount += amountInBaseCurrency
         return True
 
     def getBalance(self, ticker="BTC") -> float:

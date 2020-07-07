@@ -39,11 +39,12 @@ class BinanceWallet(Wallet):
                                                       "@mail.utoronto.ca) for "
                                                       "help.")
 
-    def purchase(self, ticker: str, amount: float, test=True) -> bool:
+    def purchase(self, ticker: str, amountInPurchaseCurrency: float,
+                 amountInBaseCurrency: float, test=True) -> bool:
         """
         Purchases a cryptocurrency.
         :param ticker: what to purchase
-        :param amount: the amount to purchase
+        :param amount: the amount to purchase, units: ticker
         :param test: whether this is a test order or a real one
         :return: success of the transaction
         """
@@ -53,13 +54,19 @@ class BinanceWallet(Wallet):
                     symbol=ticker,
                     side=Client.SIDE_BUY,
                     type=Client.ORDER_TYPE_MARKET,
-                    quantity=amount)
+                    quantity=amountInPurchaseCurrency)
+                print(
+                    "BinanceWallet purchase still needs to be tested to see if it "
+                    "takes in quantity in buy currency or BTC!")
             else:
-                self.client.create_order(
-                    symbol=ticker,
-                    side=Client.SIDE_BUY,
-                    type=Client.ORDER_TYPE_MARKET,
-                    quantity=amount)
+                print(
+                    "BinanceWallet purchase still needs to be tested to see if it "
+                    "takes in quantity in buy currency or BTC!")
+                # self.client.create_order(
+                #     symbol=ticker,
+                #     side=Client.SIDE_BUY,
+                #     type=Client.ORDER_TYPE_MARKET,
+                #     quantity=amountInPurchaseCurrency)
         except binance.exceptions.BinanceAPIException as e:
             print("A BinanceTransactor transaction failed to occur!")
             print(e)
@@ -70,11 +77,12 @@ class BinanceWallet(Wallet):
 
         return True
 
-    def sell(self, ticker: str, amount: float, test=True) -> bool:
+    def sell(self, ticker: str, amountInBaseCurrency: float,
+             amountInSellCurrency: float, test=True) -> bool:
         """
         Sells a cryptocurrency.
         :param ticker: what to sell
-        :param amount: the amount to sell
+        :param amount: the amount to sell, units: ticker
         :return: success of the transaction
         """
         try:
@@ -83,13 +91,18 @@ class BinanceWallet(Wallet):
                     symbol=ticker,
                     side=Client.SIDE_SELL,
                     type=Client.ORDER_TYPE_MARKET,
-                    quantity=amount)
+                    quantity=amountInSellCurrency)
+                print("BinanceWallet sell still needs to be tested to see if it "
+                      "takes in quantity in sell currency or BTC!")
             else:
-                self.client.create_order(
-                    symbol=ticker,
-                    side=Client.SIDE_SELL,
-                    type=Client.ORDER_TYPE_MARKET,
-                    quantity=amount)
+                print(
+                    "BinanceWallet sell still needs to be tested to see if it "
+                    "takes in quantity in sell currency or BTC!")
+                # self.client.create_order(
+                #     symbol=ticker,
+                #     side=Client.SIDE_SELL,
+                #     type=Client.ORDER_TYPE_MARKET,
+                #     quantity=amountInSellCurrency)
         except binance.exceptions.BinanceAPIException as e:
             print("A BinanceTransactor transaction failed to occur!")
             print(e)
@@ -104,7 +117,7 @@ class BinanceWallet(Wallet):
         """
         Returns amount owned of stock/cryptocurrency.
         :param ticker: the asset
-        :return: amount owned
+        :return: amount owned, units: ticker
         """
         return self.client.get_asset_balance(asset=ticker)
 
@@ -112,7 +125,7 @@ class BinanceWallet(Wallet):
         """
         Returns amount owned of stock/cryptocurrency.
         :param ticker: the asset
-        :return: amount owned
+        :return: amount owned, units: ticker
         """
         return self.client.get_asset_balance(asset=ticker)["free"]
 
