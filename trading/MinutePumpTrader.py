@@ -54,7 +54,7 @@ class MinutePumpTrader(PumpTrader):
         investment = self.investmentStrategy.getAmountToInvest(self.wallet, price, confidence)
         print("Investing " + str(investment) + "...")
         time = self.stockDatabase.getCurrentTime()
-        success = self.tracker.addNewTradeIfNotOwned(PumpTrade(ticker, price, investment, buyTimestamp=time))
+        success = self.tracker.isOwned(PumpTrade(ticker, price, investment, buyTimestamp=time))
 
         if success and self.timeOfLastSell + timedelta(minutes=self.minutesAfterSell) <= datetime.now():
             if self.wallet.purchase(ticker, investment, test=TEST_MODE):

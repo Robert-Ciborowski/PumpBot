@@ -77,20 +77,20 @@ class ProfitPumpTrader(PumpTrader):
             print("Did not buy " + ticker + " due to too many unprofitable trades.")
             return
 
-        success = self.tracker.addNewTradeIfNotOwned(PumpTrade(ticker, price, investment, buyTimestamp=time))
+        pumpTrade = PumpTrade(ticker, price, investment, buyTimestamp=time)
+        success = self.tracker.isOwned(pumpTrade)
 
         if success:
             if self.wallet.purchase(ticker, investment, investment / price, test=TEST_MODE):
                 print("MinutePumpTrader is buying " + ticker + " with " + str(
                     investment) + "...")
+                self.tracker.addNewTrade(pumpTrade)
 
                 with self._tradesLock:
                     self.ongoingTrades[ticker] = [self.stockDatabase.getCurrentTime(), price]
             else:
                 print("MinutePumpTrader failed to buy " + ticker + " with " + str(
                     investment) + "...")
-        # elif self.tracker.containsUnsoldTrade(ticker):
-        #     self.ongoingTrades[ticker] = [self.stockDatabase.getCurrentTime(), price]
 
     def start(self):
         self._stopThread = False
