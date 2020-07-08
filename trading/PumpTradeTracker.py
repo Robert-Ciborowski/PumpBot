@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Dict, List
 
 from trading.PumpTrade import PumpTrade
+from wallet.Wallet import Wallet
 
 
 class PumpTradeTracker:

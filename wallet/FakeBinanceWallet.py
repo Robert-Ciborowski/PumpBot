@@ -82,3 +82,6 @@ class FakeBinanceWallet(Wallet):
             else:
                 print("Tried to get balance of " + ticker + ", which is not owned (FakeBinanceWallet).")
                 return 0.0
+
+    def getTransactionFee(self) -> float:
+        return self.binanceFee

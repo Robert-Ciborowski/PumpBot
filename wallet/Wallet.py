@@ -44,3 +44,6 @@ class Wallet:
 
     def lacksFunds(self, ticker="BTC"):
         return self.getBalance(ticker) <= 0
+
+    def getTransactionFee(self) -> float:
+        return 0.0

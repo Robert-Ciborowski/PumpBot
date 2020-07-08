@@ -158,5 +158,5 @@ class ProfitPumpTrader(PumpTrader):
         # This keeps track of statistics.
         price = self.stockDatabase.getCurrentStockPrice(ticker)
         time = self.stockDatabase.getCurrentTime()
-        returns = self.tracker.getUnsoldTradeByTicker(ticker).sell(price, sellTimestamp=time)
+        returns = self.tracker.getUnsoldTradeByTicker(ticker).sell(price * (1.0 - self.wallet.getTransactionFee()), sellTimestamp=time)
         self.ongoingTrades.pop(ticker)
