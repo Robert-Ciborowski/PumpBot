@@ -20,11 +20,11 @@ def train():
     test_df = all_df.tail(int(numberOfEntries * 0.3))
 
     # Hyperparameters!
-    learningRate = 0.005
-    epochs = 140
-    batchSize = 40
+    learningRate = 0.002
+    epochs = 80
+    batchSize = 220
     labelName = "Pump"
-    classificationThreshold = 0.95
+    classificationThreshold = 0.90
 
     model = CryptoPumpAndDumpDetector(tryUsingGPU=False)
     model.setup(classificationThreshold,
