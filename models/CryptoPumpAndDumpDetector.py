@@ -179,9 +179,9 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         # the model.
         featureLayer = layers.DenseFeatures(featureColumns)
         layerParameters = [
-            LayerParameter(20, "sigmoid"),
+            LayerParameter(50, "sigmoid"),
+            LayerParameter(25, "sigmoid"),
             LayerParameter(5, "sigmoid"),
-            LayerParameter(3, "sigmoid"),
         ]
 
         self.createModel(featureLayer, layerParameters)
@@ -189,7 +189,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     def setupUsingDefaults(self):
         # Hyperparameters!
         learningRate = 0.008
-        epochs = 500
+        epochs = 1500
         batchSize = 30
         classificationThreshold = 0.90
         self.setup(classificationThreshold,

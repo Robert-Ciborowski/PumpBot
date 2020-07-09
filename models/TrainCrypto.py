@@ -21,10 +21,10 @@ def train():
 
     # Hyperparameters!
     learningRate = 0.002
-    epochs = 80
-    batchSize = 220
+    epochs = 1000
+    batchSize = 240
     labelName = "Pump"
-    classificationThreshold = 0.90
+    classificationThreshold = 0.95
 
     model = CryptoPumpAndDumpDetector(tryUsingGPU=False)
     model.setup(classificationThreshold,

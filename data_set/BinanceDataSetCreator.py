@@ -11,7 +11,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import csv
 
-from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT
+from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT, WINDOW_SIZE
 
 
 class BinanceDataSetCreator:
@@ -45,16 +45,17 @@ class BinanceDataSetCreator:
 
 
                 for df in rightBeforePumps:
-                    if "24m Volume RA" not in df.columns:
-                        print("24m Volume RA not in dataframe! Are they pumps: " + str(areTheyPumps))
+                    if str(WINDOW_SIZE) + "m Volume RA" not in df.columns:
+                        print(str(WINDOW_SIZE) + "m Volume RA not in dataframe! Are they pumps: " + str(areTheyPumps))
+                        print(df.columns)
                         continue
 
-                    mean = df["24m Volume RA"].mean()
-                    std = df["24m Volume RA"].std()
-                    volumes = (df["24m Volume RA"] - mean) / std
-                    mean = df["24m Close Price RA"].mean()
-                    std = df["24m Close Price RA"].std()
-                    prices = (df["24m Close Price RA"] - mean) / std
+                    mean = df[str(WINDOW_SIZE) + "m Volume RA"].mean()
+                    std = df[str(WINDOW_SIZE) + "m Volume RA"].std()
+                    volumes = (df[str(WINDOW_SIZE) + "m Volume RA"] - mean) / std
+                    mean = df[str(WINDOW_SIZE) + "m Close Price RA"].mean()
+                    std = df[str(WINDOW_SIZE) + "m Close Price RA"].std()
+                    prices = (df[str(WINDOW_SIZE) + "m Close Price RA"] - mean) / std
                     csvRow = []
 
                     # Becomes true if a value is nan so that we can skip this
@@ -101,7 +102,7 @@ class BinanceDataSetCreator:
         if input1 == "y":
             for i in range(0, length):
                 df2 = rightBeforePumps[i]
-                self._addRAs(df2)
+                self._addRAs(df2, WINDOW_SIZE)
 
             return rightBeforePumps, falsePositives
 
@@ -117,12 +118,12 @@ class BinanceDataSetCreator:
 
             if input1 == "y":
                 # lst.append(df)
-                self._addRAs(df2)
+                self._addRAs(df2, WINDOW_SIZE)
                 actualPumps.append(df2)
             elif input1 == "n":
                 continue
             elif input1 == "m":
-                self._addRAs(df2)
+                self._addRAs(df2, WINDOW_SIZE)
                 falsePositives.append(df2)
             else:
                 print("Invalid input.")
@@ -242,7 +243,7 @@ class BinanceDataSetCreator:
 
     # returns final dataframe
     def _analyseSymbolForPumps(self, symbol: str, df: pd.DataFrame, volumeThreshold: float,
-                               priceThreshold: float, windowSize=24):
+                               priceThreshold: float, windowSize=WINDOW_SIZE):
         """
         :param symbol: symbol code (e.g. OAXBTC)
         :param df: pandas dataframe with the data
@@ -295,7 +296,7 @@ class BinanceDataSetCreator:
                 if startIndex >= 0:
                     dfToAppend = self.dataObtainer.getHistoricalDataAsDataframe(symbol).iloc[startIndex:endIndex]
                     std = dfToAppend.std(axis=0, skipna=True)["Close"]
-                    if std < 7.2539296673810118e-07:
+                    if std < 1.0e-06:
                         pumps.append(dfToAppend)
 
         rowEntry = {'Exchange': exchangeName,
@@ -494,8 +495,8 @@ class BinanceDataSetCreator:
 
         fig.show()
 
-    def _addRAs(self, df2):
-        vRA = '24m Volume RA'
+    def _addRAs(self, df2, size: int):
+        vRA = str(size) + "m Volume RA"
         self._addRA(df2, 24, 'Volume', vRA)
-        pRA = '24m Close Price RA'
+        pRA = str(size) + "m Close Price RA"
         self._addRA(df2, 24, 'Close', pRA)
