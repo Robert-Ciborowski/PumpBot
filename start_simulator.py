@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     # LRCBTC, OAXBTC, YOYOBTC
     start = datetime(2019, 8, 1, 0, 0)
-    end = datetime(2019, 8, 10, 0, 0)
+    end = datetime(2019, 12, 1, 0, 0)
 
     # BQXBTC
     # start = datetime(2019, 5, 10, 11, 45)

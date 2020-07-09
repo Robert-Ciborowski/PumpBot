@@ -112,7 +112,7 @@ class BinanceDataSetCreator:
             print("Is this a pump? " + str(i + 1) + "/" + str(length))
             df = pumps[i]
             df2 = rightBeforePumps[i]
-            self._plotWithPyPlot(df, df2)
+            self._plotWithPyPlot(df, df2, i)
             input1 = input()
 
             if input1 == "y":
@@ -440,7 +440,7 @@ class BinanceDataSetCreator:
         df[name] = df[col].rolling(window=windowSize, min_periods=1,
                                      center=False).mean()
 
-    def _plotWithPyPlot(self, df, df2):
+    def _plotWithPyPlot(self, df, df2, i):
         fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(15, 8))
         fig.tight_layout()
         # df.to_csv("temporary.csv")
@@ -459,7 +459,7 @@ class BinanceDataSetCreator:
         #                 marker='o', markersize=3, color="red")
         # axes[0][0].plot(df2.iloc[-1]["Timestamp"], df2.iloc[-1]["High"],
         #                 marker='o', markersize=3, color="red")
-        axes[0][0].set_title("Zoomed Out - Price High")
+        axes[0][0].set_title("Zoomed Out - Price High - " + str(i))
         # axes[0].legend()
         # plt.show()
 
@@ -473,18 +473,18 @@ class BinanceDataSetCreator:
         #                 marker='o', markersize=3, color="red")
         # axes[1][0].plot(df2.iloc[-1]["Timestamp"], df2.iloc[-1]["Volume"],
         #                 marker='o', markersize=3, color="red")
-        axes[1][0].set_title("Zoomed Out - Volume")
+        axes[1][0].set_title("Zoomed Out - Volume " + str(i))
         # axes[1].legend()
         # plt.show()
 
         df2.plot(ax=axes[0][1], x="Timestamp", y="High", label="High",
                  color="red")
         # axes[0][1].plot(df2[["Timestamp"]], df2[["High"]], label="High")
-        axes[0][1].set_title("Zoomed In - Price High")
+        axes[0][1].set_title("Zoomed In - Price High " + str(i))
         df2.plot(ax=axes[1][1], x="Timestamp", y="Volume", label="Volume",
                  color="red")
         # axes[1][1].plot(df2[["Timestamp"]], df2[["Volume"]], label="Volume")
-        axes[1][1].set_title("Zoomed In - Volume")
+        axes[1][1].set_title("Zoomed In - Volume " + str(i))
 
         fig.show()
 
