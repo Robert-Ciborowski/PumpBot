@@ -239,7 +239,7 @@ class BinanceDataSetCreator:
         # return self._analyseSymbolForPumps(symbol, df, 3, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 2.5, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 2.0, 1.05), df
-        return self._analyseSymbolForPumps(symbol, df, 1.0, 1.07), df
+        return self._analyseSymbolForPumps(symbol, df, 1.0, 1.09), df
 
     # returns final dataframe
     def _analyseSymbolForPumps(self, symbol: str, df: pd.DataFrame, volumeThreshold: float,
@@ -272,7 +272,7 @@ class BinanceDataSetCreator:
 
         # These are coinciding price and volume spikes for alleged P&D (more
         # than 1x per given time removed).
-        volumePriceFinalDF = self._removeSameDayPumps(volumePriceDF)
+        volumePriceFinalDF = self._removeSamePumps(volumePriceDF)
         allegedAmount = self._getNumberOfRows(volumePriceFinalDF)
 
         # This finds coinciding price and volume spikes (with dumps afterwards).
@@ -281,7 +281,7 @@ class BinanceDataSetCreator:
         finalDF = df[finalMask]
 
         # This removes indicators which occur on the same day.
-        finalCombined = self._removeSameDayPumps(finalDF)
+        finalCombined = self._removeSamePumps(finalDF)
         finalCombinedAmount = self._getNumberOfRows(finalCombined)
 
         pumps = []
@@ -313,14 +313,14 @@ class BinanceDataSetCreator:
     def _getNumberOfRows(self, df: pd.DataFrame):
         return df.shape[0]
 
-    def _removeSameDayPumps(self, df: pd.DataFrame):
+    def _removeSamePumps(self, df: pd.DataFrame):
         """
         Removes spikes that occur on the same day.
         """
         df = df.copy()
-        df['Timestamp_DAYS'] = df['Timestamp'].apply(
-            lambda x: x.replace(hour=0, minute=0, second=0))
-        df = df.drop_duplicates(subset='Timestamp_DAYS', keep='last')
+        df['Timestamp_THIRD_HOURS'] = df['Timestamp'].apply(
+            lambda x: x.replace(hour=x.hour % 3, minute=0, second=0))
+        df = df.drop_duplicates(subset='Timestamp_THIRD_HOURS', keep='last')
         return df
 
     def _findVolumeSpikes(self, df: pd.DataFrame, volumeThreshold: float,
@@ -466,7 +466,7 @@ class BinanceDataSetCreator:
         #                 marker='o', markersize=3, color="red")
         # axes[0][0].plot(df2.iloc[-1]["Timestamp"], df2.iloc[-1]["High"],
         #                 marker='o', markersize=3, color="red")
-        axes[0][0].set_title("Zoomed Out - Price High - " + str(i))
+        axes[0][0].set_title("Zoomed Out - Price High - " + str(i + 1))
         # axes[0].legend()
         # plt.show()
 
@@ -480,18 +480,18 @@ class BinanceDataSetCreator:
         #                 marker='o', markersize=3, color="red")
         # axes[1][0].plot(df2.iloc[-1]["Timestamp"], df2.iloc[-1]["Volume"],
         #                 marker='o', markersize=3, color="red")
-        axes[1][0].set_title("Zoomed Out - Volume " + str(i))
+        axes[1][0].set_title("Zoomed Out - Volume " + str(i + 1))
         # axes[1].legend()
         # plt.show()
 
         df2.plot(ax=axes[0][1], x="Timestamp", y="High", label="High",
                  color="red")
         # axes[0][1].plot(df2[["Timestamp"]], df2[["High"]], label="High")
-        axes[0][1].set_title("Zoomed In - Price High " + str(i))
+        axes[0][1].set_title("Zoomed In - Price High " + str(i + 1))
         df2.plot(ax=axes[1][1], x="Timestamp", y="Volume", label="Volume",
                  color="red")
         # axes[1][1].plot(df2[["Timestamp"]], df2[["Volume"]], label="Volume")
-        axes[1][1].set_title("Zoomed In - Volume " + str(i))
+        axes[1][1].set_title("Zoomed In - Volume " + str(i + 1))
 
         fig.show()
 
