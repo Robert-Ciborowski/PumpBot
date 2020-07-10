@@ -13,7 +13,7 @@ if __name__ == "__main__":
     #                 "YOYOBTC", "ZRXBTC"]
     # listOfStocks = ["LRCBTC", "YOYOBTC", "FUNBTC", "GASBTC", "KNCBTC", "STRATBTC"]
     # listOfStocks = ["BCCBTC"]
-    listOfStocks = ["OAXBTC"]
+    listOfStocks = ["LRCBTC"]
     # listOfStocks = ["BCCBTC", "BQXBTC"]
     # listOfStocks = ["LRCBTC", "OAXBTC", "YOYOBTC"]
     historicalObtainer = HistoricalBinanceDataObtainer(

@@ -66,9 +66,9 @@ def readTickerData(path: str, dateOfStart: datetime, dateOfEnd: datetime) -> pd.
     except IOError as e:
         print("Could not read " + path + "!")
 
-start = datetime(2019, 8, 1, 0, 0)
-end = datetime(2019, 8, 10, 0, 0)
-df = readTickerData("../binance_historical_data/OAXBTC-1m-data.csv", start, end)
+start = datetime(2019, 8, 12, 0, 0)
+end = datetime(2019, 8, 12, 11, 0)
+df = readTickerData("../binance_historical_data/LRCBTC-1m-data.csv", start, end)
 
 plt.figure()
 fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(12, 8))
