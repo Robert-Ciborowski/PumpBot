@@ -91,6 +91,7 @@ if __name__ == "__main__":
         wallet,
         profitRatioToAimFor=properties["Target Profit Ratio"],
         acceptableLossRatio=properties["Acceptable Loss Ratio"],
+        acceptableDipFromStartRatio=properties["Acceptable Dip From Start Ratio"],
         minutesAfterSellIfPump=properties["Minutes After Pump Sell"],
         minutesAfterSellIfPriceInactivity=properties["Minutes After Price-Inactive Sell"],
         minutesAfterSellIfLoss=properties["Minutes After Loss Sell"],

@@ -22,6 +22,7 @@ class ProfitPumpTrader(PumpTrader):
     stockDatabase: TrackedStockDatabase
     profitRatioToAimFor: float
     acceptableLossRatio: float
+    acceptableDipFromStartRatio: float
     minutesAfterSellIfPump: int
     minutesAfterSellIfPriceInactivity: int
     minutesAfterSellIfLoss: int
@@ -44,15 +45,16 @@ class ProfitPumpTrader(PumpTrader):
 
     def __init__(self, investmentStrategy: InvestmentStrategy,
                  wallet: Wallet, profitRatioToAimFor=0.1,
-                 acceptableLossRatio=0.1, maxTimeToHoldStock=30,
-                 minutesAfterSellIfPump=0, minutesAfterSellIfPriceInactivity=0,
-                 minutesAfterSellIfLoss=0, unprofitableTradesPerDay=5,
-                 fastForwardAmount=1):
+                 acceptableLossRatio=0.1, acceptableDipFromStartRatio=0.1,
+                 maxTimeToHoldStock=30, minutesAfterSellIfPump=0,
+                 minutesAfterSellIfPriceInactivity=0, minutesAfterSellIfLoss=0,
+                 unprofitableTradesPerDay=5, fastForwardAmount=1):
         super().__init__(investmentStrategy, wallet)
         self.ongoingTrades = {}
         self.sellCooldown = {}
         self.profitRatioToAimFor = profitRatioToAimFor
         self.acceptableLossRatio = acceptableLossRatio
+        self.acceptableDipFromStartRatio = acceptableDipFromStartRatio
         self.minutesAfterSellIfPump = minutesAfterSellIfPump
         self.minutesAfterSellIfPriceInactivity = minutesAfterSellIfPriceInactivity
         self.minutesAfterSellIfLoss = minutesAfterSellIfLoss
@@ -87,7 +89,7 @@ class ProfitPumpTrader(PumpTrader):
                 self.tracker.addNewTrade(pumpTrade)
 
                 with self._tradesLock:
-                    self.ongoingTrades[ticker] = [self.stockDatabase.getCurrentTime(), price]
+                    self.ongoingTrades[ticker] = [self.stockDatabase.getCurrentTime(), price, price]
             else:
                 print("MinutePumpTrader failed to buy " + ticker + " with " + str(
                     investment) + "...")
@@ -139,6 +141,9 @@ class ProfitPumpTrader(PumpTrader):
                 self._sell(ticker, currentPrice, self.minutesAfterSellIfPump)
             elif self.ongoingTrades[ticker][1] * (1 - self.acceptableLossRatio) >= currentPrice:
                 print("Stock's price dipped too much from its peak. Selling stock.")
+                self._sell(ticker, currentPrice, self.minutesAfterSellIfPriceInactivity)
+            elif self.ongoingTrades[ticker][2] * (1 - self.acceptableDipFromStartRatio) >= currentPrice:
+                print("Stock's price dipped too much from start price. Selling stock.")
                 self._sell(ticker, currentPrice, self.minutesAfterSellIfPriceInactivity)
             elif (now - time).total_seconds() / 60 >= self.maxTimeToHoldStock:
                 print("Held a stock for too long and decided to sell it.")
