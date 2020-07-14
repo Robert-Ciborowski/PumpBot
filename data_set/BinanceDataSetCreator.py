@@ -11,7 +11,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import csv
 
-from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT, WINDOW_SIZE
+from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT, ROLLING_AVERAGE_SIZE
 
 
 class BinanceDataSetCreator:
@@ -45,17 +45,17 @@ class BinanceDataSetCreator:
 
 
                 for df in rightBeforePumps:
-                    if str(WINDOW_SIZE) + "m Volume RA" not in df.columns:
-                        print(str(WINDOW_SIZE) + "m Volume RA not in dataframe! Are they pumps: " + str(areTheyPumps))
+                    if str(ROLLING_AVERAGE_SIZE) + "m Volume RA" not in df.columns:
+                        print(str(ROLLING_AVERAGE_SIZE) + "m Volume RA not in dataframe! Are they pumps: " + str(areTheyPumps))
                         print(df.columns)
                         continue
 
-                    mean = df[str(WINDOW_SIZE) + "m Volume RA"].mean()
-                    std = df[str(WINDOW_SIZE) + "m Volume RA"].std()
-                    volumes = (df[str(WINDOW_SIZE) + "m Volume RA"] - mean) / std
-                    mean = df[str(WINDOW_SIZE) + "m Close Price RA"].mean()
-                    std = df[str(WINDOW_SIZE) + "m Close Price RA"].std()
-                    prices = (df[str(WINDOW_SIZE) + "m Close Price RA"] - mean) / std
+                    mean = df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"].mean()
+                    std = df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"].std()
+                    volumes = (df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"] - mean) / std
+                    mean = df[str(ROLLING_AVERAGE_SIZE) + "m Close Price RA"].mean()
+                    std = df[str(ROLLING_AVERAGE_SIZE) + "m Close Price RA"].std()
+                    prices = (df[str(ROLLING_AVERAGE_SIZE) + "m Close Price RA"] - mean) / std
                     csvRow = []
 
                     # Becomes true if a value is nan so that we can skip this
@@ -102,14 +102,15 @@ class BinanceDataSetCreator:
         if input1 == "y":
             for i in range(0, length):
                 df2 = rightBeforePumps[i]
-                self._addRAs(df2, WINDOW_SIZE)
+                self._addRAs(df2, ROLLING_AVERAGE_SIZE)
 
             return rightBeforePumps, falsePositives
 
         print("Please tell me if these are pumps or not.")
         print("'y' = pump, 'n' = not a pump, 'm' = not a pump, add to non-pump dataset")
 
-        for i in range(0, length):
+        i = 0
+        while i < length:
             print("Is this a pump? " + str(i + 1) + "/" + str(length))
             df = pumps[i]
             df2 = rightBeforePumps[i]
@@ -118,16 +119,18 @@ class BinanceDataSetCreator:
 
             if input1 == "y":
                 # lst.append(df)
-                self._addRAs(df2, WINDOW_SIZE)
+                self._addRAs(df2, ROLLING_AVERAGE_SIZE)
                 actualPumps.append(df2)
+                i += 1
             elif input1 == "n":
+                i += 1
                 continue
             elif input1 == "m":
-                self._addRAs(df2, WINDOW_SIZE)
+                self._addRAs(df2, ROLLING_AVERAGE_SIZE)
                 falsePositives.append(df2)
+                i += 1
             else:
                 print("Invalid input.")
-                i -= 1
 
         return actualPumps, falsePositives
 
@@ -167,9 +170,9 @@ class BinanceDataSetCreator:
         :return: a tuple (df, df2) of dataframe lists where df contains
                  non-pumps, df2 contains non-pumps of size self.numberOfSamples
         """
-        lst1, lst2 = self.findNonPumpsForSymbol(symbols[0], amountToIncrement)
+        lst1, lst2 = [], []
 
-        for i in range(1, len(symbols)):
+        for i in range(0, len(symbols)):
             lst3, lst4 = self.findNonPumpsForSymbol(symbols[i], amountToIncrement)
             lst1 += lst3
             lst2 += lst4
@@ -191,10 +194,8 @@ class BinanceDataSetCreator:
         dfs = []
         dfs2 = []
 
-        for i in range(0, int(self._getNumberOfRows(df) /
-                              amountToIncrement) - 1):
-            rowEntry, df = self.findPumpAndDumps(symbol, i * amountToIncrement,
-                                                  (i + 1) * amountToIncrement)
+        for i in range(0, self._getNumberOfRows(df) - amountToIncrement, amountToIncrement):
+            rowEntry, df = self.findPumpAndDumps(symbol, i, i + amountToIncrement)
 
             if rowEntry["Pump and Dumps"] > 0:
                 for df2 in rowEntry["Right Before DF"]:
@@ -218,16 +219,15 @@ class BinanceDataSetCreator:
         dfs = []
         dfs2 = []
 
-        for i in range(0, int((self._getNumberOfRows(df) - amountToIncrement) /
-                              (amountToIncrement + 1))):
-            rowEntry, df2 = self.findPumpAndDumps(symbol, i * amountToIncrement,
-                                                  amountToIncrement + (i + 1) *
-                                                  amountToIncrement)
+        for i in range(0, self._getNumberOfRows(df) - amountToIncrement,
+                       amountToIncrement):
+            rowEntry, df2 = self.findPumpAndDumps(symbol, i,
+                                                 i + amountToIncrement)
 
             if rowEntry["Pump and Dumps"] == 0:
                 dfs.append(df2)
 
-                for i in range(0, amountToIncrement - self.numberOfSamples, self.numberOfSamples):
+                for i in range(0, amountToIncrement - self.numberOfSamples, 1400):
                     dfs2.append(df2.iloc[i:i + self.numberOfSamples])
 
         return dfs, dfs2
@@ -239,11 +239,11 @@ class BinanceDataSetCreator:
         # return self._analyseSymbolForPumps(symbol, df, 3, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 2.5, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 2.0, 1.05), df
-        return self._analyseSymbolForPumps(symbol, df, 1.0, 1.09), df
+        return self._analyseSymbolForPumps(symbol, df, 1.50, 1.14), df
 
     # returns final dataframe
     def _analyseSymbolForPumps(self, symbol: str, df: pd.DataFrame, volumeThreshold: float,
-                               priceThreshold: float, windowSize=WINDOW_SIZE):
+                               priceThreshold: float, windowSize=ROLLING_AVERAGE_SIZE):
         """
         :param symbol: symbol code (e.g. OAXBTC)
         :param df: pandas dataframe with the data
@@ -256,28 +256,28 @@ class BinanceDataSetCreator:
         exchangeName = "binance"
 
         # This finds spikes for volume and price.
-        volumeMask, vdf = self._findVolumeSpikes(df, volumeThreshold, windowSize)
-        volumeSpikeAmount = self._getNumberOfRows(vdf)
+        volumeMask = self._findVolumeSpikes(df, volumeThreshold, windowSize)
+        # volumeSpikeAmount = self._getNumberOfRows(vdf)
 
-        pmask, pdf = self._findPriceSpikes(df, priceThreshold, windowSize)
-        priceSpikeAmount = self._getNumberOfRows(pdf)
+        pmask, pmask2 = self._findPriceSpikes(df, priceThreshold, windowSize)
+        # priceSpikeAmount = self._getNumberOfRows(pdf)
 
         # pdmask, pddf = self._findPriceDumps(df, windowSize)
         # vdmask, vddf = self._findVolumeDumps(df, windowSize)
 
         # This finds coinciding price and volume spikes.
-        volumePriceMask = (volumeMask) & (pmask)
-        volumePriceDF = df[volumePriceMask]
-        volumePriceCombinedRowsAmount = self._getNumberOfRows(volumePriceDF)
+        # volumePriceMask = (volumeMask) & (pmask)
+        # volumePriceDF = df[volumePriceMask]
+        # volumePriceCombinedRowsAmount = self._getNumberOfRows(volumePriceDF)
 
         # These are coinciding price and volume spikes for alleged P&D (more
         # than 1x per given time removed).
-        volumePriceFinalDF = self._removeSamePumps(volumePriceDF)
-        allegedAmount = self._getNumberOfRows(volumePriceFinalDF)
+        # volumePriceFinalDF = self._removeSamePumps(volumePriceDF)
+        # allegedAmount = self._getNumberOfRows(volumePriceFinalDF)
 
         # This finds coinciding price and volume spikes (with dumps afterwards).
         # finalMask = (volumeMask) & (pmask) & (pdmask)
-        finalMask = (volumeMask) & (pmask)
+        finalMask = (volumeMask) & (pmask) & (pmask2)
         finalDF = df[finalMask]
 
         # This removes indicators which occur on the same day.
@@ -301,9 +301,6 @@ class BinanceDataSetCreator:
 
         rowEntry = {'Exchange': exchangeName,
                     'Symbol': symbol,
-                    'Price Spikes': priceSpikeAmount,
-                    'Volume Spikes': volumeSpikeAmount,
-                    'Alleged Pump and Dumps': allegedAmount,
                     'Pump and Dumps': finalCombinedAmount,
                     "Right Before DF": pumps
                     }
@@ -318,9 +315,10 @@ class BinanceDataSetCreator:
         Removes spikes that occur on the same day.
         """
         df = df.copy()
-        df['Timestamp_THIRD_HOURS'] = df['Timestamp'].apply(
-            lambda x: x.replace(hour=x.hour % 3, minute=0, second=0))
-        df = df.drop_duplicates(subset='Timestamp_THIRD_HOURS', keep='last')
+        df['Timestamp_SIXTH_HOURS'] = df['Timestamp'].apply(
+            lambda x: x.replace(hour=x.hour // 8, minute=0, second=0))
+        df = df.drop_duplicates(subset='Timestamp_SIXTH_HOURS', keep='last')
+
         return df
 
     def _findVolumeSpikes(self, df: pd.DataFrame, volumeThreshold: float,
@@ -339,8 +337,8 @@ class BinanceDataSetCreator:
         volumeThreshold = volumeThreshold * df[vRA]
         # This is where the volume is at least v_thresh greater than the x-hr RA
         volumeSpikeMask = df["Volume"] > volumeThreshold
-        volumeSpikeDF = df[volumeSpikeMask]
-        return (volumeSpikeMask, volumeSpikeDF)
+        # volumeSpikeDF = df[volumeSpikeMask]
+        return volumeSpikeMask
 
     def _findPriceSpikes(self, df: pd.DataFrame, priceThreshold: float,
                          windowSize: int):
@@ -351,15 +349,20 @@ class BinanceDataSetCreator:
         :return: a (boolean_mask,dataframe) tuple
         """
         # -- add rolling average column to df --
-        pRA = str(windowSize) + 'm Close Price RA'
-        self._addRA(df, windowSize, 'Close', pRA)
+        pRA = str(windowSize) + "m Close Price RA"
+        pRA2 = pRA + " Backwards"
+        self._addRA(df, windowSize, "Close", pRA)
+        self._addBackwardsRA(df, windowSize, "Close", pRA2)
 
         # -- find spikes --
         newThreshold = priceThreshold * df[pRA]
+        newThreshold2 = priceThreshold * df[pRA2]
         # This is where the high is at least p_thresh greater than the x-hr RA.
         priceSpikeMask = df["Close"] > newThreshold
-        priceSpikeDF = df[priceSpikeMask]
-        return (priceSpikeMask, priceSpikeDF)
+        priceSpikeMask2 = df["Close"] > newThreshold2
+        # priceSpikeDF = df[priceSpikeMask]
+        # priceSpikeDF = priceSpikeDF[priceSpikeMask2]
+        return (priceSpikeMask, priceSpikeMask2)
 
     def _findPriceDumps(self, df: pd.DataFrame, windowSize: int):
         """
@@ -447,6 +450,16 @@ class BinanceDataSetCreator:
         df[name] = df[col].rolling(window=windowSize, min_periods=1,
                                      center=False).mean()
 
+    def _addBackwardsRA(self, df, windowSize, col, name):
+        """
+        Adds a rolling average column with specified window size to a given
+        dataframe and column.
+        """
+        df[name] = df[col].reindex(index=df[col].index[::-1])
+        df[name] = df[name].rolling(window=windowSize, min_periods=1,
+                                     center=False).mean()
+        df[name] = df[name].reindex(index=df[name].index[::-1])
+
     def _plotWithPyPlot(self, df, df2, i):
         fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(15, 8))
         fig.tight_layout()
@@ -497,6 +510,6 @@ class BinanceDataSetCreator:
 
     def _addRAs(self, df2, size: int):
         vRA = str(size) + "m Volume RA"
-        self._addRA(df2, 24, 'Volume', vRA)
+        self._addRA(df2, ROLLING_AVERAGE_SIZE, 'Volume', vRA)
         pRA = str(size) + "m Close Price RA"
-        self._addRA(df2, 24, 'Close', pRA)
+        self._addRA(df2, ROLLING_AVERAGE_SIZE, 'Close', pRA)

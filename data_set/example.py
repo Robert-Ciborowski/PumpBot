@@ -13,9 +13,12 @@ if __name__ == "__main__":
     #                 "YOYOBTC", "ZRXBTC"]
     # listOfStocks = ["LRCBTC", "YOYOBTC", "FUNBTC", "GASBTC", "KNCBTC", "STRATBTC"]
     # listOfStocks = ["BCCBTC"]
-    listOfStocks = ["LRCBTC"]
+    # listOfStocks = ["YOYOBTC"]
     # listOfStocks = ["BCCBTC", "BQXBTC"]
-    # listOfStocks = ["LRCBTC", "OAXBTC", "YOYOBTC"]
+    listOfStocks = ["FUNBTC", "GASBTC", "HSRBTC",
+                    "KNCBTC",  "LRCBTC", "LTCBTC", "MCOBTC", "NEOBTC", "OAXBTC",
+                    "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
+                    "YOYOBTC", "ZRXBTC"]
     historicalObtainer = HistoricalBinanceDataObtainer(
         # datetime(day=17, month=8, year=2018, hour=0, minute=1), datetime(day=27, month=12, year=2019, hour=0, minute=1),
         # datetime(day=17, month=8, year=2018, hour=0, minute=1), datetime(day=31, month=8, year=2018, hour=0, minute=1),
