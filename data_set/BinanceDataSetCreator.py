@@ -22,7 +22,7 @@ class BinanceDataSetCreator:
     def __init__(self, dataObtainer: HistoricalBinanceDataObtainer):
         self.dataObtainer = dataObtainer
         self.numberOfSamples = MINUTES_OF_DATA_TO_LOOK_AT
-        self.samplesBeforePumpPeak = 15
+        self.samplesBeforePumpPeak = 20
         # self.samplesBeforePumpPeak = 7
 
     def exportPumpsToCSV(self, symbol: str, rightBeforePumps: List,
@@ -239,7 +239,7 @@ class BinanceDataSetCreator:
         # return self._analyseSymbolForPumps(symbol, df, 3, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 2.5, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 2.0, 1.05), df
-        return self._analyseSymbolForPumps(symbol, df, 1.50, 1.14), df
+        return self._analyseSymbolForPumps(symbol, df, 1.50, 1.07), df
 
     # returns final dataframe
     def _analyseSymbolForPumps(self, symbol: str, df: pd.DataFrame, volumeThreshold: float,
@@ -296,7 +296,7 @@ class BinanceDataSetCreator:
                 if startIndex >= 0:
                     dfToAppend = self.dataObtainer.getHistoricalDataAsDataframe(symbol).iloc[startIndex:endIndex]
                     std = dfToAppend.std(axis=0, skipna=True)["Close"]
-                    if std < 1.0e-06:
+                    if std < 3.0e-08:
                         pumps.append(dfToAppend)
 
         rowEntry = {'Exchange': exchangeName,
