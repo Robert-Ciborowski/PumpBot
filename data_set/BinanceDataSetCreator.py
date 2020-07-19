@@ -22,7 +22,7 @@ class BinanceDataSetCreator:
     def __init__(self, dataObtainer: HistoricalBinanceDataObtainer):
         self.dataObtainer = dataObtainer
         self.numberOfSamples = MINUTES_OF_DATA_TO_LOOK_AT
-        self.samplesBeforePumpPeak = 20
+        self.samplesBeforePumpPeak = 30
         # self.samplesBeforePumpPeak = 7
 
     def exportPumpsToCSV(self, symbol: str, rightBeforePumps: List,
@@ -227,7 +227,7 @@ class BinanceDataSetCreator:
             if rowEntry["Pump and Dumps"] == 0:
                 dfs.append(df2)
 
-                for i in range(0, amountToIncrement - self.numberOfSamples, 1400):
+                for i in range(0, amountToIncrement - self.numberOfSamples, 600):
                     dfs2.append(df2.iloc[i:i + self.numberOfSamples])
 
         return dfs, dfs2
@@ -239,11 +239,11 @@ class BinanceDataSetCreator:
         # return self._analyseSymbolForPumps(symbol, df, 3, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 2.5, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 2.0, 1.05), df
-        return self._analyseSymbolForPumps(symbol, df, 1.50, 1.05), df
+        return self._analyseSymbolForPumps(symbol, df, 1.0, 1.06, 1.02), df
 
     # returns final dataframe
     def _analyseSymbolForPumps(self, symbol: str, df: pd.DataFrame, volumeThreshold: float,
-                               priceThreshold: float, windowSize=ROLLING_AVERAGE_SIZE):
+                               priceThreshold: float, priceThreshold2: float, windowSize=ROLLING_AVERAGE_SIZE):
         """
         :param symbol: symbol code (e.g. OAXBTC)
         :param df: pandas dataframe with the data
@@ -259,7 +259,7 @@ class BinanceDataSetCreator:
         volumeMask = self._findVolumeSpikes(df, volumeThreshold, windowSize)
         # volumeSpikeAmount = self._getNumberOfRows(vdf)
 
-        pmask, pmask2 = self._findPriceSpikes(df, priceThreshold, windowSize)
+        pmask, pmask2 = self._findPriceSpikes(df, priceThreshold, priceThreshold2, windowSize)
         # priceSpikeAmount = self._getNumberOfRows(pdf)
 
         # pdmask, pddf = self._findPriceDumps(df, windowSize)
@@ -296,7 +296,7 @@ class BinanceDataSetCreator:
                 if startIndex >= 0:
                     dfToAppend = self.dataObtainer.getHistoricalDataAsDataframe(symbol).iloc[startIndex:endIndex]
                     std = dfToAppend.std(axis=0, skipna=True)["Close"]
-                    if std < 8.0e-08:
+                    if std < 9.0e-07:
                         pumps.append(dfToAppend)
 
         rowEntry = {'Exchange': exchangeName,
@@ -341,7 +341,7 @@ class BinanceDataSetCreator:
         return volumeSpikeMask
 
     def _findPriceSpikes(self, df: pd.DataFrame, priceThreshold: float,
-                         windowSize: int):
+                         priceThreshold2: float, windowSize: int):
         """
         Finds price spikes in a given df, with a certain threshold and window
         size.
@@ -356,7 +356,7 @@ class BinanceDataSetCreator:
 
         # -- find spikes --
         newThreshold = priceThreshold * df[pRA]
-        newThreshold2 = priceThreshold * df[pRA2]
+        newThreshold2 = priceThreshold2 * df[pRA2]
         # This is where the high is at least p_thresh greater than the x-hr RA.
         priceSpikeMask = df["Close"] > newThreshold
         priceSpikeMask2 = df["Close"] > newThreshold2

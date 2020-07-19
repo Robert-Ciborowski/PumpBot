@@ -111,7 +111,7 @@ class HistoricalBinanceTradingSimulator:
             self.wallet,
             profitRatioToAimFor=0.06,
             acceptableLossRatio=0.031,
-            acceptableDipFromStartRatio=0.005,
+            acceptableDipFromStartRatio=0.01,
             minutesAfterSellIfPump=self.minutesAfterSellIfPump,
             minutesAfterSellIfPriceInactivity=self.minutesAfterSellIfPriceInactivity,
             minutesAfterSellIfLoss=self.minutesAfterSellIfLoss,
