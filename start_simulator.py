@@ -73,7 +73,7 @@ if __name__ == "__main__":
     # wallet = SimpleWallet(1.0)
     wallet = FakeBinanceWallet(1.0)
     simulator = HistoricalBinanceTradingSimulator(start, end, wallet, 120, 120,
-                                                  10, 40, 0.3, tickers, 5,
+                                                  10, 40, 0.7, tickers, 5,
                                                   fastForwardAmount=270,
                                                   modelLocation="models/model_exports/cryptopumpanddumpdetector",
                                                   historicalDataLocation="binance_historical_data")
