@@ -21,8 +21,8 @@ def train():
 
     # Hyperparameters!
     learningRate = 0.07
-    epochs = 250
-    batchSize = 150
+    epochs = 600
+    batchSize = 200
     labelName = "Pump"
     classificationThreshold = 0.95
 
