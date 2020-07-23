@@ -55,7 +55,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     """
     Precondition: prices is a pandas dataframe or series.
     """
-    def detect(self, prices) -> bool:
+    def detect(self, prices) -> float:
         if isinstance(prices, pd.DataFrame):
             data = {name: np.array(np.float32(value)) for name, value in
                     prices.items()}
@@ -64,30 +64,30 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
                     prices.iteritems()}
         elif isinstance(prices, List) or isinstance(prices, np.ndarray):
             # The list better contain only floats...
-            data = self._turnListOfFloatsToInputData(prices)
+            data = self._turnListOfFloatsToInputData(prices, CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES)
         elif isinstance(prices, Dict):
             data = prices
         else:
             print("CryptoPumpAndDumpDetector detect() had its precondition "
                   "violated!")
-            return False
+            return 0.0
 
         if data is None or len(
                 data) < CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES * 2:
             print("CryptoPumpAndDumpDetector detect() was not given enough "
                   "data to work with!")
-            return False
+            return 0.0
 
         return self._detect(data)
 
-    def _detect(self, data):
+    def _detect(self, data) -> float:
         time1 = datetime.now()
         result = self.model.predict(data)[0][0]
         # result = self.model(data).numpy()[0][0]
         time2 = datetime.now()
         print("Gave out a result of " + str(result) + ", took " + str(
             time2 - time1))
-        return result >= self._classificationThreshold
+        return result
 
     """
     Creates a brand new neural network for this model.
@@ -195,23 +195,6 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
                     Hyperparameters(learningRate, epochs,
                                     batchSize))
 
-    def _turnListOfFloatsToInputData(self, data: List[float]) -> Dict:
-        if len(data) < CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES * 2:
-            return None
-
-        features = {}
-        j = 0
-
-        for i in range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES):
-            features["Volume-RA-" + str(i)] = np.float32(data[j])
-            j += 1
-
-        for i in range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES):
-            features["Price-RA-" + str(i)] = np.float32(data[j])
-            j += 1
-
-        return features
-
     def _buildMetrics(self):
         self._metrics = [
             tf.keras.metrics.BinaryAccuracy(name='accuracy',
@@ -233,6 +216,23 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         # the additional GPU DLLs get loaded. Think of it as a warm up :P
         lst = [np.array([0]) for x in range(self._NUMBER_OF_SAMPLES * 2)]
         self.detect(lst)
+
+    def _turnListOfFloatsToInputData(self, data: List[float], numberOfSamples: int) -> Dict:
+        if len(data) < numberOfSamples * 2:
+            return None
+
+        features = {}
+        j = 0
+
+        for i in range(numberOfSamples):
+            features["Volume-RA-" + str(i)] = np.float32(data[j])
+            j += 1
+
+        for i in range(numberOfSamples):
+            features["Price-RA-" + str(i)] = np.float32(data[j])
+            j += 1
+
+        return features
 
     def _configureForGPU(self):
         # https://www.tensorflow.org/guide/gpu

@@ -10,6 +10,7 @@ from filter.PassThroughStockFilter import PassThroughStockFilter
 from listing_obtainers.BinanceListingObtainer import BinanceListingObtainer
 from listing_obtainers.SpecifiedListingObtainer import SpecifiedListingObtainer
 from models.CryptoPumpAndDumpDetector import CryptoPumpAndDumpDetector
+from models.SimplePumpAndDumpDetector import SimplePumpAndDumpDetector
 from stock_data.HistoricalBinanceDataObtainer import \
     HistoricalBinanceDataObtainer
 from stock_data.TrackedStockDatabase import TrackedStockDatabase
@@ -88,12 +89,15 @@ class HistoricalBinanceTradingSimulator:
             .setSecondsBetweenStockUpdates(60 / self._fastForwardAmount)
         # .setSecondsBetweenStockUpdates(60)
 
-        self.model = CryptoPumpAndDumpDetector(tryUsingGPU=False)
-        self.model.setupUsingDefaults()
-        self.model.createModelUsingDefaults()
-        self.model.exportPath = self.modelLocation
-        self.model.loadWeights()
-        self.model.prepareForUse()
+        # self.model = CryptoPumpAndDumpDetector(tryUsingGPU=False)
+        # self.model.setupUsingDefaults()
+        # self.model.createModelUsingDefaults()
+        # self.model.exportPath = self.modelLocation
+        # self.model.loadWeights()
+        # self.model.prepareForUse()
+        # EventDispatcher.getInstance().addListener(self.model,
+        #                                           "ListingPriceUpdated")
+        self.model = SimplePumpAndDumpDetector(2.0e-08, 2.0e-08)
         EventDispatcher.getInstance().addListener(self.model,
                                                   "ListingPriceUpdated")
         self.database.model = self.model

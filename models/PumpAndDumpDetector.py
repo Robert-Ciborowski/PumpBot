@@ -5,7 +5,7 @@
 
 # from __future__ import annotations
 from datetime import datetime
-from typing import List
+from typing import Dict, List
 
 from events.EventListener import EventListener
 from events.Event import Event
