@@ -54,9 +54,9 @@ class PumpAndDumpDetector(EventListener):
                 EventDispatcher.getInstance().dispatchEvent(PumpAndDumpEvent(event.data["Ticker"], currentPrice, probability))
 
     def _setupDataForModel(self, prices, volumes):
-        from scipy import stats
-        prices = stats.zscore(prices)
-        volumes = stats.zscore(volumes)
-        prices = [np.array([x]) for x in prices]
-        volumes = [np.array([x]) for x in volumes]
+        # from scipy import stats
+        # prices = stats.zscore(prices)
+        # volumes = stats.zscore(volumes)
+        # prices = [np.array([x]) for x in prices]
+        # volumes = [np.array([x]) for x in volumes]
         return prices, volumes

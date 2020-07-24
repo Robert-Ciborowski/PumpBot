@@ -8,6 +8,7 @@
 #              the decision threshold itself.)
 
 # from __future__ import annotations
+from datetime import datetime
 from typing import Dict, List
 import numpy as np
 import pandas as pd
@@ -50,12 +51,19 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
         # if volumeStd >= 2.0e-08:
         #     return False
 
+        time1 = datetime.now()
         pricesStd = prices.std()
 
-        if pricesStd < self.volumeStdThreshold:
-            return 1
+        if pricesStd < self.priceStdThreshold:
+            result = 1
+        else:
+            result = 0
 
-        return 0
+        time2 = datetime.now()
+        print(str(pricesStd) + " vs " + str(self.priceStdThreshold))
+        print("Gave out a result of " + str(result) + ", took " + str(
+            time2 - time1))
+        return result
 
     def _turnListOfFloatsToInputData(self, data: List[float], numberOfSamples: int):
         if len(data) < numberOfSamples * 2:
