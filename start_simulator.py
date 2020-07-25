@@ -57,10 +57,10 @@ if __name__ == "__main__":
     # end = datetime(2019, 9, 15, 0, 0)
 
     # LRCBTC, OAXBTC, YOYOBTC
-    start = datetime(2020, 1, 1, 0, 0)
-    end = datetime(2020, 4, 4, 0, 0)
     # start = datetime(2020, 1, 1, 0, 0)
-    # end = datetime(2020, 3, 25, 0, 0)
+    # end = datetime(2020, 4, 4, 0, 0)
+    start = datetime(2019, 1, 1, 0, 0)
+    end = datetime(2019, 6, 1, 0, 0)
 
     # BQXBTC
     # start = datetime(2019, 5, 10, 11, 45)
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     wallet = FakeBinanceWallet(1.0)
     simulator = HistoricalBinanceTradingSimulator(start, end, wallet, 8640, 2880,
                                                   10, 40, 0.4, tickers, 5,
-                                                  fastForwardAmount=270,
+                                                  fastForwardAmount=360,
                                                   modelLocation="models/model_exports/cryptopumpanddumpdetector",
                                                   historicalDataLocation="binance_historical_data")
     simulator.start()
