@@ -29,7 +29,7 @@ class PumpAndDumpDetector(EventListener):
         self._classificationThreshold = classificationThreshold
         # add stuff here?
 
-    def detect(self, prices) -> bool:
+    def detect(self, prices, volumes) -> bool:
         print("Please use an implementation of PumpAndDumpDetector!")
         return False
 
@@ -46,17 +46,9 @@ class PumpAndDumpDetector(EventListener):
                 return
 
             currentPrice = prices[-1]
-            prices, volumes = self._setupDataForModel(prices, volumes)
-            probability = self.detect(volumes + prices)
+            # prices, volumes = self._setupDataForModel(prices, volumes)
+            probability = self.detect(prices, volumes)
 
             if probability >= self._classificationThreshold:
                 # Note: most recent price is at the end.
                 EventDispatcher.getInstance().dispatchEvent(PumpAndDumpEvent(event.data["Ticker"], currentPrice, probability))
-
-    def _setupDataForModel(self, prices, volumes):
-        from scipy import stats
-        prices = stats.zscore(prices)
-        volumes = stats.zscore(volumes)
-        prices = [np.array([x]) for x in prices]
-        volumes = [np.array([x]) for x in volumes]
-        return prices, volumes

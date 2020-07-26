@@ -14,5 +14,5 @@ import random
 from models.PumpAndDumpDetector import PumpAndDumpDetector
 
 class DummyPumpAndDumpDetector(PumpAndDumpDetector):
-    def detect(self, prices) -> bool:
+    def detect(self, prices, volumes) -> bool:
         return random.random()

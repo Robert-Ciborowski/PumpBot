@@ -97,6 +97,7 @@ class HistoricalBinanceTradingSimulator:
         # self.model.prepareForUse()
         # EventDispatcher.getInstance().addListener(self.model,
         #                                           "ListingPriceUpdated")
+        # 2.0e-0
         self.model = SimplePumpAndDumpDetector(2.0e-08, 2.0e-08)
         EventDispatcher.getInstance().addListener(self.model,
                                                   "ListingPriceUpdated")
@@ -115,7 +116,7 @@ class HistoricalBinanceTradingSimulator:
             self.wallet,
             profitRatioToAimFor=0.07,
             acceptableLossRatio=0.031,
-            acceptableDipFromStartRatio=0.05,
+            acceptableDipFromStartRatio=0.031,
             minutesAfterSellIfPump=self.minutesAfterSellIfPump,
             minutesAfterSellIfPriceInactivity=self.minutesAfterSellIfPriceInactivity,
             minutesAfterSellIfLoss=self.minutesAfterSellIfLoss,

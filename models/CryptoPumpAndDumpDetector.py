@@ -55,7 +55,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     """
     Precondition: prices is a pandas dataframe or series.
     """
-    def detect(self, prices) -> float:
+    def detect(self, prices, volumes) -> float:
         if isinstance(prices, pd.DataFrame):
             data = {name: np.array(np.float32(value)) for name, value in
                     prices.items()}
@@ -88,6 +88,14 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         print("Gave out a result of " + str(result) + ", took " + str(
             time2 - time1))
         return result
+
+    def _setupDataForModel(self, prices, volumes):
+        from scipy import stats
+        prices = stats.zscore(prices)
+        volumes = stats.zscore(volumes)
+        prices = [np.array([x]) for x in prices]
+        volumes = [np.array([x]) for x in volumes]
+        return prices, volumes
 
     """
     Creates a brand new neural network for this model.

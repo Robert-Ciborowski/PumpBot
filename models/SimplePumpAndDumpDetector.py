@@ -27,38 +27,39 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
         self.volumeStdThreshold = volumeStdThreshold
         self.priceStdThreshold = priceStdThreshold
 
-    def detect(self, prices) -> float:
+    def detect(self, prices, volumes) -> float:
         if prices is None:
             return False
 
         if isinstance(prices, List) or isinstance(prices, np.ndarray):
             # The list better contain only floats...
-            volumes, prices = self._turnListOfFloatsToInputData(prices, SimplePumpAndDumpDetector._NUMBER_OF_SAMPLES)
+            prices, volumes = self._turnListOfFloatsToInputData(prices, volumes, SimplePumpAndDumpDetector._NUMBER_OF_SAMPLES)
 
             if volumes is None or prices is None:
                 return 0
 
-            return self._detect(volumes, prices)
+            return self._detect(prices, volumes)
         else:
             print("SimplePumpAndDumpDetector detect() had its precondition "
                   "violated!")
             return False
 
-    def _detect(self, volumes, prices) -> float:
+    def _detect(self, prices, volumes) -> float:
         # volumeStd = volumes.std()
         #
         # if volumeStd >= 2.0e-08:
         #     return False
 
         pricesStd = prices.std()
+        print("STD: " + str(pricesStd))
 
         if pricesStd < self.volumeStdThreshold:
             return 1
 
         return 0
 
-    def _turnListOfFloatsToInputData(self, data: List[float], numberOfSamples: int):
-        if len(data) < numberOfSamples * 2:
+    def _turnListOfFloatsToInputData(self, prices: List[float], volumes: List[float], numberOfSamples: int):
+        if len(prices) + len(volumes) < numberOfSamples * 2:
             return None, None
 
-        return pd.Series(data[0 : numberOfSamples]), pd.Series(data[numberOfSamples : numberOfSamples * 2])
+        return pd.Series(prices), pd.Series(volumes)
