@@ -149,6 +149,7 @@ class HistoricalBinanceTradingSimulator:
         print("Finished historical Binance trading simulation.")
 
         trades = self.trader.tracker.tradesStr()
+        tradesAsCSV = self.trader.tracker.tradesCSV()
         profits = str(self.trader.tracker.calculateProfits())
 
         print("Results:")
@@ -160,4 +161,8 @@ class HistoricalBinanceTradingSimulator:
         f.write(trades)
         f.write("\n")
         f.write(profits)
+        f.close()
+
+        f = open("simulator_trades.csv", "w")
+        f.write(tradesAsCSV)
         f.close()

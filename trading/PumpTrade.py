@@ -45,12 +45,6 @@ class PumpTrade:
         return self.sellPrice >= 0.0
 
     def __str__(self) -> str:
-        ticker: str
-        buyPrice: float
-        sellPrice: float
-        investment: float
-        buyTimestamp: datetime
-        sellTimestamp: datetime
         if self.sellPrice < 0:
             sellString = "Unsold"
         else:
