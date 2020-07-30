@@ -20,11 +20,11 @@ def train():
     test_df = all_df.tail(int(numberOfEntries * 0.3))
 
     # Hyperparameters!
-    learningRate = 0.01
-    epochs = 275
-    batchSize = 450
+    learningRate = 0.07
+    epochs = 600
+    batchSize = 200
     labelName = "Pump"
-    classificationThreshold = 0.99
+    classificationThreshold = 0.95
 
     model = CryptoPumpAndDumpDetector(tryUsingGPU=False)
     model.setup(classificationThreshold,
@@ -38,7 +38,6 @@ def train():
 
     features = {name: np.array(value) for name, value in test_df.items()}
     label = np.array(features.pop(labelName))
-    print(features)
 
     model.exportWeights()
 

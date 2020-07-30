@@ -58,36 +58,22 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     def detect(self, prices, volumes) -> float:
         if isinstance(prices, pd.DataFrame):
             data = {name: np.array(np.float32(value)) for name, value in
-                    volumes.items()}
-            # data += {name: np.array(np.float32(value)) for name, value in
-            #         prices.items()}
+                    prices.items()}
         if isinstance(prices, pd.Series):
             data = {name: np.array([np.float32(value)]) for name, value in
-                    volumes.iteritems()}
-            # data += {name: np.array([np.float32(value)]) for name, value in
-            #         prices.iteritems()}
+                    prices.iteritems()}
         elif isinstance(prices, List) or isinstance(prices, np.ndarray):
             # The list better contain only floats...
-            # data = self._turnListOfFloatsToInputData(volumes + prices, CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES)
-            data = self._turnListOfFloatsToInputData(volumes, CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES)
-            std = self._getSTD(volumes, CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES)
-            print(std)
-
-            if std < 8.0e-08:
-                return 0.0
-
+            data = self._turnListOfFloatsToInputData(prices, CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES)
         elif isinstance(prices, Dict):
-            # data = volumes + prices
-            data = volumes
+            data = prices
         else:
             print("CryptoPumpAndDumpDetector detect() had its precondition "
                   "violated!")
             return 0.0
 
-        # if data is None or len(
-        #         data) < CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES * 2:
         if data is None or len(
-                data) < CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES:
+                data) < CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES * 2:
             print("CryptoPumpAndDumpDetector detect() was not given enough "
                   "data to work with!")
             return 0.0
@@ -193,16 +179,16 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
             c = tf.feature_column.numeric_column("Volume-RA-" + str(i))
             featureColumns.append(c)
 
-        # for i in range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES):
-        #     c = tf.feature_column.numeric_column("Price-RA-" + str(i))
-        #     featureColumns.append(c)
+        for i in range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES):
+            c = tf.feature_column.numeric_column("Price-RA-" + str(i))
+            featureColumns.append(c)
 
         # Convert the list of feature columns into a layer that will later be fed into
         # the model.
         featureLayer = layers.DenseFeatures(featureColumns)
         layerParameters = [
-            LayerParameter(50, "sigmoid")
-            # LayerParameter(2, "sigmoid"),
+            LayerParameter(15, "sigmoid"),
+            LayerParameter(5, "sigmoid"),
         ]
 
         self.createModel(featureLayer, layerParameters)
@@ -212,8 +198,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         learningRate = 0.008
         epochs = 1500
         batchSize = 30
-        # classificationThreshold = 0.95
-        classificationThreshold = 0.98
+        classificationThreshold = 0.95
         self.setup(classificationThreshold,
                     Hyperparameters(learningRate, epochs,
                                     batchSize))
@@ -237,33 +222,25 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         """
         # We need to tell the model to make a test prediction so that all of
         # the additional GPU DLLs get loaded. Think of it as a warm up :P
-        # lst = [np.array([0]) for x in range(self._NUMBER_OF_SAMPLES * 2)]
-        lst = [np.array([0]) for x in range(self._NUMBER_OF_SAMPLES)]
-        self.detect(lst, lst)
+        lst = [np.array([0]) for x in range(self._NUMBER_OF_SAMPLES * 2)]
+        self.detect(lst)
 
     def _turnListOfFloatsToInputData(self, data: List[float], numberOfSamples: int) -> Dict:
-        # if len(data) < numberOfSamples * 2:
-        if len(data) < numberOfSamples:
+        if len(data) < numberOfSamples * 2:
             return None
 
         features = {}
         j = 0
 
         for i in range(numberOfSamples):
-            features["Volume-RA-" + str(i)] = np.array([data[j]])
+            features["Volume-RA-" + str(i)] = np.float32(data[j])
             j += 1
 
-        # for i in range(numberOfSamples):
-        #     features["Price-RA-" + str(i)] = np.float32(data[j])
-        #     j += 1
+        for i in range(numberOfSamples):
+            features["Price-RA-" + str(i)] = np.float32(data[j])
+            j += 1
 
         return features
-
-    def _getSTD(self, volumes: List[float], numberOfSamples: int):
-        if len(volumes) < numberOfSamples:
-            return 0.0
-
-        return pd.Series(volumes).std()
 
     def _configureForGPU(self):
         # https://www.tensorflow.org/guide/gpu
