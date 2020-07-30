@@ -40,8 +40,9 @@ class BinanceDataSetCreator:
                 writer = csv.writer(file)
                 numberOfRAs = self.numberOfSamples
                 volumeList = ["Volume-RA-" + str(i) for i in range(numberOfRAs)]
-                priceList = ["Price-RA-" + str(i) for i in range(numberOfRAs)]
-                writer.writerow(volumeList + priceList + ["Pump"])
+                # priceList = ["Price-RA-" + str(i) for i in range(numberOfRAs)]
+                writer.writerow(volumeList + ["Pump"])
+                # writer.writerow(volumeList + priceList + ["Pump"])
 
 
                 for df in rightBeforePumps:
@@ -72,11 +73,11 @@ class BinanceDataSetCreator:
                     if cancel:
                         continue
 
-                    for value in prices:
-                        if math.isnan(value):
-                            cancel = True
-                            break
-                        csvRow.append(value)
+                    # for value in prices:
+                    #     if math.isnan(value):
+                    #         cancel = True
+                    #         break
+                    #     csvRow.append(value)
 
                     if cancel:
                         continue
@@ -227,8 +228,10 @@ class BinanceDataSetCreator:
             if rowEntry["Pump and Dumps"] == 0:
                 dfs.append(df2)
 
-                for i in range(0, amountToIncrement - self.numberOfSamples, 600):
-                    dfs2.append(df2.iloc[i:i + self.numberOfSamples])
+                for i in range(0, amountToIncrement - self.numberOfSamples, 1440):
+                    std = df2.iloc[i:i + self.numberOfSamples].std(axis=0, skipna=True)["Close"]
+                    if std < 8.0e-08:
+                        dfs2.append(df2.iloc[i:i + self.numberOfSamples])
 
         return dfs, dfs2
 
@@ -296,7 +299,7 @@ class BinanceDataSetCreator:
                 if startIndex >= 0:
                     dfToAppend = self.dataObtainer.getHistoricalDataAsDataframe(symbol).iloc[startIndex:endIndex]
                     std = dfToAppend.std(axis=0, skipna=True)["Close"]
-                    if std < 2.0e-08:
+                    if std < 8.0e-08:
                         pumps.append(dfToAppend)
 
         rowEntry = {'Exchange': exchangeName,

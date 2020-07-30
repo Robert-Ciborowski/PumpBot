@@ -66,8 +66,8 @@ def readTickerData(path: str, dateOfStart: datetime, dateOfEnd: datetime) -> pd.
     except IOError as e:
         print("Could not read " + path + "!")
 
-start = datetime(2019, 1, 15, 0, 0)
-end = datetime(2019, 1, 16, 0, 0)
+start = datetime(2019, 1, 24, 12, 0)
+end = datetime(2019, 1, 26, 0, 0)
 # end = datetime(2019, 12, 31, 0, 0)
 df = readTickerData("../binance_historical_data/YOYOBTC-1m-data.csv", start, end)
 
