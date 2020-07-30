@@ -239,7 +239,7 @@ class BinanceDataSetCreator:
         # return self._analyseSymbolForPumps(symbol, df, 3, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 2.5, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 2.0, 1.05), df
-        return self._analyseSymbolForPumps(symbol, df, 1.0, 1.06, 1.07), df
+        return self._analyseSymbolForPumps(symbol, df, 1.0, 1.045, 1.045), df
 
     # returns final dataframe
     def _analyseSymbolForPumps(self, symbol: str, df: pd.DataFrame, volumeThreshold: float,

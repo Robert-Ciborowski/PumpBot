@@ -53,7 +53,7 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
         pricesStd = prices.std()
         print("STD: " + str(pricesStd))
 
-        if pricesStd < self.volumeStdThreshold:
+        if pricesStd < self.priceStdThreshold:
             return 1
 
         return 0
