@@ -187,8 +187,8 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         # the model.
         featureLayer = layers.DenseFeatures(featureColumns)
         layerParameters = [
-            LayerParameter(15, "sigmoid"),
-            LayerParameter(5, "sigmoid"),
+            LayerParameter(12, "sigmoid"),
+            # LayerParameter(5, "sigmoid"),
         ]
 
         self.createModel(featureLayer, layerParameters)

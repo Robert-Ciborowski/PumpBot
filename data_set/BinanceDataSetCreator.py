@@ -22,7 +22,8 @@ class BinanceDataSetCreator:
     def __init__(self, dataObtainer: HistoricalBinanceDataObtainer):
         self.dataObtainer = dataObtainer
         self.numberOfSamples = MINUTES_OF_DATA_TO_LOOK_AT
-        self.samplesBeforePumpPeak = 30
+        self.samplesBeforePumpPeak = 12
+        # self.samplesBeforePumpPeak = 30
         # self.samplesBeforePumpPeak = 7
 
     def exportPumpsToCSV(self, symbol: str, rightBeforePumps: List,
