@@ -240,7 +240,8 @@ class BinanceDataSetCreator:
         # return self._analyseSymbolForPumps(symbol, df, 3, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 2.5, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 2.0, 1.05), df
-        return self._analyseSymbolForPumps(symbol, df, 1.0, 1.045, 1.045), df
+        # return self._analyseSymbolForPumps(symbol, df, 1.0, 1.045, 1.045), df
+        return self._analyseSymbolForPumps(symbol, df, 1.0, 1.07, 1.07), df
 
     # returns final dataframe
     def _analyseSymbolForPumps(self, symbol: str, df: pd.DataFrame, volumeThreshold: float,
@@ -299,6 +300,14 @@ class BinanceDataSetCreator:
                     std = dfToAppend.std(axis=0, skipna=True)["Close"]
                     if std < 2.0e-08:
                         pumps.append(dfToAppend)
+
+                        for i in range(0, 60, 5):
+                            startIndex -= 5
+                            endIndex -= 5
+                            dfToAppend2 = self.dataObtainer.getHistoricalDataAsDataframe(
+                                symbol).iloc[startIndex:endIndex]
+                            pumps.append(dfToAppend2)
+
 
         rowEntry = {'Exchange': exchangeName,
                     'Symbol': symbol,

@@ -58,15 +58,19 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     def detect(self, prices, volumes) -> float:
         if isinstance(prices, pd.DataFrame):
             data = {name: np.array(np.float32(value)) for name, value in
+                    volumes.items()}
+            data += {name: np.array(np.float32(value)) for name, value in
                     prices.items()}
         if isinstance(prices, pd.Series):
             data = {name: np.array([np.float32(value)]) for name, value in
+                    volumes.iteritems()}
+            data += {name: np.array([np.float32(value)]) for name, value in
                     prices.iteritems()}
         elif isinstance(prices, List) or isinstance(prices, np.ndarray):
             # The list better contain only floats...
-            data = self._turnListOfFloatsToInputData(prices, CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES)
+            data = self._turnListOfFloatsToInputData(volumes + prices, CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES)
         elif isinstance(prices, Dict):
-            data = prices
+            data = volumes + prices
         else:
             print("CryptoPumpAndDumpDetector detect() had its precondition "
                   "violated!")
@@ -187,8 +191,8 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         # the model.
         featureLayer = layers.DenseFeatures(featureColumns)
         layerParameters = [
-            LayerParameter(12, "sigmoid"),
-            # LayerParameter(5, "sigmoid"),
+            LayerParameter(15, "sigmoid"),
+            LayerParameter(5, "sigmoid")
         ]
 
         self.createModel(featureLayer, layerParameters)
@@ -223,7 +227,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         # We need to tell the model to make a test prediction so that all of
         # the additional GPU DLLs get loaded. Think of it as a warm up :P
         lst = [np.array([0]) for x in range(self._NUMBER_OF_SAMPLES * 2)]
-        self.detect(lst)
+        self.detect(lst, lst)
 
     def _turnListOfFloatsToInputData(self, data: List[float], numberOfSamples: int) -> Dict:
         if len(data) < numberOfSamples * 2:
@@ -233,11 +237,11 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         j = 0
 
         for i in range(numberOfSamples):
-            features["Volume-RA-" + str(i)] = np.float32(data[j])
+            features["Volume-RA-" + str(i)] = np.array([np.float32(data[j])])
             j += 1
 
         for i in range(numberOfSamples):
-            features["Price-RA-" + str(i)] = np.float32(data[j])
+            features["Price-RA-" + str(i)] = np.array([np.float32(data[j])])
             j += 1
 
         return features
