@@ -20,9 +20,9 @@ def train():
     test_df = all_df.tail(int(numberOfEntries * 0.3))
 
     # Hyperparameters!
-    learningRate = 0.02
-    epochs = 4000
-    batchSize = 200
+    learningRate = 0.05
+    epochs = 6000
+    batchSize = 2500
     labelName = "Pump"
     classificationThreshold = 0.95
 

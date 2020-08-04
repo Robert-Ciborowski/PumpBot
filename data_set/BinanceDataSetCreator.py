@@ -228,7 +228,7 @@ class BinanceDataSetCreator:
             if rowEntry["Pump and Dumps"] == 0:
                 dfs.append(df2)
 
-                for i in range(0, amountToIncrement - self.numberOfSamples, 600):
+                for i in range(0, amountToIncrement - self.numberOfSamples, 50):
                     dfs2.append(df2.iloc[i:i + self.numberOfSamples])
 
         return dfs, dfs2
@@ -298,15 +298,15 @@ class BinanceDataSetCreator:
                 if startIndex >= 0:
                     dfToAppend = self.dataObtainer.getHistoricalDataAsDataframe(symbol).iloc[startIndex:endIndex]
                     std = dfToAppend.std(axis=0, skipna=True)["Close"]
-                    if std < 2.0e-08:
-                        pumps.append(dfToAppend)
+                    # if std < 2.0e-08:
+                    pumps.append(dfToAppend)
 
-                        for i in range(0, 60, 5):
-                            startIndex -= 5
-                            endIndex -= 5
-                            dfToAppend2 = self.dataObtainer.getHistoricalDataAsDataframe(
-                                symbol).iloc[startIndex:endIndex]
-                            pumps.append(dfToAppend2)
+                    for i in range(0, 60, 5):
+                        startIndex -= 5
+                        endIndex -= 5
+                        dfToAppend2 = self.dataObtainer.getHistoricalDataAsDataframe(
+                            symbol).iloc[startIndex:endIndex]
+                        pumps.append(dfToAppend2)
 
 
         rowEntry = {'Exchange': exchangeName,
