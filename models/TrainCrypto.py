@@ -10,8 +10,8 @@ def train():
     from models.LayerParameter import LayerParameter
 
     print("Loading dataset...")
-    pumps_df = pd.read_csv("../data_set/final-dataset-pumps.csv")
-    non_pumps_df = pd.read_csv("../data_set/final-dataset-non-pumps.csv")
+    pumps_df = pd.read_csv("../data_set/final-dataset-2-pumps.csv")
+    non_pumps_df = pd.read_csv("../data_set/final-dataset-2-non-pumps.csv")
     all_df = pumps_df.append(non_pumps_df).reset_index(drop=True)
     all_df = all_df.reindex(
         np.random.permutation(all_df.index))
@@ -22,7 +22,7 @@ def train():
     # Hyperparameters!
     learningRate = 0.05
     epochs = 6000
-    batchSize = 2500
+    batchSize = 200
     labelName = "Pump"
     classificationThreshold = 0.95
 

@@ -89,18 +89,18 @@ class HistoricalBinanceTradingSimulator:
             .setSecondsBetweenStockUpdates(60 / self._fastForwardAmount)
         # .setSecondsBetweenStockUpdates(60)
 
-        self.model = CryptoPumpAndDumpDetector(tryUsingGPU=False)
-        self.model.setupUsingDefaults()
-        self.model.createModelUsingDefaults()
-        self.model.exportPath = self.modelLocation
-        self.model.loadWeights()
-        self.model.prepareForUse()
-        EventDispatcher.getInstance().addListener(self.model,
-                                                  "ListingPriceUpdated")
-        # 2.0e-0
-        # self.model = SimplePumpAndDumpDetector(2.0e-08, 2.0e-08)
+        # self.model = CryptoPumpAndDumpDetector(tryUsingGPU=False)
+        # self.model.setupUsingDefaults()
+        # self.model.createModelUsingDefaults()
+        # self.model.exportPath = self.modelLocation
+        # self.model.loadWeights()
+        # self.model.prepareForUse()
         # EventDispatcher.getInstance().addListener(self.model,
         #                                           "ListingPriceUpdated")
+        # 2.0e-0
+        self.model = SimplePumpAndDumpDetector(2.0e-08, 2.0e-08)
+        EventDispatcher.getInstance().addListener(self.model,
+                                                  "ListingPriceUpdated")
         self.database.model = self.model
 
 
