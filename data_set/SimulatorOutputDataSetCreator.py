@@ -68,23 +68,24 @@ class SimulatorOutputDataSetCreator:
                 writer.writerow(volumeList + priceList + ["Pump"])
 
                 for pump in pumps:
-                    # startDate = pd.to_datetime(pump[1])
-                    endDate = pd.to_datetime(pump[2])
-                    endDate = endDate.replace(second=0, microsecond=0)
+                    startDate = pd.to_datetime(pump[1])
+                    startDate = startDate.replace(second=0, microsecond=0)
+                    # endDate = pd.to_datetime(pump[2])
+                    # endDate = endDate.replace(second=0, microsecond=0)
                     # df = self.dataObtainer.getHistoricalDataAsDataframe(pump[0])
                     # mask = (df["Timestamp"] > startDate) & (
                     #             df["Timestamp"] <= endDate)
                     # df = df.loc[mask]
 
                     endIndex = self.dataObtainer.getHistoricalDataAsDataframe(
-                        pump[0]).index.get_loc(endDate)
+                        pump[0]).index.get_loc(startDate)
                     startIndex = endIndex - self.numberOfSamples
 
                     if startIndex >= 0:
                         # std = dfToAppend.std(axis=0, skipna=True)["Close"]
                         # if std < 2.0e-08:
 
-                        for i in range(0, 60, 5):
+                        for i in range(0, 7):
                             df = self.dataObtainer.getHistoricalDataAsDataframe(
                                 pump[0]).iloc[startIndex:endIndex]
                             mean = df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"].mean()
@@ -117,6 +118,7 @@ class SimulatorOutputDataSetCreator:
                                 if math.isnan(value):
                                     cancel = True
                                     break
+
                                 csvRow.append(value)
 
                             if cancel:

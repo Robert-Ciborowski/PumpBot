@@ -118,6 +118,8 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
                                             name="Hidden_" + str(count)))
             count += 1
 
+        self.model.add(tf.keras.layers.Dropout(0.5))
+
         # Define the output layer.
         self.model.add(tf.keras.layers.Dense(units=1, input_shape=(1,),
                                 activation=tf.sigmoid, name="Output"))
