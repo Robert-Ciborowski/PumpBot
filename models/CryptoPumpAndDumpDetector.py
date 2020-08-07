@@ -67,6 +67,12 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
             data += {name: np.array([np.float32(value)]) for name, value in
                     prices.iteritems()}
         elif isinstance(prices, List) or isinstance(prices, np.ndarray):
+            prices2 = pd.Series(prices)
+            pricesStd = prices2.std()
+
+            if pricesStd >= 2.0e-8:
+                return 0
+
             # The list better contain only floats...
             data = self._turnListOfFloatsToInputData(volumes + prices, CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES)
         elif isinstance(prices, Dict):
