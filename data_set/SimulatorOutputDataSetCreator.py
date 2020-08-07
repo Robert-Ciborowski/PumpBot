@@ -85,7 +85,7 @@ class SimulatorOutputDataSetCreator:
                         # std = dfToAppend.std(axis=0, skipna=True)["Close"]
                         # if std < 2.0e-08:
 
-                        for i in range(0, 7):
+                        for i in range(0, 4):
                             df = self.dataObtainer.getHistoricalDataAsDataframe(
                                 pump[0]).iloc[startIndex:endIndex]
                             mean = df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"].mean()
