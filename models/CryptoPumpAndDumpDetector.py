@@ -73,6 +73,8 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
             if pricesStd >= 2.0e-8:
                 return 0
 
+            prices, volumes = self._setupDataForModel(prices, volumes)
+
             # The list better contain only floats...
             data = self._turnListOfFloatsToInputData(volumes + prices, CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES)
         elif isinstance(prices, Dict):
@@ -130,18 +132,21 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         self.model.add(tf.keras.layers.Dense(units=1, input_shape=(1,),
                                 activation=tf.sigmoid, name="Output"))
 
+        scheduler = tf.keras.optimizers.schedules.InverseTimeDecay(
+            self.hyperparameters.learningRate, 20000, 1, staircase=False)
+
         # Compiles the model with the appropriate loss function.
         self.model.compile(
-            optimizer=tf.keras.optimizers.RMSprop(lr=self.hyperparameters.learningRate),
+            optimizer=tf.keras.optimizers.Adam(scheduler),
             loss=tf.keras.losses.BinaryCrossentropy(), metrics=self._metrics)
 
-    def trainModel(self, dataset: pd.DataFrame, label_name):
+    def trainModel(self, dataset: pd.DataFrame, validationSplit: float, label_name):
         """Train the model by feeding it data."""
         # Split the dataset into features and label.
         features = {name: np.array(value) for name, value in dataset.items()}
         label = np.array(features.pop(label_name))
         history = self.model.fit(x=features, y=label, batch_size=self.hyperparameters.batchSize,
-                            epochs=self.hyperparameters.epochs, shuffle=True)
+                            validation_split=validationSplit, epochs=self.hyperparameters.epochs, shuffle=True)
 
         # The list of epochs is stored separately from the rest of history.
         epochs = history.epoch
@@ -199,8 +204,10 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         # the model.
         featureLayer = layers.DenseFeatures(featureColumns)
         layerParameters = [
-            LayerParameter(50, "sigmoid"),
-            LayerParameter(10, "sigmoid")
+            LayerParameter(20, "sigmoid"),
+            LayerParameter(5, "sigmoid"),
+            # LayerParameter(2, "sigmoid"),
+            # LayerParameter(10, "sigmoid")
         ]
 
         self.createModel(featureLayer, layerParameters)
@@ -245,11 +252,11 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         j = 0
 
         for i in range(numberOfSamples):
-            features["Volume-RA-" + str(i)] = np.array([np.float32(data[j])])
+            features["Volume-RA-" + str(i)] = np.array(np.float32(data[j]))
             j += 1
 
         for i in range(numberOfSamples):
-            features["Price-RA-" + str(i)] = np.array([np.float32(data[j])])
+            features["Price-RA-" + str(i)] = np.array(np.float32(data[j]))
             j += 1
 
         return features

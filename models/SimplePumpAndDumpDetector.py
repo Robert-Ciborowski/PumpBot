@@ -63,3 +63,6 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
             return None, None
 
         return pd.Series(prices), pd.Series(volumes)
+
+    def _setupDataForModel(self, prices, volumes):
+        return prices, volumes

@@ -78,12 +78,13 @@ class PumpTradeTracker:
         return count
 
     def tradesCSV(self):
-        string = "ticker,buy,sell,profit\n"
+        string = "ticker,buy,sell,profit,profit-of-trade\n"
         profit = 0.0
 
         for trade in self.trades:
             profit += trade.calculateProfit()
             string += trade.ticker + "," + str(trade.buyTimestamp)\
-                      + "," + str(trade.sellTimestamp) + "," + str(profit) + "\n"
+                      + "," + str(trade.sellTimestamp) + "," + str(profit) +\
+                      "," + str(trade.calculateProfit()) + "\n"
 
         return string

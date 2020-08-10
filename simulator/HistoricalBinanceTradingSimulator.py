@@ -97,7 +97,7 @@ class HistoricalBinanceTradingSimulator:
         self.model.prepareForUse()
         EventDispatcher.getInstance().addListener(self.model,
                                                   "ListingPriceUpdated")
-        # 2.0e-0
+        # 2.0e-08
         # self.model = SimplePumpAndDumpDetector(2.0e-08, 2.0e-08)
         EventDispatcher.getInstance().addListener(self.model,
                                                   "ListingPriceUpdated")

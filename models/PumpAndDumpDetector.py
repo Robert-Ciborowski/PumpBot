@@ -46,7 +46,6 @@ class PumpAndDumpDetector(EventListener):
                 return
 
             currentPrice = prices[-1]
-            # prices, volumes = self._setupDataForModel(prices, volumes)
             probability = self.detect(prices, volumes)
 
             if probability >= self._classificationThreshold:
