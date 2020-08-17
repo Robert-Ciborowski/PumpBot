@@ -11,7 +11,8 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import csv
 
-from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT, ROLLING_AVERAGE_SIZE
+from util.Constants import GROUPED_DATA_SIZE, BIN_SIZE_FOR_BINNING, MINUTES_OF_DATA_TO_LOOK_AT, \
+    ROLLING_AVERAGE_SIZE
 
 
 class BinanceDataSetCreator:
@@ -22,7 +23,7 @@ class BinanceDataSetCreator:
     def __init__(self, dataObtainer: HistoricalBinanceDataObtainer):
         self.dataObtainer = dataObtainer
         self.numberOfSamples = MINUTES_OF_DATA_TO_LOOK_AT
-        self.samplesBeforePumpPeak = 12
+        self.samplesBeforePumpPeak = 15
         # self.samplesBeforePumpPeak = 30
         # self.samplesBeforePumpPeak = 7
 
@@ -40,8 +41,8 @@ class BinanceDataSetCreator:
             with open(path, 'w', newline='') as file:
                 writer = csv.writer(file)
                 numberOfRAs = self.numberOfSamples
-                volumeList = ["Volume-RA-" + str(i) for i in range(numberOfRAs)]
-                priceList = ["Price-RA-" + str(i) for i in range(numberOfRAs)]
+                volumeList = ["Volume-RA-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))]
+                priceList = ["Price-RA-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))]
                 writer.writerow(volumeList + priceList + ["Pump"])
 
 
@@ -51,12 +52,55 @@ class BinanceDataSetCreator:
                         print(df.columns)
                         continue
 
-                    mean = df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"].mean()
-                    std = df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"].std()
-                    volumes = (df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"] - mean) / std
-                    mean = df[str(ROLLING_AVERAGE_SIZE) + "m Close Price RA"].mean()
-                    std = df[str(ROLLING_AVERAGE_SIZE) + "m Close Price RA"].std()
-                    prices = (df[str(ROLLING_AVERAGE_SIZE) + "m Close Price RA"] - mean) / std
+                    # mean = df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"].mean()
+                    # std = df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"].std()
+                    # volumes = (df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"] - mean) / std / 10.0
+                    # mean = df[str(ROLLING_AVERAGE_SIZE) + "m Close Price RA"].mean()
+                    # std = df[str(ROLLING_AVERAGE_SIZE) + "m Close Price RA"].std()
+                    # prices = (df[str(ROLLING_AVERAGE_SIZE) + "m Close Price RA"] - mean) / std / 10.0
+
+                    # max = df["Volume"].max()
+                    # volumes = df["Volume"] / max
+                    # max = df["Close"].max()
+                    # prices = df["Close"] / max
+                    # csvRow = []
+
+                    # volumes = pd.cut(volumes, bins=MEME).value_counts().values
+                    # prices = pd.cut(prices, bins=MEME).value_counts().values
+                    # volumes = df["Volume"]
+                    # prices = df["Close"]
+
+                    volumesDf = df["Volume"]
+                    pricesDf = df["Close"]
+                    volumeMax = volumesDf.max()
+                    pricesMax = pricesDf.max()
+                    volumes = []
+                    prices = []
+                    collectiveVolume = 0.0
+                    collectivePrice = 0.0
+                    subsectionSize = GROUPED_DATA_SIZE
+                    index = 0
+
+                    for item in volumesDf.iteritems():
+                        collectiveVolume += item[1]
+                        index += 1
+
+                        if index == subsectionSize:
+                            index = 0
+                            volumes.append(collectiveVolume / subsectionSize / volumeMax)
+                            collectiveVolume = 0.0
+
+                    index = 0
+
+                    for item in pricesDf.iteritems():
+                        collectivePrice += item[1]
+                        index += 1
+
+                        if index == subsectionSize:
+                            index = 0
+                            prices.append(collectivePrice / subsectionSize / pricesMax)
+                            collectivePrice = 0.0
+
                     csvRow = []
 
                     # Becomes true if a value is nan so that we can skip this
@@ -228,12 +272,12 @@ class BinanceDataSetCreator:
             if rowEntry["Pump and Dumps"] == 0:
                 dfs.append(df2)
 
-                for i in range(0, amountToIncrement - self.numberOfSamples, 800):
+                for i in range(0, amountToIncrement - self.numberOfSamples, 1000):
                     df3 = df2.iloc[i:i + self.numberOfSamples]
                     std = df3.std(axis=0, skipna=True)["Close"]
 
-                    if std < 2.5e-08:
-                        dfs2.append(df3)
+                    # if std > 3.0e-08:
+                    dfs2.append(df3)
 
         return dfs, dfs2
 
@@ -245,7 +289,7 @@ class BinanceDataSetCreator:
         # return self._analyseSymbolForPumps(symbol, df, 2.5, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 2.0, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 1.0, 1.045, 1.045), df
-        return self._analyseSymbolForPumps(symbol, df, 1.0, 1.07, 1.07), df
+        return self._analyseSymbolForPumps(symbol, df, 1.0, 1.06, 1.06), df
 
     # returns final dataframe
     def _analyseSymbolForPumps(self, symbol: str, df: pd.DataFrame, volumeThreshold: float,
@@ -300,18 +344,18 @@ class BinanceDataSetCreator:
                 startIndex = endIndex - self.numberOfSamples
 
                 if startIndex >= 0:
-                    for i in range(0, 5):
+                    for i in range(0, 1):
                         dfToAppend2 = self.dataObtainer.getHistoricalDataAsDataframe(
                             symbol).iloc[startIndex:endIndex]
                         std = dfToAppend2.std(axis=0, skipna=True)["Close"]
 
-                        if std < 2.5e-08:
-                            pumps.append(dfToAppend2)
+                        # if std > 3.0e-08:
+                        pumps.append(dfToAppend2)
                         # else:
                         #     break
 
-                        startIndex -= self.numberOfSamples // 2
-                        endIndex -= self.numberOfSamples // 2
+                        startIndex -= self.numberOfSamples
+                        endIndex -= self.numberOfSamples
 
 
         rowEntry = {'Exchange': exchangeName,
@@ -478,47 +522,20 @@ class BinanceDataSetCreator:
     def _plotWithPyPlot(self, df, df2, i):
         fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(15, 8))
         fig.tight_layout()
-        # df.to_csv("temporary.csv")
-        # df2.to_csv("temporary2.csv")
-        # df = pd.read_csv("temporary.csv")
-        # df2 = pd.read_csv("temporary2.csv")
 
-        # plt.figure()
-        # axes[0].xlabel("Timestamp")
-        # axes[0].ylabel("Value")
         df.plot(ax=axes[0][0], x="Timestamp", y="High", label="High")
-        # axes[0][0].plot(df[["Timestamp"]], df[["High"]], label="High")
-        # axes[0][0].plot(df[["Timestamp"]], df[["High"]], label="High")
         df2.plot(ax=axes[0][0], x="Timestamp", y="High", label="High before pump", color="red")
-        # axes[0][0].plot(df2.iloc[0]["Timestamp"], df2.iloc[0]["High"],
-        #                 marker='o', markersize=3, color="red")
-        # axes[0][0].plot(df2.iloc[-1]["Timestamp"], df2.iloc[-1]["High"],
-        #                 marker='o', markersize=3, color="red")
         axes[0][0].set_title("Zoomed Out - Price High - " + str(i + 1))
-        # axes[0].legend()
-        # plt.show()
 
-        # plt.figure()
-        # axes[1].xlabel("Timestamp")
-        # axes[1].ylabel("Value")
         df.plot(ax=axes[1][0], x="Timestamp", y="Volume", label="Volume")
-        # axes[1][0].plot(df[["Timestamp"]], df[["Volume"]], label="Volume")
         df2.plot(ax=axes[1][0], x="Timestamp", y="Volume", label="Volume before pump", color="red")
-        # axes[1][0].plot(df2.iloc[0]["Timestamp"], df2.iloc[0]["Volume"],
-        #                 marker='o', markersize=3, color="red")
-        # axes[1][0].plot(df2.iloc[-1]["Timestamp"], df2.iloc[-1]["Volume"],
-        #                 marker='o', markersize=3, color="red")
         axes[1][0].set_title("Zoomed Out - Volume " + str(i + 1))
-        # axes[1].legend()
-        # plt.show()
 
         df2.plot(ax=axes[0][1], x="Timestamp", y="High", label="High",
                  color="red")
-        # axes[0][1].plot(df2[["Timestamp"]], df2[["High"]], label="High")
         axes[0][1].set_title("Zoomed In - Price High " + str(i + 1))
         df2.plot(ax=axes[1][1], x="Timestamp", y="Volume", label="Volume",
                  color="red")
-        # axes[1][1].plot(df2[["Timestamp"]], df2[["Volume"]], label="Volume")
         axes[1][1].set_title("Zoomed In - Volume " + str(i + 1))
 
         fig.show()

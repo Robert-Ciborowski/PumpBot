@@ -20,7 +20,7 @@ from models.LayerParameter import LayerParameter
 from models.Hyperparameters import Hyperparameters
 from models.PumpAndDumpDetector import PumpAndDumpDetector
 from thread_runner.ThreadRunner import ThreadRunner
-from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT
+from util.Constants import GROUPED_DATA_SIZE, MINUTES_OF_DATA_TO_LOOK_AT
 import threading as th
 
 
@@ -67,6 +67,8 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
             data += {name: np.array([np.float32(value)]) for name, value in
                     prices.iteritems()}
         elif isinstance(prices, List) or isinstance(prices, np.ndarray):
+            volumes2 = pd.Series(volumes)
+            volumesStd = volumes2.std()
             prices2 = pd.Series(prices)
             pricesStd = prices2.std()
 
@@ -85,7 +87,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
             return 0.0
 
         if data is None or len(
-                data) < CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES * 2:
+                data) < CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES * 2 + 2:
             print("CryptoPumpAndDumpDetector detect() was not given enough "
                   "data to work with!")
             return 0.0
@@ -192,11 +194,11 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     def createModelUsingDefaults(self):
         featureColumns = []
 
-        for i in range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES):
+        for i in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE)):
             c = tf.feature_column.numeric_column("Volume-RA-" + str(i))
             featureColumns.append(c)
 
-        for i in range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES):
+        for i in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE)):
             c = tf.feature_column.numeric_column("Price-RA-" + str(i))
             featureColumns.append(c)
 
@@ -204,8 +206,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         # the model.
         featureLayer = layers.DenseFeatures(featureColumns)
         layerParameters = [
-            LayerParameter(20, "sigmoid"),
-            LayerParameter(5, "sigmoid"),
+            LayerParameter(35, "sigmoid")
             # LayerParameter(2, "sigmoid"),
             # LayerParameter(10, "sigmoid")
         ]

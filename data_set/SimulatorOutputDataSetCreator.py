@@ -13,7 +13,8 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import csv
 
-from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT, ROLLING_AVERAGE_SIZE
+from util.Constants import BIN_SIZE_FOR_BINNING, MINUTES_OF_DATA_TO_LOOK_AT, \
+    ROLLING_AVERAGE_SIZE
 
 
 class SimulatorOutputDataSetCreator:
@@ -71,11 +72,15 @@ class SimulatorOutputDataSetCreator:
                 volumeList = ["Volume-RA-" + str(i) for i in range(numberOfRAs)]
                 priceList = ["Price-RA-" + str(i) for i in range(numberOfRAs)]
                 writer.writerow(volumeList + priceList + ["Pump"])
+                count = 0
 
                 for pump in pumps:
+                    print("Writing " + str(count))
+
+                    count += 1
+
                     if pump[2] == "None":
                         continue
-
 
                     startDate = pd.to_datetime(pump[1])
                     startDate = startDate.replace(second=0, microsecond=0)
@@ -112,16 +117,44 @@ class SimulatorOutputDataSetCreator:
                                 pump[0]).iloc[startIndex:endIndex]
 
                             # With rolling averages
-                            mean = df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"].mean()
-                            std = df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"].std()
-                            volumes = (df[str(
-                                ROLLING_AVERAGE_SIZE) + "m Volume RA"] - mean) / std
-                            mean = df[
-                                str(ROLLING_AVERAGE_SIZE) + "m Close Price RA"].mean()
-                            std = df[
-                                str(ROLLING_AVERAGE_SIZE) + "m Close Price RA"].std()
-                            prices = (df[str(
-                                ROLLING_AVERAGE_SIZE) + "m Close Price RA"] - mean) / std
+                            # mean = df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"].mean()
+                            # stdVol = df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"].std()
+                            # volumes = (df[str(
+                            #     ROLLING_AVERAGE_SIZE) + "m Volume RA"] - mean) / stdVol
+                            # mean = df[
+                            #     str(ROLLING_AVERAGE_SIZE) + "m Close Price RA"].mean()
+                            # stdPrices = df[
+                            #     str(ROLLING_AVERAGE_SIZE) + "m Close Price RA"].std()
+                            # prices = (df[str(
+                            #     ROLLING_AVERAGE_SIZE) + "m Close Price RA"] - mean) / stdPrices
+
+                            # volumes = df["Volume"]
+                            # # max = df["Close"].max()
+                            # prices = df["Close"]
+                            # csvRow = []
+                            # volumes = pd.cut(volumes,
+                            #                  bins=MEME).value_counts().values
+                            # prices = pd.cut(prices,
+                            #                 bins=MEME).value_counts().values
+
+                            volumesDf = df["Volume"]
+                            pricesDf = df["Close"]
+                            volumes = []
+                            prices = []
+                            collectiveVolume = 0.0
+                            collectivePrice = 0.0
+
+                            for index, row in volumesDf.iterrows():
+                                collectiveVolume += row
+
+                                if index % 5 == 0:
+                                    volumeList.append(collectiveVolume / 5.0)
+
+                            for index, row in pricesDf.iterrows():
+                                collectivePrice += row
+
+                                if index % 5 == 0:
+                                    prices.append(collectivePrice / 5.0)
 
                             # No rolling averages
                             # mean = df["Close"].mean()
@@ -131,11 +164,17 @@ class SimulatorOutputDataSetCreator:
                             # std = df["Volume"].std()
                             # prices = (df["Volume"] - mean) / std
 
+                            startIndex += MINUTES_OF_DATA_TO_LOOK_AT
+                            endIndex += MINUTES_OF_DATA_TO_LOOK_AT
+
                             csvRow = []
 
                             # Becomes true if a value is nan so that we can skip this
                             # pump.
                             cancel = False
+
+                            # csvRow.append(stdVol)
+                            # csvRow.append(stdPrices)
 
                             for value in volumes:
                                 if math.isnan(value):
@@ -165,8 +204,6 @@ class SimulatorOutputDataSetCreator:
                             writer.writerow(csvRow)
                             # startIndex -= 5
                             # endIndex -= 5
-                            startIndex += MINUTES_OF_DATA_TO_LOOK_AT
-                            endIndex += MINUTES_OF_DATA_TO_LOOK_AT
 
         except IOError as e:
             print("Error writing to csv file! " + str(e))

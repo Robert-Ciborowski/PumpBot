@@ -20,6 +20,7 @@ discord_bot/bot_properties.csv
 # Downloaded historical data and some test data sets
 binance_historical_data/*.csv
 data_set/*.csv
+data_set/dataset_figures/*
 
 # Models
 # models/model_exports/*
@@ -27,6 +28,7 @@ data_set/*.csv
 # Output
 simulator_output.txt
 simulator_trades.txt
+simulator_figures/*
 
 venv-3.6.8
 venv-3.6

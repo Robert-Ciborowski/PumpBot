@@ -16,3 +16,4 @@ if __name__ == "__main__":
     creator = SimulatorOutputDataSetCreator(historicalObtainer)
     creator.trackStock("YOYOBTC", "../simulator_trades.csv")
     creator.generateDataset("final-dataset-2-pumps.csv", "final-dataset-2-non-pumps.csv")
+    print("Done!")
