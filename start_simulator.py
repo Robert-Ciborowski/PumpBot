@@ -16,7 +16,7 @@ if __name__ == "__main__":
     # tickers = ["LRCBTC", "YOYOBTC"]
     # tickers = ["LRCBTC"]
     # tickers = ["OAXBTC"]
-    tickers = ["YOYOBTC"]
+    tickers = ["YOYOBTC", "SNGLSBTC"]
     # tickers = ["LRCBTC", "OAXBTC", "YOYOBTC"]
     # tickers = ["YOYOBTC"]
     # tickers = ["LRCBTC", "YOYOBTC", "QTUMBTC", "FUNBTC", "LTCBTC", "SNGLSBTC"]
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     # start = datetime(2020, 1, 16, 0, 0)
     # end = datetime(2020, 1, 18, 0, 0)
     start = datetime(2020, 1, 1, 0, 0)
-    end = datetime(2020, 8, 1, 0, 0)
+    end = datetime(2020, 6, 1, 0, 0)
     # start = datetime(2019, 1, 1, 0, 0)
     # end = datetime(2019, 1, 15, 0, 0)
 

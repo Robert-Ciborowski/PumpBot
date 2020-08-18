@@ -18,9 +18,9 @@ def train():
     numberOfEntries = len(all_df.index)
 
     # Hyperparameters!
-    learningRate = 0.01
-    epochs = 1800
-    batchSize = 50
+    learningRate = 0.03
+    epochs = 500
+    batchSize = 80
     labelName = "Pump"
     classificationThreshold = 0.90
 

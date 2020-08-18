@@ -31,6 +31,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
 
     _metrics: List
     _NUMBER_OF_SAMPLES = MINUTES_OF_DATA_TO_LOOK_AT
+    _DATA_LENGTH_FOR_MODEL = int(_NUMBER_OF_SAMPLES * 2 / GROUPED_DATA_SIZE)
 
     def __init__(self, tryUsingGPU=False):
         super().__init__()
@@ -56,40 +57,43 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     Precondition: prices is a pandas dataframe or series.
     """
     def detect(self, prices, volumes) -> float:
-        if isinstance(prices, pd.DataFrame):
-            data = {name: np.array(np.float32(value)) for name, value in
-                    volumes.items()}
-            data += {name: np.array(np.float32(value)) for name, value in
-                    prices.items()}
-        if isinstance(prices, pd.Series):
-            data = {name: np.array([np.float32(value)]) for name, value in
-                    volumes.iteritems()}
-            data += {name: np.array([np.float32(value)]) for name, value in
-                    prices.iteritems()}
-        elif isinstance(prices, List) or isinstance(prices, np.ndarray):
-            volumes2 = pd.Series(volumes)
-            volumesStd = volumes2.std()
-            prices2 = pd.Series(prices)
-            pricesStd = prices2.std()
+        # if isinstance(prices, pd.DataFrame):
+        #     data = {name: np.array(np.float32(value)) for name, value in
+        #             volumes.items()}
+        #     data += {name: np.array(np.float32(value)) for name, value in
+        #             prices.items()}
+        # if isinstance(prices, pd.Series):
+        #     data = {name: np.array([np.float32(value)]) for name, value in
+        #             volumes.iteritems()}
+        #     data += {name: np.array([np.float32(value)]) for name, value in
+        #             prices.iteritems()}
+        if isinstance(prices, List) or isinstance(prices, np.ndarray):
+            # volumes2 = pd.Series(volumes)
+            # volumesStd = volumes2.std()
+            # prices2 = pd.Series(prices)
+            # pricesStd = prices2.std()
 
-            if pricesStd >= 2.0e-8:
-                return 0
+            # if pricesStd >= 2.0e-8:
+            #     return 0
 
-            prices, volumes = self._setupDataForModel(prices, volumes)
-
-            # The list better contain only floats...
-            data = self._turnListOfFloatsToInputData(volumes + prices, CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES)
-        elif isinstance(prices, Dict):
-            data = volumes + prices
+            # The input data better contain only floats...
+            # prices, volumes = self._setupDataForModelUsingZScores(prices, volumes)
+            prices, volumes = self._setupDataForModelUsingFractions(prices, volumes)
+            data = self._turnListOfFloatsToInputData(volumes + prices, len(volumes), len(prices))
+            # data = volumes + prices
+        # elif isinstance(prices, Dict):
+        #     data = volumes + prices
         else:
             print("CryptoPumpAndDumpDetector detect() had its precondition "
                   "violated!")
             return 0.0
 
-        if data is None or len(
-                data) < CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES * 2 + 2:
+        if data is None or len(data) != CryptoPumpAndDumpDetector._DATA_LENGTH_FOR_MODEL:
             print("CryptoPumpAndDumpDetector detect() was not given enough "
-                  "data to work with!")
+                  "data to work with! Data is None: " + str(data is None))
+            if data is not None:
+                print("(length of data: " + str(len(data)) + ", expected: "
+                      + str(CryptoPumpAndDumpDetector._DATA_LENGTH_FOR_MODEL) + ")")
             return 0.0
 
         return self._detect(data)
@@ -103,7 +107,47 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
             time2 - time1))
         return result
 
-    def _setupDataForModel(self, prices, volumes):
+    def _setupDataForModelUsingFractions(self, inputPrices, inputVolumes):
+        volumeMax = np.amax(inputVolumes)
+        pricesMax = np.amax(inputPrices)
+
+        if volumeMax == 0.0:
+            volumeMax = 1.0
+
+        if pricesMax == 0.0:
+            pricesMax = 1.0
+
+        volumes = []
+        prices = []
+        collectiveVolume = 0.0
+        collectivePrice = 0.0
+        subsectionSize = GROUPED_DATA_SIZE
+
+        index = 0
+
+        for item in inputPrices:
+            collectivePrice += item
+            index += 1
+
+            if index == subsectionSize:
+                index = 0
+                prices.append(np.array([collectivePrice / subsectionSize / pricesMax]))
+                collectivePrice = 0.0
+
+        index = 0
+
+        for item in inputVolumes:
+            collectiveVolume += item
+            index += 1
+
+            if index == subsectionSize:
+                index = 0
+                volumes.append(np.array([collectiveVolume / subsectionSize / volumeMax]))
+                collectiveVolume = 0.0
+
+        return prices, volumes
+
+    def _setupDataForModelUsingZScores(self, prices, volumes):
         from scipy import stats
         prices = stats.zscore(prices)
         volumes = stats.zscore(volumes)
@@ -139,6 +183,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
 
         # Compiles the model with the appropriate loss function.
         self.model.compile(
+            # optimizer=tf.keras.optimizers.Adam(),
             optimizer=tf.keras.optimizers.Adam(scheduler),
             loss=tf.keras.losses.BinaryCrossentropy(), metrics=self._metrics)
 
@@ -206,7 +251,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         # the model.
         featureLayer = layers.DenseFeatures(featureColumns)
         layerParameters = [
-            LayerParameter(35, "sigmoid")
+            LayerParameter(15, "sigmoid")
             # LayerParameter(2, "sigmoid"),
             # LayerParameter(10, "sigmoid")
         ]
@@ -242,22 +287,21 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         """
         # We need to tell the model to make a test prediction so that all of
         # the additional GPU DLLs get loaded. Think of it as a warm up :P
-        lst = [np.array([0]) for x in range(self._NUMBER_OF_SAMPLES * 2)]
+        lst = [np.array([np.float32(0.0)]) for x in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES))]
         self.detect(lst, lst)
 
-    def _turnListOfFloatsToInputData(self, data: List[float], numberOfSamples: int) -> Dict:
-        if len(data) < numberOfSamples * 2:
-            return None
-
+    def _turnListOfFloatsToInputData(self, data: List[float], volumeAmount: int, priceAmount: int) -> Dict:
         features = {}
         j = 0
 
-        for i in range(numberOfSamples):
+        for i in range(volumeAmount):
             features["Volume-RA-" + str(i)] = np.array(np.float32(data[j]))
+            # features["Volume-RA-" + str(i)] = [data[j]]
             j += 1
 
-        for i in range(numberOfSamples):
+        for i in range(priceAmount):
             features["Price-RA-" + str(i)] = np.array(np.float32(data[j]))
+            # features["Price-RA-" + str(i)] = [data[j]]
             j += 1
 
         return features
