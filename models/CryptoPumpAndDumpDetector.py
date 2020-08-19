@@ -31,7 +31,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
 
     _metrics: List
     _NUMBER_OF_SAMPLES = MINUTES_OF_DATA_TO_LOOK_AT
-    _DATA_LENGTH_FOR_MODEL = int(_NUMBER_OF_SAMPLES * 2 / GROUPED_DATA_SIZE)
+    _DATA_LENGTH_FOR_MODEL = int(_NUMBER_OF_SAMPLES * 2 / GROUPED_DATA_SIZE) + int(_NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE)
 
     def __init__(self, tryUsingGPU=False):
         super().__init__()
@@ -78,8 +78,8 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
 
             # The input data better contain only floats...
             # prices, volumes = self._setupDataForModelUsingZScores(prices, volumes)
-            prices, volumes = self._setupDataForModelUsingFractions(prices, volumes)
-            data = self._turnListOfFloatsToInputData(volumes + prices, len(volumes), len(prices))
+            prices, volumes, prices2, volumes2 = self._setupDataForModelUsingFractions(prices, volumes)
+            data = self._turnListOfFloatsToInputData(volumes + prices + prices2 + volumes2, len(volumes), len(prices))
             # data = volumes + prices
         # elif isinstance(prices, Dict):
         #     data = volumes + prices
@@ -119,6 +119,8 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
 
         volumes = []
         prices = []
+        volumes2 = []
+        prices2 = []
         collectiveVolume = 0.0
         collectivePrice = 0.0
         subsectionSize = GROUPED_DATA_SIZE
@@ -145,7 +147,33 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
                 volumes.append(np.array([collectiveVolume / subsectionSize / volumeMax]))
                 collectiveVolume = 0.0
 
-        return prices, volumes
+        subsectionSize = GROUPED_DATA_SIZE * 2
+
+        index = 0
+
+        for item in inputPrices:
+            collectivePrice += item
+            index += 1
+
+            if index == subsectionSize:
+                index = 0
+                prices2.append(
+                    np.array([collectivePrice / subsectionSize / pricesMax]))
+                collectivePrice = 0.0
+
+        index = 0
+
+        for item in inputVolumes:
+            collectiveVolume += item
+            index += 1
+
+            if index == subsectionSize:
+                index = 0
+                volumes2.append(
+                    np.array([collectiveVolume / subsectionSize / volumeMax]))
+                collectiveVolume = 0.0
+
+        return prices, volumes, prices2, volumes2
 
     def _setupDataForModelUsingZScores(self, prices, volumes):
         from scipy import stats
@@ -247,12 +275,22 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
             c = tf.feature_column.numeric_column("Price-RA-" + str(i))
             featureColumns.append(c)
 
+        for i in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE / 2)):
+            c = tf.feature_column.numeric_column("Volume-RA2-" + str(i))
+            featureColumns.append(c)
+
+        for i in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE / 2)):
+            c = tf.feature_column.numeric_column("Price-RA2-" + str(i))
+            featureColumns.append(c)
+
+        print(featureColumns)
+
         # Convert the list of feature columns into a layer that will later be fed into
         # the model.
         featureLayer = layers.DenseFeatures(featureColumns)
         layerParameters = [
-            LayerParameter(15, "sigmoid")
-            # LayerParameter(2, "sigmoid"),
+            LayerParameter(100, "sigmoid"),
+            LayerParameter(10, "sigmoid")
             # LayerParameter(10, "sigmoid")
         ]
 
@@ -301,6 +339,16 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
 
         for i in range(priceAmount):
             features["Price-RA-" + str(i)] = np.array(np.float32(data[j]))
+            # features["Price-RA-" + str(i)] = [data[j]]
+            j += 1
+
+        for i in range(volumeAmount // 2):
+            features["Volume-RA2-" + str(i)] = np.array(np.float32(data[j]))
+            # features["Volume-RA-" + str(i)] = [data[j]]
+            j += 1
+
+        for i in range(priceAmount // 2):
+            features["Price-RA2-" + str(i)] = np.array(np.float32(data[j]))
             # features["Price-RA-" + str(i)] = [data[j]]
             j += 1
 

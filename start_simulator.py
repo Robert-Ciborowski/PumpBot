@@ -16,9 +16,9 @@ if __name__ == "__main__":
     # tickers = ["LRCBTC", "YOYOBTC"]
     # tickers = ["LRCBTC"]
     # tickers = ["OAXBTC"]
-    tickers = ["YOYOBTC", "SNGLSBTC"]
+    # tickers = ["YOYOBTC", "SNGLSBTC"]
     # tickers = ["LRCBTC", "OAXBTC", "YOYOBTC"]
-    # tickers = ["YOYOBTC"]
+    tickers = ["YOYOBTC"]
     # tickers = ["LRCBTC", "YOYOBTC", "QTUMBTC", "FUNBTC", "LTCBTC", "SNGLSBTC"]
     # tickers = ["GASBTC", "KNCBTC", "STRATBTC", "MCOBTC", "NEOBTC", "ZRXBTC"]
     # tickers = ["LRCBTC", "YOYOBTC", "FUNBTC", "GASBTC", "KNCBTC", "STRATBTC"]
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     wallet = FakeBinanceWallet(1.0)
     # 3000 works
     simulator = HistoricalBinanceTradingSimulator(start, end, wallet, 300, 180,
-                                                  10, 40, 0.3, tickers, 5,
+                                                  20, 60, 0.3, tickers, 5,
                                                   fastForwardAmount=270,
                                                   modelLocation="models/model_exports/cryptopumpanddumpdetector",
                                                   historicalDataLocation="binance_historical_data")

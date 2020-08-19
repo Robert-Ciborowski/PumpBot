@@ -43,7 +43,9 @@ class BinanceDataSetCreator:
                 numberOfRAs = self.numberOfSamples
                 volumeList = ["Volume-RA-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))]
                 priceList = ["Price-RA-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))]
-                writer.writerow(volumeList + priceList + ["Pump"])
+                volumeList2 = ["Volume-RA2-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2))]
+                priceList2 = ["Price-RA2-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2))]
+                writer.writerow(volumeList + priceList + volumeList2 + priceList2 + ["Pump"])
 
 
                 for df in rightBeforePumps:
@@ -72,34 +74,9 @@ class BinanceDataSetCreator:
 
                     volumesDf = df["Volume"]
                     pricesDf = df["Close"]
-                    volumeMax = volumesDf.max()
-                    pricesMax = pricesDf.max()
-                    volumes = []
-                    prices = []
-                    collectiveVolume = 0.0
-                    collectivePrice = 0.0
-                    subsectionSize = GROUPED_DATA_SIZE
-                    index = 0
 
-                    for item in volumesDf.iteritems():
-                        collectiveVolume += item[1]
-                        index += 1
-
-                        if index == subsectionSize:
-                            index = 0
-                            volumes.append(collectiveVolume / subsectionSize / volumeMax)
-                            collectiveVolume = 0.0
-
-                    index = 0
-
-                    for item in pricesDf.iteritems():
-                        collectivePrice += item[1]
-                        index += 1
-
-                        if index == subsectionSize:
-                            index = 0
-                            prices.append(collectivePrice / subsectionSize / pricesMax)
-                            collectivePrice = 0.0
+                    volumes, prices = self._generateVolumeAndPriceData(volumesDf, pricesDf, GROUPED_DATA_SIZE)
+                    volumes2, prices2 = self._generateVolumeAndPriceData(volumesDf, pricesDf, GROUPED_DATA_SIZE * 2)
 
                     csvRow = []
 
@@ -118,6 +95,25 @@ class BinanceDataSetCreator:
                         continue
 
                     for value in prices:
+                        if math.isnan(value):
+                            cancel = True
+                            break
+                        csvRow.append(value)
+
+                    if cancel:
+                        continue
+
+                    for value in volumes2:
+                        if math.isnan(value):
+                            cancel = True
+                            break
+
+                        csvRow.append(value)
+
+                    if cancel:
+                        continue
+
+                    for value in prices2:
                         if math.isnan(value):
                             cancel = True
                             break
@@ -272,7 +268,7 @@ class BinanceDataSetCreator:
             if rowEntry["Pump and Dumps"] == 0:
                 dfs.append(df2)
 
-                for i in range(0, amountToIncrement - self.numberOfSamples, 1000):
+                for i in range(0, amountToIncrement - self.numberOfSamples, 750):
                     df3 = df2.iloc[i:i + self.numberOfSamples]
                     std = df3.std(axis=0, skipna=True)["Close"]
 
@@ -545,3 +541,34 @@ class BinanceDataSetCreator:
         self._addRA(df2, ROLLING_AVERAGE_SIZE, 'Volume', vRA)
         pRA = str(size) + "m Close Price RA"
         self._addRA(df2, ROLLING_AVERAGE_SIZE, 'Close', pRA)
+
+    def _generateVolumeAndPriceData(self, volumesDf: pd.DataFrame, pricesDf: pd.DataFrame, subsectionSize: int):
+        volumes = []
+        prices = []
+        volumeMax = volumesDf.max()
+        pricesMax = pricesDf.max()
+        collectiveVolume = 0.0
+        collectivePrice = 0.0
+        index = 0
+
+        for item in volumesDf.iteritems():
+            collectiveVolume += item[1]
+            index += 1
+
+            if index == subsectionSize:
+                index = 0
+                volumes.append(collectiveVolume / subsectionSize / volumeMax)
+                collectiveVolume = 0.0
+
+        index = 0
+
+        for item in pricesDf.iteritems():
+            collectivePrice += item[1]
+            index += 1
+
+            if index == subsectionSize:
+                index = 0
+                prices.append(collectivePrice / subsectionSize / pricesMax)
+                collectivePrice = 0.0
+
+        return volumes, prices
