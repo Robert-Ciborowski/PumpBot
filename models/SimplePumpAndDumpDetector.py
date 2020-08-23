@@ -54,8 +54,7 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
         prices2 = prices.iloc[0 : pivot]
         std2 = prices2.std()
 
-        # if std2 > 2.0e-08:
-        if std2 > 3.0e-08:
+        if std2 > 2.0e-08:
             return 0
 
         prices3 = prices.iloc[pivot: len(prices)]
