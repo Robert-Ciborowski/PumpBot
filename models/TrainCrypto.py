@@ -18,16 +18,18 @@ def train():
     numberOfEntries = len(all_df.index)
 
     # Hyperparameters!
-    learningRate = 0.0025
-    epochs = 6000
-    batchSize = 60
+    learningRate = 0.05
+    epochs = 14000
+    batchSize = 15
     labelName = "Pump"
     classificationThreshold = 0.90
+    decayRate = 0.05
+    decayStep = 1.0
 
     model = CryptoPumpAndDumpDetector(tryUsingGPU=True)
     model.setup(classificationThreshold,
-                Hyperparameters(learningRate, epochs,
-                                batchSize))
+                Hyperparameters(learningRate, epochs, batchSize,
+                                decayRate=decayRate, decayStep=decayStep))
 
     model.createModelUsingDefaults()
     epochs, hist = model.trainModel(all_df, 0.3, labelName)

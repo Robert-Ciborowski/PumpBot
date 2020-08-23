@@ -50,16 +50,31 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
         # if volumeStd >= 2.0e-08:
         #     return False
 
-        pricesStd = prices.std()
-        print("STD: " + str(pricesStd))
+        pivot = int(len(prices) * 0.95)
+        prices2 = prices.iloc[0 : pivot]
+        std2 = prices2.std()
 
-        if pricesStd < self.priceStdThreshold:
+        # if std2 > 2.0e-08:
+        if std2 > 3.0e-08:
+            return 0
+
+        prices3 = prices.iloc[pivot: len(prices)]
+        std3 = prices3.std()
+
+        if std3 > 7.0e-08:
+            return 0
+
+        greaterThan = prices3.iloc[-1] > prices2.iloc[-1] * 1.01
+        lessThan = prices3.iloc[-1] < prices2.iloc[-1] * 1.025
+
+        if greaterThan and lessThan:
             return 1
 
         return 0
 
     def _turnListOfFloatsToInputData(self, prices: List[float], volumes: List[float], numberOfSamples: int):
         if len(prices) + len(volumes) < numberOfSamples * 2:
+            print("Not enough data was given to work with! (SimplePumpAndDumpDetector)")
             return None, None
 
         return pd.Series(prices), pd.Series(volumes)

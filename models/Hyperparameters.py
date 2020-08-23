@@ -7,8 +7,12 @@ class Hyperparameters:
     learningRate: float
     epochs: int
     batchSize: int
+    decayRate: float
+    decayStep: float
 
-    def __init__(self, learningRate: float, epochs: int, batchSize=None):
+    def __init__(self, learningRate: float, epochs: int, batchSize=None, decayRate=0.5, decayStep=1.0):
         self.learningRate = learningRate
         self.epochs = epochs
         self.batchSize = batchSize
+        self.decayRate = decayRate
+        self.decayStep = decayStep

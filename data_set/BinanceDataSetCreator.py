@@ -23,7 +23,7 @@ class BinanceDataSetCreator:
     def __init__(self, dataObtainer: HistoricalBinanceDataObtainer):
         self.dataObtainer = dataObtainer
         self.numberOfSamples = MINUTES_OF_DATA_TO_LOOK_AT
-        self.samplesBeforePumpPeak = 15
+        self.samplesBeforePumpPeak = 3
         # self.samplesBeforePumpPeak = 30
         # self.samplesBeforePumpPeak = 7
 
@@ -45,7 +45,9 @@ class BinanceDataSetCreator:
                 priceList = ["Price-RA-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))]
                 volumeList2 = ["Volume-RA2-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2))]
                 priceList2 = ["Price-RA2-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2))]
-                writer.writerow(volumeList + priceList + volumeList2 + priceList2 + ["Pump"])
+                volumeList3 = ["Volume-RA3-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3))]
+                priceList3 = ["Price-RA3-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3))]
+                writer.writerow(volumeList + priceList + volumeList2 + priceList2 + volumeList3 + priceList3 + ["Pump"])
 
 
                 for df in rightBeforePumps:
@@ -77,6 +79,7 @@ class BinanceDataSetCreator:
 
                     volumes, prices = self._generateVolumeAndPriceData(volumesDf, pricesDf, GROUPED_DATA_SIZE)
                     volumes2, prices2 = self._generateVolumeAndPriceData(volumesDf, pricesDf, GROUPED_DATA_SIZE * 2)
+                    volumes3, prices3 = self._generateVolumeAndPriceData(volumesDf, pricesDf, GROUPED_DATA_SIZE * 3)
 
                     csvRow = []
 
@@ -114,6 +117,25 @@ class BinanceDataSetCreator:
                         continue
 
                     for value in prices2:
+                        if math.isnan(value):
+                            cancel = True
+                            break
+                        csvRow.append(value)
+
+                    if cancel:
+                        continue
+
+                    for value in volumes3:
+                        if math.isnan(value):
+                            cancel = True
+                            break
+
+                        csvRow.append(value)
+
+                    if cancel:
+                        continue
+
+                    for value in prices3:
                         if math.isnan(value):
                             cancel = True
                             break
@@ -268,12 +290,13 @@ class BinanceDataSetCreator:
             if rowEntry["Pump and Dumps"] == 0:
                 dfs.append(df2)
 
-                for i in range(0, amountToIncrement - self.numberOfSamples, 750):
-                    df3 = df2.iloc[i:i + self.numberOfSamples]
+                for i in range(0, amountToIncrement - self.numberOfSamples, 4000):
+                    df3 = df2.iloc[i:i + int(self.numberOfSamples * 0.9)]
                     std = df3.std(axis=0, skipna=True)["Close"]
 
-                    # if std > 3.0e-08:
-                    dfs2.append(df3)
+                    if std < 2.0e-08:
+                        df4 = df2.iloc[i:i + self.numberOfSamples]
+                        dfs2.append(df4)
 
         return dfs, dfs2
 
@@ -345,8 +368,8 @@ class BinanceDataSetCreator:
                             symbol).iloc[startIndex:endIndex]
                         std = dfToAppend2.std(axis=0, skipna=True)["Close"]
 
-                        # if std > 3.0e-08:
-                        pumps.append(dfToAppend2)
+                        if std < 2.0e-08:
+                            pumps.append(dfToAppend2)
                         # else:
                         #     break
 
