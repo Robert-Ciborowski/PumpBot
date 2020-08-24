@@ -53,23 +53,36 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
         pivot = int(len(prices) * 0.95)
         prices2 = prices.iloc[0 : pivot]
         std2 = prices2.std()
+        max2 = prices2.max()
 
         if std2 > 2.0e-08:
             return 0
 
         prices3 = prices.iloc[pivot: len(prices)]
         std3 = prices3.std()
+        max3 = prices3.max()
 
         if std3 > 7.0e-08:
             return 0
 
-        greaterThan = prices3.iloc[-1] > prices2.iloc[-1] * 1.01
-        lessThan = prices3.iloc[-1] < prices2.iloc[-1] * 1.025
+        endOfPrices3 = prices3.iloc[-1] * 0.75 + prices3.iloc[-2] * 0.25
+        greaterThan = endOfPrices3 > max2 * 1.01
 
-        if greaterThan and lessThan:
-            return 1
+        if not greaterThan:
+            return 0
 
-        return 0
+        greaterThan2 = endOfPrices3 * 1.01 > max3
+
+        if not greaterThan2:
+            return 0
+
+        endOfPrices2 = prices2.iloc[-1] * 0.75 + prices2.iloc[-2] * 0.25
+        lessThan = endOfPrices3 < endOfPrices2 * 1.027
+
+        if not lessThan:
+            return 0
+
+        return 1
 
     def _turnListOfFloatsToInputData(self, prices: List[float], volumes: List[float], numberOfSamples: int):
         if len(prices) + len(volumes) < numberOfSamples * 2:

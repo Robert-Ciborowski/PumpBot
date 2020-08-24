@@ -62,7 +62,7 @@ if __name__ == "__main__":
     # end = datetime(2020, 4, 4, 0, 0)
     # start = datetime(2020, 1, 16, 0, 0)
     # end = datetime(2020, 1, 18, 0, 0)
-    start = datetime(2020, 1, 1, 0, 0)
+    start = datetime(2018, 8, 1, 0, 0)
     end = datetime(2020, 8, 1, 0, 0)
     # start = datetime(2019, 1, 1, 0, 0)
     # end = datetime(2019, 1, 15, 0, 0)
@@ -80,9 +80,9 @@ if __name__ == "__main__":
     # wallet = SimpleWallet(1.0)
     wallet = FakeBinanceWallet(1.0)
     # 3000 works
-    simulator = HistoricalBinanceTradingSimulator(start, end, wallet, 300, 60,
-                                                  20, 60, 0.7, tickers, 15,
-                                                  fastForwardAmount=380,
+    simulator = HistoricalBinanceTradingSimulator(start, end, wallet, 180, 20,
+                                                  20, 20, 0.7, tickers, 15,
+                                                  fastForwardAmount=500,
                                                   modelLocation="models/model_exports/cryptopumpanddumpdetector",
                                                   historicalDataLocation="binance_historical_data")
     simulator.start()

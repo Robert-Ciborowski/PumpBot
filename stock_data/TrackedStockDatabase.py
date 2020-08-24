@@ -101,19 +101,19 @@ class TrackedStockDatabase:
     """
     Returns stock price, or -1 if that stock is not being tracked.
     """
-    def getCurrentStockPrice(self, ticker: str) -> float:
+    def getCurrentStockPrice(self, ticker: str, minutesAgo=0) -> float:
         with self._entriesLock:
             try:
-                return self._prices[ticker][-1]
+                return self._prices[ticker][-1-minutesAgo]
             except KeyError as e:
                 print("Tried to obtain " + ticker + "from the database, but "
                                                     "that stock isn't tracked!")
                 return -1
 
-    def getCurrentStockVolume(self, ticker: str) -> float:
+    def getCurrentStockVolume(self, ticker: str, minutesAgo=0) -> float:
         with self._entriesLock:
             try:
-                return self._volumes[ticker][-1]
+                return self._volumes[ticker][-1-minutesAgo]
             except KeyError as e:
                 print(
                     "Tried to obtain " + ticker + "from the database, but "

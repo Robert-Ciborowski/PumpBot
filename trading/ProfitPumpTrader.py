@@ -130,6 +130,8 @@ class ProfitPumpTrader(PumpTrader):
 
     def _updateTrade(self, ticker: str):
         currentPrice = self.stockDatabase.getCurrentStockPrice(ticker)
+        currentPrice2 = self.stockDatabase.getCurrentStockPrice(ticker, minutesAgo=1)
+        currentPrice = (currentPrice + currentPrice2) / 2
         now = self.stockDatabase.getCurrentTime()
 
         with self._tradesLock:
