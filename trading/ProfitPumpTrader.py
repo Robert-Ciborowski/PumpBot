@@ -150,6 +150,9 @@ class ProfitPumpTrader(PumpTrader):
             elif (now - time).total_seconds() / 60 >= self.maxTimeToHoldStock:
                 print("Held a stock for too long and decided to sell it.")
                 self._sell(ticker, currentPrice, self.minutesAfterSellIfLoss)
+            elif (now - time).total_seconds() / 60 >= self.maxTimeToHoldStock / 2 and currentPrice < trade.buyPrice * 1.005:
+                print("Stock has not increased after half of wait time. Selling stock.")
+                self._sell(ticker, currentPrice, self.minutesAfterSellIfPriceInactivity)
             elif currentPrice > self.ongoingTrades[ticker][1]:
                 self.ongoingTrades[ticker][1] = currentPrice
 

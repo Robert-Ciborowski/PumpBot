@@ -56,6 +56,7 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
         max2 = prices2.max()
 
         if std2 > 2.0e-08:
+            # print("Not std2")
             return 0
 
         prices3 = prices.iloc[pivot: len(prices)]
@@ -63,25 +64,43 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
         max3 = prices3.max()
 
         if std3 > 7.0e-08:
+            # print("Not std3")
             return 0
 
         endOfPrices3 = prices3.iloc[-1] * 0.75 + prices3.iloc[-2] * 0.25
-        greaterThan = endOfPrices3 > max2 * 1.01
+        greaterThan = endOfPrices3 > max2 * 1.006
 
         if not greaterThan:
+            # print("Not greater than")
             return 0
 
         greaterThan2 = endOfPrices3 * 1.01 > max3
 
         if not greaterThan2:
+            # print("Not greater than 2")
             return 0
 
         endOfPrices2 = prices2.iloc[-1] * 0.75 + prices2.iloc[-2] * 0.25
-        lessThan = endOfPrices3 < endOfPrices2 * 1.027
+        lessThan = endOfPrices3 < endOfPrices2 * 1.05
 
         if not lessThan:
+            # print("Not less than")
             return 0
 
+        # volumes3 = volumes.iloc[pivot: len(prices)]
+        # std4 = volumes3.std()
+        #
+        # if std4 < 20:
+        #     print("Failed due to STD: " + str(std4))
+        #     return 0
+
+        fluctuations = self._getNumberOfFluctuations(prices2)
+
+        if fluctuations > 62:
+            return 0
+
+        print("Fluctuations: " + str(fluctuations))
+        print("Other STD: " + str(std2))
         return 1
 
     def _turnListOfFloatsToInputData(self, prices: List[float], volumes: List[float], numberOfSamples: int):
@@ -93,3 +112,9 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
 
     def _setupDataForModel(self, prices, volumes):
         return prices, volumes
+
+    def _getNumberOfFluctuations(self, series: pd.Series):
+        series2 = series.diff()
+        series2 = series2[series2 != 0]
+        count = series2.size
+        return count
