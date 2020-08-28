@@ -86,7 +86,7 @@ class HistoricalBinanceTradingSimulator:
         self.database = TrackedStockDatabase.getInstance()
         self.database.useObtainer(self.dataObtainer) \
             .trackStocksInFilter(filter) \
-            .setSecondsBetweenStockUpdates(60 / self._fastForwardAmount)
+            .setSecondsBetweenStockUpdates(20 / self._fastForwardAmount)
         # .setSecondsBetweenStockUpdates(60)
 
         # self.model = CryptoPumpAndDumpDetector(tryUsingGPU=False)
@@ -112,8 +112,7 @@ class HistoricalBinanceTradingSimulator:
         self.trader = ProfitPumpTrader(
             BasicInvestmentStrategy(self.investmentFraction),
             self.wallet,
-            # profitRatioToAimFor=0.05,
-            profitRatioToAimFor=0.04,
+            profitRatioToAimFor=0.05,
             acceptableLossRatio=0.03,
             acceptableDipFromStartRatio=0.02,
             minutesAfterSellIfPump=self.minutesAfterSellIfPump,

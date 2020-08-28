@@ -50,10 +50,9 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
         # if volumeStd >= 2.0e-08:
         #     return False
 
-        pivot = int(len(prices) * 0.95)
+        pivot = int(len(prices) * 0.925)
         prices2 = prices.iloc[0 : pivot]
         std2 = prices2.std()
-        max2 = prices2.max()
 
         if std2 > 2.0e-08:
             # print("Not std2")
@@ -61,17 +60,19 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
 
         prices3 = prices.iloc[pivot: len(prices)]
         std3 = prices3.std()
-        max3 = prices3.max()
 
         if std3 > 7.0e-08:
             # print("Not std3")
             return 0
 
+        max2 = prices2.max()
+        max3 = prices3.max()
         endOfPrices3 = prices3.iloc[-1] * 0.75 + prices3.iloc[-2] * 0.25
-        greaterThan = endOfPrices3 > max2 * 1.006
+        greaterThan = endOfPrices3 > max2
 
         if not greaterThan:
             # print("Not greater than")
+            # print(str(endOfPrices3) + " " + str(max2))
             return 0
 
         greaterThan2 = endOfPrices3 * 1.01 > max3
@@ -81,7 +82,7 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
             return 0
 
         endOfPrices2 = prices2.iloc[-1] * 0.75 + prices2.iloc[-2] * 0.25
-        lessThan = endOfPrices3 < endOfPrices2 * 1.05
+        lessThan = endOfPrices3 < endOfPrices2 * 1.03
 
         if not lessThan:
             # print("Not less than")
