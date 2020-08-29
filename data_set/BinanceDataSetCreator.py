@@ -11,7 +11,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import csv
 
-from util.Constants import GROUPED_DATA_SIZE, BIN_SIZE_FOR_BINNING, MINUTES_OF_DATA_TO_LOOK_AT, \
+from util.Constants import GROUPED_DATA_SIZE, BIN_SIZE_FOR_BINNING, SAMPLES_OF_DATA_TO_LOOK_AT, \
     ROLLING_AVERAGE_SIZE
 
 
@@ -22,7 +22,7 @@ class BinanceDataSetCreator:
 
     def __init__(self, dataObtainer: HistoricalBinanceDataObtainer):
         self.dataObtainer = dataObtainer
-        self.numberOfSamples = MINUTES_OF_DATA_TO_LOOK_AT
+        self.numberOfSamples = SAMPLES_OF_DATA_TO_LOOK_AT
         self.samplesBeforePumpPeak = 3
         # self.samplesBeforePumpPeak = 30
         # self.samplesBeforePumpPeak = 7
@@ -41,12 +41,12 @@ class BinanceDataSetCreator:
             with open(path, 'w', newline='') as file:
                 writer = csv.writer(file)
                 numberOfRAs = self.numberOfSamples
-                volumeList = ["Volume-RA-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))]
-                priceList = ["Price-RA-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))]
-                volumeList2 = ["Volume-RA2-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2))]
-                priceList2 = ["Price-RA2-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2))]
-                volumeList3 = ["Volume-RA3-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3))]
-                priceList3 = ["Price-RA3-" + str(i) for i in range(int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3))]
+                volumeList = ["Volume-RA-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))]
+                priceList = ["Price-RA-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))]
+                volumeList2 = ["Volume-RA2-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2))]
+                priceList2 = ["Price-RA2-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2))]
+                volumeList3 = ["Volume-RA3-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3))]
+                priceList3 = ["Price-RA3-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3))]
                 writer.writerow(volumeList + priceList + volumeList2 + priceList2 + volumeList3 + priceList3 + ["Pump"])
 
 

@@ -2,7 +2,7 @@ from datetime import datetime
 
 from simulator.HistoricalBinanceTradingSimulator import \
     HistoricalBinanceTradingSimulator
-from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT
+from util.Constants import SAMPLES_OF_DATA_TO_LOOK_AT
 from wallet.BinanceWallet import BinanceWallet
 from wallet.SimpleWallet import SimpleWallet
 

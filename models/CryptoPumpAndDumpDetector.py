@@ -20,7 +20,7 @@ from models.LayerParameter import LayerParameter
 from models.Hyperparameters import Hyperparameters
 from models.PumpAndDumpDetector import PumpAndDumpDetector
 from thread_runner.ThreadRunner import ThreadRunner
-from util.Constants import GROUPED_DATA_SIZE, MINUTES_OF_DATA_TO_LOOK_AT
+from util.Constants import GROUPED_DATA_SIZE, SAMPLES_OF_DATA_TO_LOOK_AT
 import threading as th
 
 
@@ -30,7 +30,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     exportPath: str
 
     _metrics: List
-    _NUMBER_OF_SAMPLES = MINUTES_OF_DATA_TO_LOOK_AT
+    _NUMBER_OF_SAMPLES = SAMPLES_OF_DATA_TO_LOOK_AT
     _DATA_LENGTH_FOR_MODEL = int(_NUMBER_OF_SAMPLES * 2 / GROUPED_DATA_SIZE)\
                              + int(_NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE)\
                              + int(_NUMBER_OF_SAMPLES * 2 / (GROUPED_DATA_SIZE * 3))

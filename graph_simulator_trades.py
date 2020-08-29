@@ -8,7 +8,7 @@ import os
 
 from stock_data.HistoricalBinanceDataObtainer import \
     HistoricalBinanceDataObtainer
-from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT, ROLLING_AVERAGE_SIZE
+from util.Constants import SAMPLES_OF_DATA_TO_LOOK_AT, ROLLING_AVERAGE_SIZE
 
 def start(plotIndividual: bool, plotMain: bool, profitThreshold=0.0):
     currentDate = str(datetime.now().replace(microsecond=0)).replace(":", "-")
@@ -41,7 +41,7 @@ def start(plotIndividual: bool, plotMain: bool, profitThreshold=0.0):
 
             buy = pd.to_datetime(row["buy"])
             buy = buy.replace(second=0, microsecond=0)
-            start = buy - pd.Timedelta(minutes=MINUTES_OF_DATA_TO_LOOK_AT)
+            start = buy - pd.Timedelta(minutes=SAMPLES_OF_DATA_TO_LOOK_AT)
             sell = pd.to_datetime(row["sell"])
             sell = sell.replace(second=0, microsecond=0)
             df2 = dataObtainer.getHistoricalDataAsDataframe(row["ticker"])[start : sell]
@@ -91,7 +91,7 @@ def start(plotIndividual: bool, plotMain: bool, profitThreshold=0.0):
 
             buy = pd.to_datetime(row["buy"])
             buy = buy.replace(second=0, microsecond=0)
-            start = buy - pd.Timedelta(minutes=MINUTES_OF_DATA_TO_LOOK_AT)
+            start = buy - pd.Timedelta(minutes=SAMPLES_OF_DATA_TO_LOOK_AT)
             # sell = pd.to_datetime(row["sell"])
             # sell = sell.replace(second=0, microsecond=0)
             df2 = dataObtainer.getHistoricalDataAsDataframe(row["ticker"])[start: buy]

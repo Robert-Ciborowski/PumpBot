@@ -6,8 +6,8 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import os
 
-from util.Constants import GROUPED_DATA_SIZE, MINUTES_OF_DATA_TO_LOOK_AT, \
-    MINUTES_OF_DATA_TO_LOOK_AT, \
+from util.Constants import GROUPED_DATA_SIZE, SAMPLES_OF_DATA_TO_LOOK_AT, \
+    SAMPLES_OF_DATA_TO_LOOK_AT, \
     ROLLING_AVERAGE_SIZE
 
 def start(plotIndividual: bool, plotMain: bool, pumpSrc: str, nonPumpSrc: str):
@@ -22,12 +22,12 @@ def start(plotIndividual: bool, plotMain: bool, pumpSrc: str, nonPumpSrc: str):
             print("Individual pump: " + str(index))
             volumes = []
             prices = []
-            xAxis = range(0, int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))
+            xAxis = range(0, int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))
 
-            for i in range(0, int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE)):
+            for i in range(0, int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE)):
                 volumes.append(float(row["Volume-RA-" + str(i)]))
 
-            for i in range(0, int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE)):
+            for i in range(0, int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE)):
                 prices.append(float(row["Price-RA-" + str(i)]))
 
             fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(15, 10))
@@ -46,12 +46,12 @@ def start(plotIndividual: bool, plotMain: bool, pumpSrc: str, nonPumpSrc: str):
             print("Individual pumps: " + str(index))
             volumes = []
             prices = []
-            xAxis = range(0, int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))
+            xAxis = range(0, int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))
 
-            for i in range(0, int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE)):
+            for i in range(0, int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE)):
                 volumes.append(float(row["Volume-RA-" + str(i)]))
 
-            for i in range(0, int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE)):
+            for i in range(0, int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE)):
                 prices.append(float(row["Price-RA-" + str(i)]))
 
             fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(15, 10))
@@ -76,7 +76,7 @@ def start(plotIndividual: bool, plotMain: bool, pumpSrc: str, nonPumpSrc: str):
         mainAxes[2].set_title("Nonpump Highs")
         mainAxes[3].set_title("Nonpump Volumes")
 
-        xAxis = range(0, MINUTES_OF_DATA_TO_LOOK_AT // GROUPED_DATA_SIZE + MINUTES_OF_DATA_TO_LOOK_AT // GROUPED_DATA_SIZE // 2 + MINUTES_OF_DATA_TO_LOOK_AT // GROUPED_DATA_SIZE // 3)
+        xAxis = range(0, SAMPLES_OF_DATA_TO_LOOK_AT // GROUPED_DATA_SIZE + SAMPLES_OF_DATA_TO_LOOK_AT // GROUPED_DATA_SIZE // 2 + SAMPLES_OF_DATA_TO_LOOK_AT // GROUPED_DATA_SIZE // 3)
 
         for index, row in pumps.iterrows():
             print("Total: " + str(index))
@@ -84,24 +84,24 @@ def start(plotIndividual: bool, plotMain: bool, pumpSrc: str, nonPumpSrc: str):
             volumes = []
             prices = []
 
-            for i in range(0, int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE)):
+            for i in range(0, int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE)):
                 volumes.append(float(row["Volume-RA-" + str(i)]))
 
-            for i in range(0, int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE)):
+            for i in range(0, int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE)):
                 prices.append(float(row["Price-RA-" + str(i)]))
 
             for i in range(0, int(
-                    MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2)):
+                    SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2)):
                 volumes.append(float(row["Volume-RA2-" + str(i)]))
 
             for i in range(0, int(
-                    MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2)):
+                    SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2)):
                 prices.append(float(row["Price-RA2-" + str(i)]))
 
-            for i in range(0, int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3)):
+            for i in range(0, int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3)):
                 volumes.append(float(row["Volume-RA3-" + str(i)]))
 
-            for i in range(0, int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3)):
+            for i in range(0, int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3)):
                 prices.append(float(row["Price-RA3-" + str(i)]))
 
             mainAxes[0].plot(xAxis, prices, label="High")
@@ -113,22 +113,22 @@ def start(plotIndividual: bool, plotMain: bool, pumpSrc: str, nonPumpSrc: str):
             volumes = []
             prices = []
 
-            for i in range(0, int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE)):
+            for i in range(0, int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE)):
                 volumes.append(float(row["Volume-RA-" + str(i)]))
 
-            for i in range(0, int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE)):
+            for i in range(0, int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE)):
                 prices.append(float(row["Price-RA-" + str(i)]))
 
-            for i in range(0, int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2)):
+            for i in range(0, int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2)):
                 volumes.append(float(row["Volume-RA2-" + str(i)]))
 
-            for i in range(0, int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2)):
+            for i in range(0, int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2)):
                 prices.append(float(row["Price-RA2-" + str(i)]))
 
-            for i in range(0, int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3)):
+            for i in range(0, int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3)):
                 volumes.append(float(row["Volume-RA3-" + str(i)]))
 
-            for i in range(0, int(MINUTES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3)):
+            for i in range(0, int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3)):
                 prices.append(float(row["Price-RA3-" + str(i)]))
 
             mainAxes[2].plot(xAxis, prices, label="High")

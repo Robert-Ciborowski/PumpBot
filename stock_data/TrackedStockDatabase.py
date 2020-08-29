@@ -16,7 +16,7 @@ from events.ListingPriceUpdatedEvent import ListingPriceUpdatedEvent
 from filter.StockFilter import StockFilter
 from stock_data.StockDataObtainer import StockDataObtainer
 from thread_runner.ThreadRunner import ThreadRunner
-from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT
+from util.Constants import SAMPLES_OF_DATA_TO_LOOK_AT
 
 """
 Representation invariants:
@@ -47,7 +47,7 @@ class TrackedStockDatabase:
         else:
             print("Only one instance of EventDispatcher is allowed!")
 
-        self.pricesToKeepTrackOf = MINUTES_OF_DATA_TO_LOOK_AT
+        self.pricesToKeepTrackOf = SAMPLES_OF_DATA_TO_LOOK_AT
         self._prices = {}
         self._volumes = {}
         self._updateTimestamps = {}

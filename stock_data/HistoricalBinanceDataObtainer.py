@@ -12,7 +12,8 @@ import re
 import pytz
 
 from stock_data.StockDataObtainer import StockDataObtainer
-from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT
+from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT, \
+    SAMPLES_OF_DATA_TO_LOOK_AT, SAMPLES_PER_MINUTE
 
 
 class HistoricalBinanceDataObtainer(StockDataObtainer):
@@ -180,7 +181,7 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
         d_aware = timezone.localize(start_date_to_use)
         return self._getValues(ticker, ["Close"], d_aware, pricesToObtain=1)[0]["Close"]
 
-    def obtainPrices(self, ticker: str, numberOfPrices=MINUTES_OF_DATA_TO_LOOK_AT) -> List[float]:
+    def obtainPrices(self, ticker: str, numberOfPrices=SAMPLES_OF_DATA_TO_LOOK_AT) -> List[float]:
         now = datetime.now()
         diff = (now - self._startTime) * self._fastForwardAmount
         date = self.dateOfStart + diff

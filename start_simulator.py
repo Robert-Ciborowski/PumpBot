@@ -2,7 +2,7 @@ from datetime import datetime
 
 from simulator.HistoricalBinanceTradingSimulator import \
     HistoricalBinanceTradingSimulator
-from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT
+from util.Constants import SAMPLES_OF_DATA_TO_LOOK_AT
 from wallet.BinanceWallet import BinanceWallet
 from wallet.FakeBinanceWallet import FakeBinanceWallet
 from wallet.SimpleWallet import SimpleWallet
@@ -62,8 +62,8 @@ if __name__ == "__main__":
     # end = datetime(2020, 4, 4, 0, 0)
     # start = datetime(2020, 1, 16, 0, 0)
     # end = datetime(2020, 1, 18, 0, 0)
-    start = datetime(2019, 9, 1, 0, 0)
-    end = datetime(2019, 9, 23, 0, 0)
+    start = datetime(2020, 2, 15, 0, 0)
+    end = datetime(2020, 3, 22, 0, 0)
     # start = datetime(2019, 1, 1, 0, 0)
     # end = datetime(2019, 1, 15, 0, 0)
 
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     # 3000 works
     simulator = HistoricalBinanceTradingSimulator(start, end, wallet, 75, 20,
                                                   20, 20, 0.7, tickers, 2,
-                                                  fastForwardAmount=30,
+                                                  fastForwardAmount=50,
                                                   modelLocation="models/model_exports/cryptopumpanddumpdetector",
                                                   historicalDataLocation="binance_historical_data")
     simulator.start()

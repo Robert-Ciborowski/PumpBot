@@ -13,11 +13,11 @@ import numpy as np
 import pandas as pd
 
 from models.PumpAndDumpDetector import PumpAndDumpDetector
-from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT
+from util.Constants import SAMPLES_OF_DATA_TO_LOOK_AT
 
 
 class SimplePumpAndDumpDetector(PumpAndDumpDetector):
-    _NUMBER_OF_SAMPLES = MINUTES_OF_DATA_TO_LOOK_AT
+    _NUMBER_OF_SAMPLES = SAMPLES_OF_DATA_TO_LOOK_AT
     volumeStdThreshold: float
     priceStdThreshold: float
 
@@ -50,42 +50,42 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
         # if volumeStd >= 2.0e-08:
         #     return False
 
-        pivot = int(len(prices) * 0.925)
+        pivot = int(len(prices) * 0.95)
         prices2 = prices.iloc[0 : pivot]
         std2 = prices2.std()
 
         if std2 > 2.0e-08:
-            # print("Not std2")
+            print("Not std2")
             return 0
 
         prices3 = prices.iloc[pivot: len(prices)]
         std3 = prices3.std()
 
         if std3 > 7.0e-08:
-            # print("Not std3")
+            print("Not std3")
             return 0
 
         max2 = prices2.max()
         max3 = prices3.max()
         endOfPrices3 = prices3.iloc[-1] * 0.75 + prices3.iloc[-2] * 0.25
-        greaterThan = endOfPrices3 > max2
+        greaterThan = endOfPrices3 > max2 * 1.011
 
         if not greaterThan:
-            # print("Not greater than")
-            # print(str(endOfPrices3) + " " + str(max2))
+            print("Not greater than")
+            print(str(endOfPrices3) + " " + str(max2))
             return 0
 
         greaterThan2 = endOfPrices3 * 1.01 > max3
 
         if not greaterThan2:
-            # print("Not greater than 2")
+            print("Not greater than 2")
             return 0
 
         endOfPrices2 = prices2.iloc[-1] * 0.75 + prices2.iloc[-2] * 0.25
         lessThan = endOfPrices3 < endOfPrices2 * 1.03
 
         if not lessThan:
-            # print("Not less than")
+            print("Not less than")
             return 0
 
         # volumes3 = volumes.iloc[pivot: len(prices)]
@@ -98,6 +98,7 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
         fluctuations = self._getNumberOfFluctuations(prices2)
 
         if fluctuations > 62:
+            print("fluctuations > 62: " + str(fluctuations))
             return 0
 
         print("Fluctuations: " + str(fluctuations))
@@ -107,6 +108,7 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
     def _turnListOfFloatsToInputData(self, prices: List[float], volumes: List[float], numberOfSamples: int):
         if len(prices) + len(volumes) < numberOfSamples * 2:
             print("Not enough data was given to work with! (SimplePumpAndDumpDetector)")
+            print("Data length: " + str(len(prices) + len(volumes)))
             return None, None
 
         return pd.Series(prices), pd.Series(volumes)

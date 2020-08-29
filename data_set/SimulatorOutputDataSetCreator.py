@@ -13,7 +13,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import csv
 
-from util.Constants import BIN_SIZE_FOR_BINNING, MINUTES_OF_DATA_TO_LOOK_AT, \
+from util.Constants import BIN_SIZE_FOR_BINNING, SAMPLES_OF_DATA_TO_LOOK_AT, \
     ROLLING_AVERAGE_SIZE
 
 
@@ -25,7 +25,7 @@ class SimulatorOutputDataSetCreator:
 
     def __init__(self, dataObtainer: HistoricalBinanceDataObtainer):
         self.dataObtainer = dataObtainer
-        self.numberOfSamples = MINUTES_OF_DATA_TO_LOOK_AT
+        self.numberOfSamples = SAMPLES_OF_DATA_TO_LOOK_AT
         self.stockSrcs = {}
         self.windowSize = 24
 
@@ -164,8 +164,8 @@ class SimulatorOutputDataSetCreator:
                             # std = df["Volume"].std()
                             # prices = (df["Volume"] - mean) / std
 
-                            startIndex += MINUTES_OF_DATA_TO_LOOK_AT
-                            endIndex += MINUTES_OF_DATA_TO_LOOK_AT
+                            startIndex += SAMPLES_OF_DATA_TO_LOOK_AT
+                            endIndex += SAMPLES_OF_DATA_TO_LOOK_AT
 
                             csvRow = []
 
