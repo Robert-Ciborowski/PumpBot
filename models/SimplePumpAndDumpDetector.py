@@ -65,8 +65,8 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
             print("Not std3")
             return 0
 
-        max2 = prices2.max()
-        max3 = prices3.max()
+        endOfPrices2 = prices2.iloc[-1] * 0.75 + prices2.iloc[-2] * 0.25
+        max2 = (prices2.max() + endOfPrices2) / 2
         endOfPrices3 = prices3.iloc[-1] * 0.75 + prices3.iloc[-2] * 0.25
         greaterThan = endOfPrices3 > max2 * 1.011
 
@@ -75,13 +75,13 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
             print(str(endOfPrices3) + " " + str(max2))
             return 0
 
+        max3 = prices3.max()
         greaterThan2 = endOfPrices3 * 1.01 > max3
 
         if not greaterThan2:
             print("Not greater than 2")
             return 0
 
-        endOfPrices2 = prices2.iloc[-1] * 0.75 + prices2.iloc[-2] * 0.25
         lessThan = endOfPrices3 < endOfPrices2 * 1.03
 
         if not lessThan:
