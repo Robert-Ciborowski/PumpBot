@@ -18,7 +18,7 @@ if __name__ == "__main__":
     # tickers = ["OAXBTC"]
     # tickers = ["YOYOBTC", "SNGLSBTC"]
     # tickers = ["LRCBTC", "OAXBTC", "YOYOBTC"]
-    tickers = ["YOYOBTC"]
+    tickers = ["OAXBTC"]
     # tickers = ["LRCBTC", "YOYOBTC", "QTUMBTC", "FUNBTC", "LTCBTC", "SNGLSBTC"]
     # tickers = ["GASBTC", "KNCBTC", "STRATBTC", "MCOBTC", "NEOBTC", "ZRXBTC"]
     # tickers = ["LRCBTC", "YOYOBTC", "FUNBTC", "GASBTC", "KNCBTC", "STRATBTC"]

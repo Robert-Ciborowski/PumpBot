@@ -141,7 +141,7 @@ class ProfitPumpTrader(PumpTrader):
             if trade.buyPrice * (1 + self.profitRatioToAimFor) <= currentPrice:
                 print("Making profit on a trade!")
                 self._sell(ticker, currentPrice, self.minutesAfterSellIfPump)
-            elif currentPrice <= self.ongoingTrades[ticker][1] * (1 - self.acceptableLossRatio * 0.8)\
+            elif currentPrice <= self.ongoingTrades[ticker][1] * (1 - self.acceptableLossRatio * 0.15)\
                     and self.ongoingTrades[ticker][1] >= self.ongoingTrades[ticker][2] * (1 + self.profitRatioToAimFor / 2):
                 print("Stock's price dipped too much from its peak after making a fair profit. Selling stock.")
                 self._sell(ticker, currentPrice, self.minutesAfterSellIfPriceInactivity)

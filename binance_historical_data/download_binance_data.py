@@ -69,6 +69,15 @@ def downloadBinanceDataToCSV():
         get_all_binance(symbol, "1m", save=True)
         print("Obtained " + symbol + ".")
 
+def downloadSpecificBinanceDataToCSV(symbol: str):
+    if fileExists(symbol + "-1m-data.csv"):
+        print("Skipping " + symbol + ", its already downloaded!")
+
+    print("Obtaining " + symbol + "...")
+    get_all_binance(symbol, "1m", save=True)
+    print("Obtained " + symbol + ".")
+
 
 if __name__ == "__main__":
-    downloadBinanceDataToCSV()
+    # downloadBinanceDataToCSV()
+    downloadSpecificBinanceDataToCSV("OAXBTC")

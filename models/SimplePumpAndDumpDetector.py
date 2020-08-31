@@ -50,25 +50,26 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
         # if volumeStd >= 2.0e-08:
         #     return False
 
-        pivot = int(len(prices) * 0.95)
+        pivot = int(len(prices) * 0.925)
         prices2 = prices.iloc[0 : pivot]
         std2 = prices2.std()
 
-        if std2 > 2.0e-08:
+        if std2 > 8.0e-08:
             print("Not std2")
+            print(std2)
             return 0
 
         prices3 = prices.iloc[pivot: len(prices)]
         std3 = prices3.std()
 
-        if std3 > 7.0e-08:
+        if std3 > 4.0e-07:
             print("Not std3")
             return 0
 
         endOfPrices2 = prices2.iloc[-1] * 0.75 + prices2.iloc[-2] * 0.25
-        max2 = (prices2.max() + endOfPrices2) / 2
+        max2 = prices2.max()
         endOfPrices3 = prices3.iloc[-1] * 0.75 + prices3.iloc[-2] * 0.25
-        greaterThan = endOfPrices3 > max2 * 1.011
+        greaterThan = endOfPrices3 > max2 * 1.015
 
         if not greaterThan:
             print("Not greater than")
@@ -82,7 +83,7 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
             print("Not greater than 2")
             return 0
 
-        lessThan = endOfPrices3 < endOfPrices2 * 1.03
+        lessThan = endOfPrices3 < endOfPrices2 * 1.035
 
         if not lessThan:
             print("Not less than")
@@ -97,8 +98,8 @@ class SimplePumpAndDumpDetector(PumpAndDumpDetector):
 
         fluctuations = self._getNumberOfFluctuations(prices2)
 
-        if fluctuations > 62:
-            print("fluctuations > 62: " + str(fluctuations))
+        if fluctuations > 100:
+            print("fluctuations > 100: " + str(fluctuations))
             return 0
 
         print("Fluctuations: " + str(fluctuations))
