@@ -13,7 +13,7 @@ import pytz
 
 from stock_data.StockDataObtainer import StockDataObtainer
 from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT, \
-    SAMPLES_OF_DATA_TO_LOOK_AT, SAMPLES_PER_MINUTE
+    SAMPLES_OF_DATA_TO_LOOK_AT, SAMPLES_PER_MINUTE, SECONDS_BETWEEN_SAMPLES
 
 
 class HistoricalBinanceDataObtainer(StockDataObtainer):
@@ -108,54 +108,71 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                     if timing > self.dateOfEnd:
                         break
 
+                    price1 = float(row["open"])
+                    price3 = (float(row["high"]) + float(row["close"])) / 2
+                    price5 = float(row["close"])
+                    price2 = (price1 + price3) / 2
+                    price4 = (price3 + price5) / 2
+
                     entry1 = {
                         "Timestamp": timing,
-                        "Close": float(row["open"]),
+                        "Close": price1,
                         "Volume": int(row["trades"])
                     }
 
-                    # So that we can have the EXACT price if high and low are the same
-                    # (no float computer binary innaccuracy)
-                    if row["open"] == row["close"]:
-                        entry2 = {
-                            "Timestamp": timing + timedelta(seconds=20),
-                            "Close": float(row["high"]),
-                            "Volume": int(row["trades"])
-                        }
-                    else:
-                        entry2 = {
-                            "Timestamp": timing + timedelta(seconds=20),
-                            "Close": (float(row["high"]) + float(row["close"])) / 2,
-                            "Volume": int(row["trades"])
-                        }
+                    entry2 = {
+                        "Timestamp": timing + timedelta(seconds=10),
+                        "Close": price2,
+                        "Volume": int(row["trades"])
+                    }
 
                     entry3 = {
-                        "Timestamp": timing + timedelta(seconds=40),
-                        "Close": float(row["close"]),
+                        "Timestamp": timing + timedelta(seconds=20),
+                        "Close": price3,
                         "Volume": int(row["trades"])
                     }
 
-                    # entry = {
-                    #     "Timestamp": timing,
-                    #     "Open": float(row["open"]),
-                    #     "High": float(row["high"]),
-                    #     "Low": float(row["low"]),
-                    #     "Close": float(row["close"]),
-                    #     "Volume": int(row["trades"])
-                    # }
+                    entry4 = {
+                        "Timestamp": timing + timedelta(seconds=30),
+                        "Close": price3,
+                        "Volume": int(row["trades"])
+                    }
+
+                    entry5 = {
+                        "Timestamp": timing + timedelta(seconds=40),
+                        "Close": price4,
+                        "Volume": int(row["trades"])
+                    }
+
+                    entry6 = {
+                        "Timestamp": timing + timedelta(seconds=50),
+                        "Close": price5,
+                        "Volume": int(row["trades"])
+                    }
 
                     listOfDicts.append(entry1)
                     listOfDicts.append(entry2)
                     listOfDicts.append(entry3)
+                    listOfDicts.append(entry4)
+                    listOfDicts.append(entry5)
+                    listOfDicts.append(entry6)
                     index.append(timing)
+                    index.append(timing + timedelta(seconds=10))
                     index.append(timing + timedelta(seconds=20))
+                    index.append(timing + timedelta(seconds=30))
                     index.append(timing + timedelta(seconds=40))
-                    entries.append([timing, float(row["open"]), int(row["trades"])])
+                    index.append(timing + timedelta(seconds=50))
+                    entries.append([timing, price1, int(row["trades"])])
+                    entries.append([timing + timedelta(seconds=10),
+                                    price2, int(row["trades"])])
                     entries.append([timing + timedelta(seconds=20),
-                                    (float(row["high"]) + float(row["low"])) / 2,
-                                    int(row["trades"])])
+                                    price3, int(row["trades"])])
+                    entries.append([timing + timedelta(seconds=30),
+                                    price3, int(row["trades"])])
                     entries.append([timing + timedelta(seconds=40),
-                                    float(row["close"]), int(row["trades"])])
+                                    price4, int(row["trades"])])
+                    entries.append([timing + timedelta(seconds=50),
+                                    price5, int(row["trades"])])
                     count += 1
 
                     if count == 10000:
@@ -192,7 +209,7 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
         d_aware = timezone.localize(start_date_to_use)
         return self._getValues(ticker, ["Close"], d_aware, pricesToObtain=numberOfPrices)["Close"]
 
-    def obtainPricesAndVolumes(self, ticker: str, numberOfPrices=1):
+    def obtainPricesAndVolumes(self, ticker: str, numberOfPrices=SAMPLES_OF_DATA_TO_LOOK_AT):
         now = datetime.now()
         diff = (now - self._startTime) * self._fastForwardAmount
         date = self.dateOfStart + diff
@@ -202,7 +219,7 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
         timezone = pytz.timezone(self.timezone)
         d_aware = timezone.localize(start_date_to_use)
         print("Obtaining price and volume data of " + ticker + " at " + str(d_aware) + ".")
-        values = self._getValues(ticker, ["Close", "Volume"], d_aware)
+        values = self._getValues(ticker, ["Close", "Volume"], d_aware, numberOfPrices * SECONDS_BETWEEN_SAMPLES)
         # values = self._getValuesFromDataframe(self._dataAsDataFrames[ticker], ["High", "Volume"], d_aware)
 
         if len(values["Close"]) != 0:
@@ -211,7 +228,7 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
             print("Price of " + ticker + ": 0 prices!")
 
         time2 = datetime.now()
-        print("obtainPricesAndVolumes took " + str(time2 - now) + ".")
+        # print("obtainPricesAndVolumes took " + str(time2 - now) + ".")
         return values["Close"], values["Volume"]
 
     def getHistoricalDataAsDataframe(self, symbol: str) -> pd.DataFrame:
@@ -235,11 +252,11 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
 
         return df.iloc[lastKey][value]
 
-    def _getValues(self, symbol: str, values: List, endTime: datetime, pricesToObtain=-1) -> Dict:
-        if pricesToObtain < 0:
-            pricesToObtain = MINUTES_OF_DATA_TO_LOOK_AT
+    def _getValues(self, symbol: str, values: List, endTime: datetime, seconds=-1) -> Dict:
+        if seconds < 0:
+            seconds = SAMPLES_OF_DATA_TO_LOOK_AT * SECONDS_BETWEEN_SAMPLES
 
-        startTime = endTime - timedelta(minutes=pricesToObtain)
+        startTime = endTime - timedelta(seconds=seconds)
         lst = {}
 
         for v in values:

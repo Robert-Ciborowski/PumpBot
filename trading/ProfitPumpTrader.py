@@ -131,7 +131,10 @@ class ProfitPumpTrader(PumpTrader):
     def _updateTrade(self, ticker: str):
         currentPrice = self.stockDatabase.getCurrentStockPrice(ticker)
         currentPrice2 = self.stockDatabase.getCurrentStockPrice(ticker, minutesAgo=1)
-        currentPrice = (currentPrice + currentPrice2) / 2
+
+        if currentPrice < currentPrice2:
+            currentPrice = (currentPrice + currentPrice2) / 2
+
         now = self.stockDatabase.getCurrentTime()
 
         with self._tradesLock:
@@ -141,12 +144,12 @@ class ProfitPumpTrader(PumpTrader):
             if trade.buyPrice * (1 + self.profitRatioToAimFor) <= currentPrice:
                 print("Making profit on a trade!")
                 self._sell(ticker, currentPrice, self.minutesAfterSellIfPump)
-            elif currentPrice <= self.ongoingTrades[ticker][1] * (1 - self.acceptableLossRatio * 0.15)\
+            elif currentPrice <= self.ongoingTrades[ticker][1] * (1 - self.acceptableLossRatio * 0.7)\
                     and self.ongoingTrades[ticker][1] >= self.ongoingTrades[ticker][2] * (1 + self.profitRatioToAimFor / 2):
                 print("Stock's price dipped too much from its peak after making a fair profit. Selling stock.")
                 self._sell(ticker, currentPrice, self.minutesAfterSellIfPriceInactivity)
             elif self.ongoingTrades[ticker][1] * (1 - self.acceptableLossRatio) >= currentPrice:
-                print("Stock's price dipped too much from its peak. Selling stock.")
+                print("Stock's price dipped too much at " + str(currentPrice) + " from its peak of " + str(self.ongoingTrades[ticker][1]) + ". Selling stock.")
                 self._sell(ticker, currentPrice, self.minutesAfterSellIfPriceInactivity)
             elif self.ongoingTrades[ticker][2] * (1 - self.acceptableDipFromStartRatio) >= currentPrice:
                 print("Stock's price dipped too much from start price. Selling stock.")

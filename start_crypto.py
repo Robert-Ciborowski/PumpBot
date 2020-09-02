@@ -61,7 +61,7 @@ if __name__ == "__main__":
     database = TrackedStockDatabase.getInstance()
     database.useObtainer(dataObtainer)\
            .trackStocksInFilter(filter)\
-           .setSecondsBetweenStockUpdates(60)
+           .setMillisecondsBetweenStockUpdates(60)
 
     # This sets up bots that output messages.
     # bot = ExampleBot()

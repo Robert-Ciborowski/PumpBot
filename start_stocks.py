@@ -29,7 +29,7 @@ if __name__ == "__main__":
     database = TrackedStockDatabase.getInstance()
     database.useObtainer(stockDataObtainer)\
            .trackStocksInFilter(filter)\
-           .setSecondsBetweenStockUpdates(15)
+           .setMillisecondsBetweenStockUpdates(15)
 
     bot = ExampleBot()
     EventDispatcher.getInstance().addListener(bot, "PumpAndDump")
