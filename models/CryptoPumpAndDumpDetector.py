@@ -15,6 +15,7 @@ import tensorflow_model_optimization as tfmot
 from tensorflow import feature_column
 from matplotlib import pyplot as plt
 from tensorflow.keras import layers
+from tensorflow.python.keras import Input
 
 from models.LayerParameter import LayerParameter
 from models.Hyperparameters import Hyperparameters
@@ -31,9 +32,10 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
 
     _metrics: List
     _NUMBER_OF_SAMPLES = SAMPLES_OF_DATA_TO_LOOK_AT
-    _DATA_LENGTH_FOR_MODEL = int(_NUMBER_OF_SAMPLES * 2 / GROUPED_DATA_SIZE)\
-                             + int(_NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE)\
-                             + int(_NUMBER_OF_SAMPLES * 2 / (GROUPED_DATA_SIZE * 3))
+    # _DATA_LENGTH_FOR_MODEL = int(_NUMBER_OF_SAMPLES * 2 / GROUPED_DATA_SIZE)\
+    #                          + int(_NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE)\
+    #                          + int(_NUMBER_OF_SAMPLES * 2 / (GROUPED_DATA_SIZE * 3))
+    _DATA_LENGTH_FOR_MODEL = _NUMBER_OF_SAMPLES
 
     def __init__(self, tryUsingGPU=False):
         super().__init__()
@@ -79,10 +81,10 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
             #     return 0
 
             # The input data better contain only floats...
-            # prices, volumes = self._setupDataForModelUsingZScores(prices, volumes)
-            prices, volumes, prices2, volumes2, prices3, volumes3 = self._setupDataForModelUsingFractions(prices, volumes)
-            data = self._turnListOfFloatsToInputData(volumes + prices + prices2 + volumes2 + prices3 + volumes3, len(volumes), len(prices))
-            # data = volumes + prices
+            prices, volumes = self._setupDataForModelUsingZScores(prices, volumes)
+            # prices, volumes, prices2, volumes2, prices3, volumes3 = self._setupDataForModelUsingFractions(prices, volumes)
+            # data = self._turnListOfFloatsToInputData(volumes + prices + prices2 + volumes2 + prices3 + volumes3, len(volumes), len(prices))
+            data = volumes + prices
         # elif isinstance(prices, Dict):
         #     data = volumes + prices
         else:
@@ -217,40 +219,80 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     """
     def createModel(self, featureLayer,
                      layerParameters: List):
+        # Should go over minutes, not seconds
+        # input_seq = layers.Input(shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 1))
         self.model = tf.keras.models.Sequential()
-        self.model.add(featureLayer)
+        self.model.add(layers.Conv1D(filters=64, kernel_size=2, activation='relu',
+                         input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 2)))
+        self.model.add(layers.MaxPooling1D(pool_size=2))
+        self.model.add(layers.Flatten())
+        self.model.add(layers.Dense(50, activation='relu'))
+        self.model.add(layers.Dense(1, activation='sigmoid'))
+        self.model.compile(loss='binary_crossentropy',
+            optimizer=tf.keras.optimizers.RMSprop(lr=self.hyperparameters.learningRate),
+            metrics=self._metrics)
 
-        count = 0
-        for parameter in layerParameters:
-            self.model.add(tf.keras.layers.Dense(units=parameter.units,
-                                            activation=parameter.activation,
-                                            # kernel_regularizer=tf.keras.regularizers.l2(
-                                            #     l=0.04),
-                                            name="Hidden_" + str(count)))
-            count += 1
 
-        # self.model.add(tf.keras.layers.Dropout(0.05))
+        # self.model = tf.keras.models.Sequential()
+        # self.model.add(featureLayer)
+        #
+        # self.model.add(layers.Conv1D(16, 6, activation='relu'))
+        # self.model.add(layers.MaxPooling1D(4))
+        #
+        # # self.model.add(layers.Conv1D(32, 6, activation='relu'))
+        # # self.model.add(layers.MaxPooling1D(4))
+        # #
+        # # self.model.add(layers.Conv1D(64, 6, activation='relu'))
+        # # self.model.add(layers.MaxPooling1D(4))
+        #
+        # self.model.add(layers.Dense(512, activation='relu'))
+        #
+        # self.model.add(layers.Dense(1, activation='sigmoid'))
+        #
+        # self.model.compile(loss='binary_crossentropy',
+        #     optimizer=tf.keras.optimizers.RMSprop(lr=self.hyperparameters.learningRate),
+        #     metrics=self._metrics)
 
-        # Define the output layer.
-        self.model.add(tf.keras.layers.Dense(units=1, input_shape=(1,),
-                                activation=tf.sigmoid, name="Output"))
+        # self.model = tf.keras.models.Sequential()
+        # self.model.add(featureLayer)
+        #
+        # count = 0
+        # for parameter in layerParameters:
+        #     self.model.add(tf.keras.layers.Dense(units=parameter.units,
+        #                                     activation=parameter.activation,
+        #                                     # kernel_regularizer=tf.keras.regularizers.l2(
+        #                                     #     l=0.04),
+        #                                     name="Hidden_" + str(count)))
+        #     count += 1
+        #
+        # # self.model.add(tf.keras.layers.Dropout(0.05))
+        #
+        # # Define the output layer.
+        # self.model.add(tf.keras.layers.Dense(units=1, input_shape=(1,),
+        #                         activation=tf.sigmoid, name="Output"))
+        #
+        # scheduler = tf.keras.optimizers.schedules.InverseTimeDecay(
+        #     self.hyperparameters.learningRate, self.hyperparameters.decayStep,
+        #     self.hyperparameters.decayRate, staircase=False)
+        #
+        # # Compiles the model with the appropriate loss function.
+        # self.model.compile(
+        #     optimizer=tf.keras.optimizers.Adam(scheduler),
+        #     # optimizer=tf.keras.optimizers.RMSprop(scheduler),
+        #     loss=tf.keras.losses.BinaryCrossentropy(), metrics=self._metrics)
 
-        scheduler = tf.keras.optimizers.schedules.InverseTimeDecay(
-            self.hyperparameters.learningRate, self.hyperparameters.decayStep,
-            self.hyperparameters.decayRate, staircase=False)
-
-        # Compiles the model with the appropriate loss function.
-        self.model.compile(
-            optimizer=tf.keras.optimizers.Adam(scheduler),
-            # optimizer=tf.keras.optimizers.RMSprop(scheduler),
-            loss=tf.keras.losses.BinaryCrossentropy(), metrics=self._metrics)
-
-    def trainModel(self, dataset: pd.DataFrame, validationSplit: float, label_name):
+    # def trainModel(self, dataset: pd.DataFrame, validationSplit: float, label_name):
+    def trainModel(self, features, labels, validationSplit: float):
         """Train the model by feeding it data."""
         # Split the dataset into features and label.
-        features = {name: np.array(value) for name, value in dataset.items()}
-        label = np.array(features.pop(label_name))
-        history = self.model.fit(x=features, y=label, batch_size=self.hyperparameters.batchSize,
+        # features = {name: np.array(value) for name, value in dataset.items()}
+        # label = np.array(features.pop(label_name))
+        # history = self.model.fit(x=features, y=label,
+        #                          batch_size=self.hyperparameters.batchSize,
+        #                          validation_split=validationSplit,
+        #                          epochs=self.hyperparameters.epochs,
+        #                          shuffle=True)
+        history = self.model.fit(x=features, y=labels, batch_size=self.hyperparameters.batchSize,
                             validation_split=validationSplit, epochs=self.hyperparameters.epochs, shuffle=True)
 
         # The list of epochs is stored separately from the rest of history.
@@ -297,31 +339,39 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     def createModelUsingDefaults(self):
         featureColumns = []
 
-        for i in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE)):
+        for i in range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES):
             c = tf.feature_column.numeric_column("Volume-RA-" + str(i))
             featureColumns.append(c)
 
-        for i in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE)):
+        for i in range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES):
             c = tf.feature_column.numeric_column("Price-RA-" + str(i))
             featureColumns.append(c)
 
-        for i in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE / 2)):
-            c = tf.feature_column.numeric_column("Volume-RA2-" + str(i))
-            featureColumns.append(c)
+        # for i in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE)):
+        #     c = tf.feature_column.numeric_column("Volume-RA-" + str(i))
+        #     featureColumns.append(c)
+        #
+        # for i in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE)):
+        #     c = tf.feature_column.numeric_column("Price-RA-" + str(i))
+        #     featureColumns.append(c)
 
-        for i in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE / 2)):
-            c = tf.feature_column.numeric_column("Price-RA2-" + str(i))
-            featureColumns.append(c)
+        # for i in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE / 2)):
+        #     c = tf.feature_column.numeric_column("Volume-RA2-" + str(i))
+        #     featureColumns.append(c)
+        #
+        # for i in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE / 2)):
+        #     c = tf.feature_column.numeric_column("Price-RA2-" + str(i))
+        #     featureColumns.append(c)
+        #
+        # for i in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE / 3)):
+        #     c = tf.feature_column.numeric_column("Volume-RA3-" + str(i))
+        #     featureColumns.append(c)
+        #
+        # for i in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE / 3)):
+        #     c = tf.feature_column.numeric_column("Price-RA3-" + str(i))
+        #     featureColumns.append(c)
 
-        for i in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE / 3)):
-            c = tf.feature_column.numeric_column("Volume-RA3-" + str(i))
-            featureColumns.append(c)
-
-        for i in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES / GROUPED_DATA_SIZE / 3)):
-            c = tf.feature_column.numeric_column("Price-RA3-" + str(i))
-            featureColumns.append(c)
-
-        print(featureColumns)
+        # print(featureColumns)
 
         # Convert the list of feature columns into a layer that will later be fed into
         # the model.
@@ -380,25 +430,25 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
             # features["Price-RA-" + str(i)] = [data[j]]
             j += 1
 
-        for i in range(volumeAmount // 2):
-            features["Volume-RA2-" + str(i)] = np.array(np.float32(data[j]))
-            # features["Volume-RA-" + str(i)] = [data[j]]
-            j += 1
-
-        for i in range(priceAmount // 2):
-            features["Price-RA2-" + str(i)] = np.array(np.float32(data[j]))
-            # features["Price-RA-" + str(i)] = [data[j]]
-            j += 1
-
-        for i in range(volumeAmount // 3):
-            features["Volume-RA3-" + str(i)] = np.array(np.float32(data[j]))
-            # features["Volume-RA-" + str(i)] = [data[j]]
-            j += 1
-
-        for i in range(priceAmount // 3):
-            features["Price-RA3-" + str(i)] = np.array(np.float32(data[j]))
-            # features["Price-RA-" + str(i)] = [data[j]]
-            j += 1
+        # for i in range(volumeAmount // 2):
+        #     features["Volume-RA2-" + str(i)] = np.array(np.float32(data[j]))
+        #     # features["Volume-RA-" + str(i)] = [data[j]]
+        #     j += 1
+        #
+        # for i in range(priceAmount // 2):
+        #     features["Price-RA2-" + str(i)] = np.array(np.float32(data[j]))
+        #     # features["Price-RA-" + str(i)] = [data[j]]
+        #     j += 1
+        #
+        # for i in range(volumeAmount // 3):
+        #     features["Volume-RA3-" + str(i)] = np.array(np.float32(data[j]))
+        #     # features["Volume-RA-" + str(i)] = [data[j]]
+        #     j += 1
+        #
+        # for i in range(priceAmount // 3):
+        #     features["Price-RA3-" + str(i)] = np.array(np.float32(data[j]))
+        #     # features["Price-RA-" + str(i)] = [data[j]]
+        #     j += 1
 
         return features
 

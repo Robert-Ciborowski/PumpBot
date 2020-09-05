@@ -19,9 +19,9 @@ if __name__ == "__main__":
     #                 "KNCBTC",  "LRCBTC", "LTCBTC", "MCOBTC", "NEOBTC", "OAXBTC",
     #                 "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
     #                 "YOYOBTC", "ZRXBTC"]
-    # listOfStocks = ["YOYOBTC"]
+    listOfStocks = ["YOYOBTC"]
     # listOfStocks = ["SNGLSBTC"]
-    listOfStocks = ["YOYOBTC", "SNGLSBTC"]
+    # listOfStocks = ["OAXBTC"]
     historicalObtainer = HistoricalBinanceDataObtainer(
         # datetime(day=17, month=8, year=2018, hour=0, minute=1), datetime(day=27, month=12, year=2019, hour=0, minute=1),
         # datetime(day=17, month=8, year=2018, hour=0, minute=1), datetime(day=31, month=8, year=2018, hour=0, minute=1),
@@ -33,7 +33,7 @@ if __name__ == "__main__":
         # datetime(day=1, month=9, year=2019, hour=0, minute=0),
         # datetime(day=1, month=1, year=2018, hour=0, minute=0),
         # datetime(day=31, month=12, year=2019, hour=0, minute=0),
-        datetime(day=1, month=1, year=2019, hour=0, minute=0),
+        datetime(day=1, month=1, year=2018, hour=0, minute=0),
         datetime(day=31, month=12, year=2019, hour=0, minute=0),
         "../binance_historical_data/")
     print("Reading historical stock data...")

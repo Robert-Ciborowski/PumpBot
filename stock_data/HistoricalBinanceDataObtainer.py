@@ -108,41 +108,41 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                     if timing > self.dateOfEnd:
                         break
 
-                    price1 = float(row["open"])
-                    price3 = (float(row["high"]) + float(row["close"])) / 2
+                    # price1 = float(row["open"])
+                    # price3 = (float(row["high"]) + float(row["close"])) / 2
                     price5 = float(row["close"])
-                    price2 = (price1 + price3) / 2
-                    price4 = (price3 + price5) / 2
+                    # price2 = (price1 + price3) / 2
+                    # price4 = (price3 + price5) / 2
 
-                    entry1 = {
-                        "Timestamp": timing,
-                        "Close": price1,
-                        "Volume": int(row["trades"])
-                    }
-
-                    entry2 = {
-                        "Timestamp": timing + timedelta(seconds=10),
-                        "Close": price2,
-                        "Volume": int(row["trades"])
-                    }
-
-                    entry3 = {
-                        "Timestamp": timing + timedelta(seconds=20),
-                        "Close": price3,
-                        "Volume": int(row["trades"])
-                    }
-
-                    entry4 = {
-                        "Timestamp": timing + timedelta(seconds=30),
-                        "Close": price3,
-                        "Volume": int(row["trades"])
-                    }
-
-                    entry5 = {
-                        "Timestamp": timing + timedelta(seconds=40),
-                        "Close": price4,
-                        "Volume": int(row["trades"])
-                    }
+                    # entry1 = {
+                    #     "Timestamp": timing,
+                    #     "Close": price1,
+                    #     "Volume": int(row["trades"])
+                    # }
+                    #
+                    # entry2 = {
+                    #     "Timestamp": timing + timedelta(seconds=10),
+                    #     "Close": price2,
+                    #     "Volume": int(row["trades"])
+                    # }
+                    #
+                    # entry3 = {
+                    #     "Timestamp": timing + timedelta(seconds=20),
+                    #     "Close": price3,
+                    #     "Volume": int(row["trades"])
+                    # }
+                    #
+                    # entry4 = {
+                    #     "Timestamp": timing + timedelta(seconds=30),
+                    #     "Close": price3,
+                    #     "Volume": int(row["trades"])
+                    # }
+                    #
+                    # entry5 = {
+                    #     "Timestamp": timing + timedelta(seconds=40),
+                    #     "Close": price4,
+                    #     "Volume": int(row["trades"])
+                    # }
 
                     entry6 = {
                         "Timestamp": timing + timedelta(seconds=50),
@@ -150,27 +150,27 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                         "Volume": int(row["trades"])
                     }
 
-                    listOfDicts.append(entry1)
-                    listOfDicts.append(entry2)
-                    listOfDicts.append(entry3)
-                    listOfDicts.append(entry4)
-                    listOfDicts.append(entry5)
+                    # listOfDicts.append(entry1)
+                    # listOfDicts.append(entry2)
+                    # listOfDicts.append(entry3)
+                    # listOfDicts.append(entry4)
+                    # listOfDicts.append(entry5)
                     listOfDicts.append(entry6)
                     index.append(timing)
-                    index.append(timing + timedelta(seconds=10))
-                    index.append(timing + timedelta(seconds=20))
-                    index.append(timing + timedelta(seconds=30))
-                    index.append(timing + timedelta(seconds=40))
-                    index.append(timing + timedelta(seconds=50))
-                    entries.append([timing, price1, int(row["trades"])])
-                    entries.append([timing + timedelta(seconds=10),
-                                    price2, int(row["trades"])])
-                    entries.append([timing + timedelta(seconds=20),
-                                    price3, int(row["trades"])])
-                    entries.append([timing + timedelta(seconds=30),
-                                    price3, int(row["trades"])])
-                    entries.append([timing + timedelta(seconds=40),
-                                    price4, int(row["trades"])])
+                    # index.append(timing + timedelta(seconds=10))
+                    # index.append(timing + timedelta(seconds=20))
+                    # index.append(timing + timedelta(seconds=30))
+                    # index.append(timing + timedelta(seconds=40))
+                    # index.append(timing + timedelta(seconds=50))
+                    # entries.append([timing, price1, int(row["trades"])])
+                    # entries.append([timing + timedelta(seconds=10),
+                    #                 price2, int(row["trades"])])
+                    # entries.append([timing + timedelta(seconds=20),
+                    #                 price3, int(row["trades"])])
+                    # entries.append([timing + timedelta(seconds=30),
+                    #                 price3, int(row["trades"])])
+                    # entries.append([timing + timedelta(seconds=40),
+                    #                 price4, int(row["trades"])])
                     entries.append([timing + timedelta(seconds=50),
                                     price5, int(row["trades"])])
                     count += 1
