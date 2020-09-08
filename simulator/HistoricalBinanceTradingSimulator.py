@@ -86,17 +86,17 @@ class HistoricalBinanceTradingSimulator:
         self.database = TrackedStockDatabase.getInstance()
         self.database.useObtainer(self.dataObtainer) \
             .trackStocksInFilter(filter) \
-            .setSecondsBetweenStockUpdates(10 / self._fastForwardAmount)
+            .setSecondsBetweenStockUpdates(60 / self._fastForwardAmount)
         # .setSecondsBetweenStockUpdates(60)
 
-        # self.model = CryptoPumpAndDumpDetector(tryUsingGPU=False)
-        # self.model.setupUsingDefaults()
-        # self.model.createModelUsingDefaults()
-        # self.model.exportPath = self.modelLocation
-        # self.model.loadWeights()
-        # self.model.prepareForUse()
+        self.model = CryptoPumpAndDumpDetector(tryUsingGPU=False)
+        self.model.setupUsingDefaults()
+        self.model.createModelUsingDefaults()
+        self.model.exportPath = self.modelLocation
+        self.model.loadWeights()
+        self.model.prepareForUse()
         # 2.0e-08
-        self.model = SimplePumpAndDumpDetector(2.0e-08, 2.0e-08)
+        # self.model = SimplePumpAndDumpDetector(2.0e-08, 2.0e-08)
         EventDispatcher.getInstance().addListener(self.model,
                                                   "ListingPriceUpdated")
         self.database.model = self.model
@@ -112,9 +112,9 @@ class HistoricalBinanceTradingSimulator:
         self.trader = ProfitPumpTrader(
             BasicInvestmentStrategy(self.investmentFraction),
             self.wallet,
-            profitRatioToAimFor=0.045,
-            acceptableLossRatio=0.025,
-            acceptableDipFromStartRatio=0.015,
+            profitRatioToAimFor=0.018,
+            acceptableLossRatio=0.018,
+            acceptableDipFromStartRatio=0.04,
             minutesAfterSellIfPump=self.minutesAfterSellIfPump,
             minutesAfterSellIfPriceInactivity=self.minutesAfterSellIfPriceInactivity,
             minutesAfterSellIfLoss=self.minutesAfterSellIfLoss,

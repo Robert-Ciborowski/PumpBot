@@ -15,10 +15,10 @@ if __name__ == "__main__":
     #            "YOYOBTC", "ZRXBTC"]
     # tickers = ["LRCBTC", "YOYOBTC"]
     # tickers = ["LRCBTC"]
-    # tickers = ["OAXBTC"]
+    tickers = ["OAXBTC"]
     # tickers = ["YOYOBTC", "SNGLSBTC"]
     # tickers = ["LRCBTC", "OAXBTC", "YOYOBTC"]
-    tickers = ["OAXBTC"]
+    # tickers = ["YOYOBTC"]
     # tickers = ["LRCBTC", "YOYOBTC", "QTUMBTC", "FUNBTC", "LTCBTC", "SNGLSBTC"]
     # tickers = ["GASBTC", "KNCBTC", "STRATBTC", "MCOBTC", "NEOBTC", "ZRXBTC"]
     # tickers = ["LRCBTC", "YOYOBTC", "FUNBTC", "GASBTC", "KNCBTC", "STRATBTC"]
@@ -62,8 +62,8 @@ if __name__ == "__main__":
     # end = datetime(2020, 4, 4, 0, 0)
     # start = datetime(2020, 1, 16, 0, 0)
     # end = datetime(2020, 1, 18, 0, 0)
-    start = datetime(2019, 12, 1, 0, 0)
-    end = datetime(2020, 7, 1, 0, 0)
+    start = datetime(2019, 12, 2, 0, 0)
+    end = datetime(2019, 12, 3, 0, 0)
     # start = datetime(2019, 1, 1, 0, 0)
     # end = datetime(2019, 1, 15, 0, 0)
 
@@ -81,8 +81,8 @@ if __name__ == "__main__":
     wallet = FakeBinanceWallet(1.0)
     # 3000 works
     simulator = HistoricalBinanceTradingSimulator(start, end, wallet, 75, 20,
-                                                  20, 20, 0.7, tickers, 2,
-                                                  fastForwardAmount=50,
+                                                  20, 20, 0.7, tickers, 30,
+                                                  fastForwardAmount=500,
                                                   modelLocation="models/model_exports/cryptopumpanddumpdetector",
                                                   historicalDataLocation="binance_historical_data")
     simulator.start()

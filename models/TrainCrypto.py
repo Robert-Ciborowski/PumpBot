@@ -57,7 +57,7 @@ def train():
 
             nonPumps.append(np.array(pump))
 
-    labels = [0 for i in range(len(pumps))] + [1 for i in range(len(nonPumps))]
+    labels = [1 for i in range(len(pumps))] + [0 for i in range(len(nonPumps))]
     data = pumps + nonPumps
     indices = [i for i in range(len(pumps) + len(nonPumps))]
     np.random.shuffle(indices)
@@ -66,8 +66,8 @@ def train():
     print(data)
 
     # Hyperparameters!
-    learningRate = 0.05
-    epochs = 100
+    learningRate = 0.001
+    epochs = 2000
     batchSize = 45
     labelName = "Pump"
     classificationThreshold = 0.90

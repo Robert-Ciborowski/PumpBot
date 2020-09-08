@@ -81,10 +81,11 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
             #     return 0
 
             # The input data better contain only floats...
-            prices, volumes = self._setupDataForModelUsingZScores(prices, volumes)
+            data = self._setupDataForModelUsingZScores2(prices, volumes)
+            # prices, volumes = self._setupDataForModelUsingZScores(prices, volumes)
             # prices, volumes, prices2, volumes2, prices3, volumes3 = self._setupDataForModelUsingFractions(prices, volumes)
             # data = self._turnListOfFloatsToInputData(volumes + prices + prices2 + volumes2 + prices3 + volumes3, len(volumes), len(prices))
-            data = volumes + prices
+            # data = volumes + prices
         # elif isinstance(prices, Dict):
         #     data = volumes + prices
         else:
@@ -104,6 +105,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
 
     def _detect(self, data) -> float:
         time1 = datetime.now()
+        data = np.array([data])
         result = self.model.predict(data)[0][0]
         # result = self.model(data).numpy()[0][0]
         time2 = datetime.now()
@@ -214,6 +216,30 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         volumes = [np.array([x]) for x in volumes]
         return prices, volumes
 
+    def _setupDataForModelUsingZScores2(self, prices, volumes):
+        from scipy import stats
+        prices = stats.zscore(prices)
+        volumes = stats.zscore(volumes)
+        prices = [np.array(abs(x)) for x in prices]
+        volumes = [np.array(abs(x)) for x in volumes]
+        priceMax = np.amax(prices)
+        volumeMax = np.amax(volumes)
+
+        if volumeMax < 750:
+            volumeMax = 750
+
+        if priceMax == 0.0:
+            priceMax = 1.0
+
+        prices = [x / priceMax for x in prices]
+        volumes = [x / volumeMax for x in volumes]
+        data = []
+
+        for i in range(len(prices)):
+            data.append((prices[i], volumes[i]))
+
+        return np.array(data)
+
     """
     Creates a brand new neural network for this model.
     """
@@ -222,11 +248,21 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         # Should go over minutes, not seconds
         # input_seq = layers.Input(shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 1))
         self.model = tf.keras.models.Sequential()
-        self.model.add(layers.Conv1D(filters=64, kernel_size=2, activation='relu',
+        self.model.add(layers.Conv1D(filters=16, kernel_size=6, activation='relu',
                          input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 2)))
         self.model.add(layers.MaxPooling1D(pool_size=2))
+        self.model.add(
+            layers.Conv1D(filters=8, kernel_size=4, activation='relu',
+                          input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 2)))
+        self.model.add(layers.MaxPooling1D(pool_size=2))
+        self.model.add(
+            layers.Conv1D(filters=4, kernel_size=2, activation='relu',
+                          input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 2)))
+        self.model.add(layers.MaxPooling1D(pool_size=4))
         self.model.add(layers.Flatten())
-        self.model.add(layers.Dense(50, activation='relu'))
+        self.model.add(layers.Dense(20, activation='relu'))
+        self.model.add(layers.Dense(10, activation='relu'))
+        self.model.add(tf.keras.layers.Dropout(0.4))
         self.model.add(layers.Dense(1, activation='sigmoid'))
         self.model.compile(loss='binary_crossentropy',
             optimizer=tf.keras.optimizers.RMSprop(lr=self.hyperparameters.learningRate),
@@ -413,7 +449,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         """
         # We need to tell the model to make a test prediction so that all of
         # the additional GPU DLLs get loaded. Think of it as a warm up :P
-        lst = [np.array([np.float32(0.0)]) for x in range(int(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES))]
+        lst = [x / CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES for x in range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES * 2)]
         self.detect(lst, lst)
 
     def _turnListOfFloatsToInputData(self, data: List[float], volumeAmount: int, priceAmount: int) -> Dict:

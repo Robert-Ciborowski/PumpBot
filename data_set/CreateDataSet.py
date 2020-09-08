@@ -19,9 +19,9 @@ if __name__ == "__main__":
     #                 "KNCBTC",  "LRCBTC", "LTCBTC", "MCOBTC", "NEOBTC", "OAXBTC",
     #                 "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
     #                 "YOYOBTC", "ZRXBTC"]
-    listOfStocks = ["YOYOBTC"]
+    # listOfStocks = ["TRXUSDT"]
     # listOfStocks = ["SNGLSBTC"]
-    # listOfStocks = ["OAXBTC"]
+    listOfStocks = ["OAXBTC"]
     historicalObtainer = HistoricalBinanceDataObtainer(
         # datetime(day=17, month=8, year=2018, hour=0, minute=1), datetime(day=27, month=12, year=2019, hour=0, minute=1),
         # datetime(day=17, month=8, year=2018, hour=0, minute=1), datetime(day=31, month=8, year=2018, hour=0, minute=1),
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     pumps, rightBeforePumps = dataSetCreator.findPumpsForSymbols(listOfStocks,
                                                                  1440)
     pumps2, rightBeforePumps2 = dataSetCreator.findNonPumpsForSymbols(
-        listOfStocks, 1440)
+        listOfStocks, 6000)
     rightBeforePumps, extraNonPumpsToAdd = dataSetCreator.createFinalPumpsDataSet(pumps, rightBeforePumps)
     print(rightBeforePumps2[0].columns)
     dataSetCreator.exportPumpsToCSV("final-dataset", rightBeforePumps)

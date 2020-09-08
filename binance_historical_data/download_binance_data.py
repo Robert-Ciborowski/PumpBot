@@ -5,6 +5,7 @@
 
 # credit to https://medium.com/swlh/retrieving-full-historical-data-for-every-cryptocurrency-on-binance-bitmex-using-the-python-apis-27b47fd8137f
 # for some of the functions in this script.
+from typing import List
 
 import pandas as pd
 import math
@@ -15,8 +16,8 @@ from datetime import timedelta, datetime
 from dateutil import parser
 
 ### API
-binance_api_key = "[REDACTED]"    #Enter your own API-key here
-binance_api_secret = "[REDACTED]" #Enter your own API-secret here
+binance_api_key = "hMXuUP9qqyXs3sfPcjx5v4wlQ0knlctIfCNjmH8dafnHd9M07Zq7BsHTgjJHUgVh"    #Enter your own API-key here
+binance_api_secret = "ZHFnPwEmiAjs6DTV5AjAQPxB0eqgNVcwADMhdF8rR7wtEvSSZGwVcYaVngUr5WNG" #Enter your own API-secret here
 
 ### CONSTANTS
 binsizes = {"1m": 1, "5m": 5, "1h": 60, "1d": 1440}
@@ -30,11 +31,13 @@ def minutes_of_new_data(symbol, kline_size, data):
     new = pd.to_datetime(binance_client.get_klines(symbol=symbol, interval=kline_size)[-1][0], unit='ms')
     return old, new
 
-def get_all_binance(symbol, kline_size, save = False):
+def get_all_binance(symbol, kline_size, save = False, oldest=None):
     filename = '%s-%s-data.csv' % (symbol, kline_size)
     if os.path.isfile(filename): data_df = pd.read_csv(filename)
     else: data_df = pd.DataFrame()
     oldest_point, newest_point = minutes_of_new_data(symbol, kline_size, data_df)
+    if oldest is not None:
+        oldest_point = oldest
     delta_min = (newest_point - oldest_point).total_seconds()/60
     available_data = math.ceil(delta_min/binsizes[kline_size])
     if oldest_point == datetime.strptime('1 Jan 2017', '%d %b %Y'): print('Downloading all available %s data for %s. Be patient..!' % (kline_size, symbol))
@@ -55,7 +58,6 @@ def fileExists(file: str) -> bool:
     return os.path.exists(file)
 
 def downloadBinanceDataToCSV():
-    # tickers = binance_client.get_all_tickers()
     tickers = binance_client.get_all_tickers()
 
     for ticker in tickers:
@@ -77,7 +79,32 @@ def downloadSpecificBinanceDataToCSV(symbol: str):
     get_all_binance(symbol, "1m", save=True)
     print("Obtained " + symbol + ".")
 
+def downloadSpecificBinanceDataToCSV(tickers: List, oldest=None):
+    for symbol in tickers:
+        if fileExists(symbol + "-1m-data.csv"):
+            print("Skipping " + symbol + ", its already downloaded!")
+            continue
+
+        print("Obtaining " + symbol + "...")
+        get_all_binance(symbol, "1m", save=True, oldest=oldest)
+        print("Obtained " + symbol + ".")
+
 
 if __name__ == "__main__":
+    tickers = [
+        "TRXUSDT",
+        "BTCUSDT",
+        "ETHUSDT",
+        "BNBUSDT",
+        "EOSUSDT",
+        "DOTUSDT",
+        "SUSHIUSDT",
+        "YFIIUSDT",
+        "VETUSDT",
+    ]
+
+    # downloadSpecificBinanceDataToCSV(tickers, oldest=datetime(year=2020, month=1, day=1))
+    downloadSpecificBinanceDataToCSV(tickers)
+
     # downloadBinanceDataToCSV()
-    downloadSpecificBinanceDataToCSV("OAXBTC")
+    # downloadSpecificBinanceDataToCSV("OAXBTC")

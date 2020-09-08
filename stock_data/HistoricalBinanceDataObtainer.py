@@ -171,6 +171,8 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                     #                 price3, int(row["trades"])])
                     # entries.append([timing + timedelta(seconds=40),
                     #                 price4, int(row["trades"])])
+                    # entries.append([timing + timedelta(seconds=50),
+                    #                 price5, int(row["trades"])])
                     entries.append([timing + timedelta(seconds=50),
                                     price5, int(row["trades"])])
                     count += 1

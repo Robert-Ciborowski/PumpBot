@@ -45,9 +45,9 @@ class PumpAndDumpDetector(EventListener):
                 print("An urgent error occurred inside of Pump and Dump detector!")
                 return
 
-            currentPrice = prices[-1]
             probability = self.detect(prices, volumes)
 
             if probability >= self._classificationThreshold:
                 # Note: most recent price is at the end.
+                currentPrice = prices[-1]
                 EventDispatcher.getInstance().dispatchEvent(PumpAndDumpEvent(event.data["Ticker"], currentPrice, probability))

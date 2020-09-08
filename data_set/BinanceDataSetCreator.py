@@ -53,21 +53,31 @@ class BinanceDataSetCreator:
                 writer.writerow(volumeList + priceList + ["Pump"])
 
                 for df in rightBeforePumps:
-                    if str(ROLLING_AVERAGE_SIZE) + "m Volume RA" not in df.columns:
-                        print(str(ROLLING_AVERAGE_SIZE) + "m Volume RA not in dataframe! Are they pumps: " + str(areTheyPumps))
-                        print(df.columns)
-                        continue
+                    # if str(ROLLING_AVERAGE_SIZE) + "m Volume RA" not in df.columns:
+                    #     print(str(ROLLING_AVERAGE_SIZE) + "m Volume RA not in dataframe! Are they pumps: " + str(areTheyPumps))
+                    #     print(df.columns)
+                    #     continue
 
-                    mean = df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"].mean()
-                    std = df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"].std()
-                    volumes = (df[str(ROLLING_AVERAGE_SIZE) + "m Volume RA"] - mean) / std
-                    mean = df[str(ROLLING_AVERAGE_SIZE) + "m Close Price RA"].mean()
-                    std = df[str(ROLLING_AVERAGE_SIZE) + "m Close Price RA"].std()
-                    prices = (df[str(ROLLING_AVERAGE_SIZE) + "m Close Price RA"] - mean) / std
-                    volumes = volumes.abs()
-                    prices = prices.abs()
-                    volumes = volumes / volumes.max()
-                    prices = prices / prices.max()
+                    # mean = df["Volume"].mean()
+                    # std = df["Volume"].std()
+                    # volumes = (df["Volume"] - mean) / std
+                    # mean = df["Close"].mean()
+                    # std = df["Close"].std()
+                    # prices = (df["Close"] - mean) / std
+                    # volumes = volumes.abs()
+                    # prices = prices.abs()
+                    # volumes = volumes / volumes.max()
+                    # prices = prices / prices.max()
+                    volumes = df["Volume"]
+                    prices = df["Close"]
+                    volumesMax = volumes.max()
+                    pricesMax = prices.max()
+
+                    if volumesMax < 750:
+                        volumesMax = 750
+
+                    volumes = volumes / volumesMax
+                    prices = prices / pricesMax
 
                     # max = df["Volume"].max()
                     # volumes = df["Volume"] / max
@@ -288,8 +298,6 @@ class BinanceDataSetCreator:
         dfs = []
         dfs2 = []
 
-        print(self._getNumberOfRows(df) - amountToIncrement)
-
         for i in range(0, self._getNumberOfRows(df) - amountToIncrement,
                        amountToIncrement):
             rowEntry, df2 = self.findPumpAndDumps(symbol, i,
@@ -298,14 +306,15 @@ class BinanceDataSetCreator:
             if rowEntry["Pump and Dumps"] == 0:
                 dfs.append(df2)
 
-                for i in range(0, amountToIncrement - self.numberOfSamples, 500):
+                for i in range(0, amountToIncrement - self.numberOfSamples, 20):
                     # df3 = df2.iloc[i:i + int(self.numberOfSamples * 0.9)]
                     # std = df3.std(axis=0, skipna=True)["Close"]
                     df4 = df2.iloc[i:i + self.numberOfSamples]
-                    std = df4.std(axis=0, skipna=True)["Close"]
+                    # std = df4.std(axis=0, skipna=True)["Close"]
 
-                    if std < 1.0e-07:
-                        dfs2.append(df4)
+                    # if std < 5.0e-08:
+                    # if df4["Close"].max() > df4["Close"].min() * 1.025:
+                    dfs2.append(df4)
 
         return dfs, dfs2
 
@@ -317,11 +326,11 @@ class BinanceDataSetCreator:
         # return self._analyseSymbolForPumps(symbol, df, 2.5, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 2.0, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 1.0, 1.045, 1.045), df
-        return self._analyseSymbolForPumps(symbol, df, 1.0, 1.05, 1.05), df
+        return self._analyseSymbolForPumps(symbol, df, 1.0, 1.02, 0.95), df
 
     # returns final dataframe
     def _analyseSymbolForPumps(self, symbol: str, df: pd.DataFrame, volumeThreshold: float,
-                               priceThreshold: float, priceThreshold2: float, windowSize=ROLLING_AVERAGE_SIZE):
+                               priceThreshold: float, priceThreshold2: float, windowSize=ROLLING_AVERAGE_SIZE * 2):
         """
         :param symbol: symbol code (e.g. OAXBTC)
         :param df: pandas dataframe with the data
@@ -376,7 +385,12 @@ class BinanceDataSetCreator:
                             symbol).iloc[endIndex]["Close"]
                     # print("----------")
 
+                    numIters = 0
+
                     while True:
+                        if startIndex < 0 or numIters == 10:
+                            break
+
                         dfToAppend2 = self.dataObtainer.getHistoricalDataAsDataframe(
                             symbol).iloc[startIndex:endIndex]
                         # std = dfToAppend2.std(axis=0, skipna=True)["Close"]
@@ -385,17 +399,23 @@ class BinanceDataSetCreator:
                         if pumpPeak < dfToAppend2.iloc[0]["Close"]:
                             break
 
-                        if pumpPeak * 0.98 < dfToAppend2["Close"].max():
-                            startIndex -= 30
-                            endIndex -= 30
-                            continue
+                        # if pumpPeak * 0.95 < dfToAppend2["Close"].max():
+                        # if dfToAppend2["Close"].max() > dfToAppend2["Close"].min() * 1.025:
+                        #     startIndex -= 5
+                        #     endIndex -= 5
+                        #     numIters += 1
+                        #     continue
 
-                        diff = abs((dfToAppend2.iloc[-1]["Close"] - dfToAppend2.iloc[0]["Close"]) / dfToAppend2.iloc[0]["Close"])
-                        std = dfToAppend2.std(axis=0, skipna=True)["Close"]
+                        # diff = abs((dfToAppend2.iloc[-1]["Close"] - dfToAppend2.iloc[0]["Close"]) / dfToAppend2.iloc[0]["Close"])
+                        # std = dfToAppend2.std(axis=0, skipna=True)["Close"]
 
-                        if diff < 0.035 and std < 1.0e-07:
-                            pumps.append(dfToAppend2)
-                            break
+                        # if std > 5.0e-08:
+                        #     break
+
+                        # if diff < 0.035 and std < 5.0e-08:
+                        # if std < 5.0e-08:
+                        pumps.append(dfToAppend2)
+                        break
 
                         startIndex -= 30
                         endIndex -= 30
@@ -424,10 +444,17 @@ class BinanceDataSetCreator:
         """
         Removes spikes that occur on the same day.
         """
-        df = df.copy()
-        df['Timestamp_SIXTH_HOURS'] = df['Timestamp'].apply(
-            lambda x: x.replace(hour=0, minute=0, second=0))
-        df = df.drop_duplicates(subset='Timestamp_SIXTH_HOURS', keep='last')
+        df2 = df.copy()
+        # df['Timestamp_SAME'] = df['Timestamp'].apply(
+        #     lambda x: x.replace(hour=0, minute=0, second=0))
+        # df = df.drop_duplicates(subset='Timestamp_SAME', keep='last')
+
+        prevDate = None
+        for index, row in df2.iterrows():
+            if prevDate is not None and row["Timestamp"] < prevDate + pd.Timedelta(hours=16):
+                df = df.drop(index)
+
+            prevDate = row["Timestamp"]
 
         return df
 
