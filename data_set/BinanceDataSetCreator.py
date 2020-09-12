@@ -4,6 +4,7 @@
 # Description: Creates a data set for Binance Pump & Dumps.
 import math
 from math import pi
+from random import uniform, randint
 from typing import List
 
 from stock_data import HistoricalBinanceDataObtainer
@@ -12,7 +13,7 @@ from matplotlib import pyplot as plt
 import csv
 
 from util.Constants import GROUPED_DATA_SIZE, BIN_SIZE_FOR_BINNING, SAMPLES_OF_DATA_TO_LOOK_AT, \
-    ROLLING_AVERAGE_SIZE
+    ROLLING_AVERAGE_SIZE, EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT
 
 
 class BinanceDataSetCreator:
@@ -42,42 +43,73 @@ class BinanceDataSetCreator:
             with open(path, 'w', newline='') as file:
                 writer = csv.writer(file)
                 # numberOfRAs = self.numberOfSamples
-                volumeList = ["Volume-" + str(i) for i in range(SAMPLES_OF_DATA_TO_LOOK_AT)]
                 priceList = ["Price-" + str(i) for i in range(SAMPLES_OF_DATA_TO_LOOK_AT)]
+                priceRAList = ["Price-RA-" + str(i) for i in range(SAMPLES_OF_DATA_TO_LOOK_AT)]
+                volumeList = ["Volume-" + str(i) for i in range(SAMPLES_OF_DATA_TO_LOOK_AT)]
+                volumeRAList = ["Volume-RA-" + str(i) for i in range(SAMPLES_OF_DATA_TO_LOOK_AT)]
                 # volumeList = ["Volume-RA-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))]
                 # priceList = ["Price-RA-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))]
                 # volumeList2 = ["Volume-RA2-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2))]
                 # priceList2 = ["Price-RA2-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2))]
                 # volumeList3 = ["Volume-RA3-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3))]
                 # priceList3 = ["Price-RA3-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3))]
-                writer.writerow(volumeList + priceList + ["Pump"])
+                writer.writerow(priceList + priceRAList + volumeList + volumeRAList + ["Pump"])
+                count = 1
 
                 for df in rightBeforePumps:
+                    print(str(count) + "/" + str(len(rightBeforePumps)) + " arePumps: " + str(areTheyPumps))
+                    count += 1
                     # if str(ROLLING_AVERAGE_SIZE) + "m Volume RA" not in df.columns:
                     #     print(str(ROLLING_AVERAGE_SIZE) + "m Volume RA not in dataframe! Are they pumps: " + str(areTheyPumps))
                     #     print(df.columns)
                     #     continue
 
-                    # mean = df["Volume"].mean()
-                    # std = df["Volume"].std()
-                    # volumes = (df["Volume"] - mean) / std
-                    # mean = df["Close"].mean()
-                    # std = df["Close"].std()
-                    # prices = (df["Close"] - mean) / std
+                    mean = df["Volume"].mean()
+                    std = df["Volume"].std()
+                    volumes = (df["Volume"] - mean) / std
+                    mean = df["Close"].mean()
+                    std = df["Close"].std()
+                    prices = (df["Close"] - mean) / std
                     # volumes = volumes.abs()
                     # prices = prices.abs()
                     # volumes = volumes / volumes.max()
                     # prices = prices / prices.max()
-                    volumes = df["Volume"]
-                    prices = df["Close"]
-                    volumesMax = volumes.max()
+                    # volumes = df["Volume"]
+                    # prices = df["Close"]
+                    # pricesMax = prices.max()
+
+                    priceRA = prices.rolling(window=24, min_periods=1,
+                                               center=False).mean()
+                    volumeRA = volumes.rolling(window=24, min_periods=1,
+                                               center=False).mean()
+
                     pricesMax = prices.max()
 
-                    if volumesMax < 750:
-                        volumesMax = 750
+                    if pricesMax < 10:
+                        pricesMax = 10
+
+                    pricesRAMax = priceRA.max()
+
+                    if pricesRAMax < 10:
+                        pricesRAMax = 10
+
+                    prices = prices / pricesMax
+                    priceRA = priceRA / pricesRAMax
+
+                    volumesMax = volumes.max()
+
+                    if volumesMax < 10:
+                        volumesMax = 10
+
+                    volumesRAMax = volumeRA.max()
+
+                    if volumesRAMax < 10:
+                        volumesRAMax = 10
 
                     volumes = volumes / volumesMax
-                    prices = prices / pricesMax
+                    volumeRA = volumeRA / volumesRAMax
+
+                    # prices = prices / pricesMax
 
                     # max = df["Volume"].max()
                     # volumes = df["Volume"] / max
@@ -97,30 +129,83 @@ class BinanceDataSetCreator:
                     # volumes2, prices2 = self._generateVolumeAndPriceData(volumesDf, pricesDf, GROUPED_DATA_SIZE * 2)
                     # volumes3, prices3 = self._generateVolumeAndPriceData(volumesDf, pricesDf, GROUPED_DATA_SIZE * 3)
 
-                    csvRow = []
-
                     # Becomes true if a value is nan so that we can skip this
                     # pump.
                     cancel = False
+                    extension = EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT
+                    numTimes = 20
 
-                    for value in volumes:
-                        if math.isnan(value):
-                            cancel = True
-                            break
+                    if not areTheyPumps:
+                        numTimes = 2
+                        # extension = 0
 
-                        csvRow.append(value)
+                    for i in range(numTimes):
+                        csvRow = []
+                        offset = randint(0, extension)
 
-                    if cancel:
-                        continue
+                        for i in range(offset, self.numberOfSamples + offset):
+                            value = prices[i]
 
-                    for value in prices:
-                        if math.isnan(value):
-                            cancel = True
-                            break
-                        csvRow.append(value)
+                            if math.isnan(value):
+                                cancel = True
+                                break
 
-                    if cancel:
-                        continue
+                            csvRow.append(value * uniform(0.90, 1.10))
+
+                        if cancel:
+                            continue
+
+                        for i in range(offset, self.numberOfSamples + offset):
+                            value = priceRA[i]
+
+                            if math.isnan(value):
+                                cancel = True
+                                break
+
+                            csvRow.append(value * uniform(0.90, 1.10))
+
+                        if cancel:
+                            continue
+
+                        for i in range(offset, self.numberOfSamples + offset):
+                            value = volumes[i]
+
+                            if math.isnan(value):
+                                cancel = True
+                                break
+
+                            csvRow.append(value * uniform(0.90, 1.10))
+
+                        if cancel:
+                            continue
+
+                        for i in range(offset, self.numberOfSamples + offset):
+                            value = volumeRA[i]
+
+                            if math.isnan(value):
+                                cancel = True
+                                break
+
+                            csvRow.append(value * uniform(0.90, 1.10))
+
+                        if cancel:
+                            continue
+
+                        if areTheyPumps:
+                            csvRow.append(1)
+                        else:
+                            csvRow.append(0)
+
+                        writer.writerow(csvRow)
+
+                    # for value in prices:
+                    #     if math.isnan(value):
+                    #         cancel = True
+                    #         break
+                    #     csvRow.append(value)
+                    #
+                    # if cancel:
+                    #     continue
 
                     # for value in volumes2:
                     #     if math.isnan(value):
@@ -160,12 +245,7 @@ class BinanceDataSetCreator:
                     # if cancel:
                     #     continue
 
-                    if areTheyPumps:
-                        csvRow.append(1)
-                    else:
-                        csvRow.append(0)
 
-                    writer.writerow(csvRow)
 
         except IOError as e:
             print("Error writing to csv file! " + str(e))
@@ -306,10 +386,10 @@ class BinanceDataSetCreator:
             if rowEntry["Pump and Dumps"] == 0:
                 dfs.append(df2)
 
-                for i in range(0, amountToIncrement - self.numberOfSamples, 20):
+                for i in range(0, amountToIncrement - self.numberOfSamples - EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT, 20):
                     # df3 = df2.iloc[i:i + int(self.numberOfSamples * 0.9)]
                     # std = df3.std(axis=0, skipna=True)["Close"]
-                    df4 = df2.iloc[i:i + self.numberOfSamples]
+                    df4 = df2.iloc[i:i + self.numberOfSamples + EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT]
                     # std = df4.std(axis=0, skipna=True)["Close"]
 
                     # if std < 5.0e-08:
@@ -326,7 +406,7 @@ class BinanceDataSetCreator:
         # return self._analyseSymbolForPumps(symbol, df, 2.5, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 2.0, 1.05), df
         # return self._analyseSymbolForPumps(symbol, df, 1.0, 1.045, 1.045), df
-        return self._analyseSymbolForPumps(symbol, df, 1.0, 1.02, 0.95), df
+        return self._analyseSymbolForPumps(symbol, df, 1.0, 1.04, 1.04), df
 
     # returns final dataframe
     def _analyseSymbolForPumps(self, symbol: str, df: pd.DataFrame, volumeThreshold: float,
@@ -378,7 +458,7 @@ class BinanceDataSetCreator:
                 timeIndex = finalCombined.index[0]
                 endIndex = self.dataObtainer.getHistoricalDataAsDataframe(symbol).index.get_loc(timeIndex)\
                            - self.samplesBeforePumpPeak
-                startIndex = endIndex - self.numberOfSamples
+                startIndex = endIndex - self.numberOfSamples - EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT
 
                 if startIndex >= 0:
                     pumpPeak = self.dataObtainer.getHistoricalDataAsDataframe(
@@ -396,15 +476,17 @@ class BinanceDataSetCreator:
                         # std = dfToAppend2.std(axis=0, skipna=True)["Close"]
                         # print(str(pumpPeak) + " " + str(dfToAppend2["Close"].max()))
 
-                        if pumpPeak < dfToAppend2.iloc[0]["Close"]:
+                        # if pumpPeak < dfToAppend2.iloc[0]["Close"]:
+                        if pumpPeak < dfToAppend2["Close"].max():
                             break
 
-                        # if pumpPeak * 0.95 < dfToAppend2["Close"].max():
-                        # if dfToAppend2["Close"].max() > dfToAppend2["Close"].min() * 1.025:
-                        #     startIndex -= 5
-                        #     endIndex -= 5
-                        #     numIters += 1
-                        #     continue
+                        if self.dataObtainer.getHistoricalDataAsDataframe(
+                            symbol).iloc[startIndex:startIndex + int(SAMPLES_OF_DATA_TO_LOOK_AT * 0.8)]["Close"].max() * 1.03 > pumpPeak:
+                            # if dfToAppend2["Close"].max() > dfToAppend2["Close"].min() * 1.025:
+                            startIndex -= 5
+                            endIndex -= 5
+                            numIters += 1
+                            continue
 
                         # diff = abs((dfToAppend2.iloc[-1]["Close"] - dfToAppend2.iloc[0]["Close"]) / dfToAppend2.iloc[0]["Close"])
                         # std = dfToAppend2.std(axis=0, skipna=True)["Close"]

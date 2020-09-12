@@ -92,15 +92,28 @@ def downloadSpecificBinanceDataToCSV(tickers: List, oldest=None):
 
 if __name__ == "__main__":
     tickers = [
-        "TRXUSDT",
-        "BTCUSDT",
-        "ETHUSDT",
-        "BNBUSDT",
-        "EOSUSDT",
-        "DOTUSDT",
-        "SUSHIUSDT",
-        "YFIIUSDT",
-        "VETUSDT",
+        # "TRXUSDT",
+        # "BTCUSDT",
+        # "ETHUSDT",
+        # "BNBUSDT",
+        # "EOSUSDT",
+        # "DOTUSDT",
+        # "SUSHIUSDT",
+        # "YFIIUSDT",
+        # "VETUSDT",
+        "OAXBTC",
+        "YOYOBTC",
+        "SNGLSBTC",
+        "FUNBTC",
+        "GASBTC",
+        "HSRBTC",
+        "KNCBTC",
+        "LRCBTC",
+        "LTCBTC",
+        "MCOBTC",
+        "NEOBTC",
+        "OMGBTC",
+        "QTUMBTC"
     ]
 
     # downloadSpecificBinanceDataToCSV(tickers, oldest=datetime(year=2020, month=1, day=1))

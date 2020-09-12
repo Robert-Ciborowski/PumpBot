@@ -217,26 +217,44 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         return prices, volumes
 
     def _setupDataForModelUsingZScores2(self, prices, volumes):
-        from scipy import stats
-        prices = stats.zscore(prices)
-        volumes = stats.zscore(volumes)
-        prices = [np.array(abs(x)) for x in prices]
-        volumes = [np.array(abs(x)) for x in volumes]
-        priceMax = np.amax(prices)
-        volumeMax = np.amax(volumes)
+        prices = pd.Series(prices)
+        volumes = pd.Series(volumes)
+        pricesMax = prices.max()
+        volumesMax = volumes.max()
 
-        if volumeMax < 750:
-            volumeMax = 750
+        mean = prices.mean()
+        std = prices.std()
+        prices = (prices - mean) / std
+        mean = volumes.mean()
+        std = volumes.std()
+        volumes = (volumes - mean) / std
 
-        if priceMax == 0.0:
-            priceMax = 1.0
+        pricesRA = pd.Series(prices).rolling(window=24, min_periods=1, center=False).mean()
+        volumesRA = pd.Series(volumes).rolling(window=24, min_periods=1, center=False).mean()
+        pricesRAMax = pricesRA.max()
+        volumesRAMax = volumesRA.max()
 
-        prices = [x / priceMax for x in prices]
-        volumes = [x / volumeMax for x in volumes]
+        if pricesMax < 10:
+            pricesMax = 10
+
+        if volumesMax < 10:
+            volumesMax = 10
+
+        if pricesRAMax < 10:
+            pricesRAMax = 10
+
+        if volumesRAMax < 10:
+            volumesRAMax = 10
+
+        prices = prices / pricesMax
+        pricesRA = pricesRA / pricesRAMax
+        volumes = volumes / volumesMax
+        volumesRA = volumesRA / volumesRAMax
+
         data = []
 
         for i in range(len(prices)):
-            data.append((prices[i], volumes[i]))
+            data.append((prices[i], pricesRA[i], volumes[i], volumesRA[i]))
 
         return np.array(data)
 
@@ -248,21 +266,22 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         # Should go over minutes, not seconds
         # input_seq = layers.Input(shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 1))
         self.model = tf.keras.models.Sequential()
-        self.model.add(layers.Conv1D(filters=16, kernel_size=6, activation='relu',
-                         input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 2)))
-        self.model.add(layers.MaxPooling1D(pool_size=2))
+        self.model.add(layers.Conv1D(filters=16, kernel_size=16, activation='relu',
+                         input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 4)))
+        self.model.add(layers.AveragePooling1D(pool_size=2))
         self.model.add(
-            layers.Conv1D(filters=8, kernel_size=4, activation='relu',
-                          input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 2)))
-        self.model.add(layers.MaxPooling1D(pool_size=2))
-        self.model.add(
-            layers.Conv1D(filters=4, kernel_size=2, activation='relu',
-                          input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 2)))
-        self.model.add(layers.MaxPooling1D(pool_size=4))
+            layers.Conv1D(filters=8, kernel_size=8, activation='relu',
+                          input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 4)))
+        self.model.add(layers.AveragePooling1D(pool_size=2))
+        # self.model.add(
+        #     layers.Conv1D(filters=2, kernel_size=4, activation='relu',
+        #                   input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 4)))
+        # self.model.add(layers.AveragePooling1D(pool_size=2))
         self.model.add(layers.Flatten())
+        self.model.add(layers.Dense(100, activation='relu'))
         self.model.add(layers.Dense(20, activation='relu'))
-        self.model.add(layers.Dense(10, activation='relu'))
-        self.model.add(tf.keras.layers.Dropout(0.4))
+        self.model.add(layers.Dense(5, activation='relu'))
+        self.model.add(tf.keras.layers.Dropout(0.1))
         self.model.add(layers.Dense(1, activation='sigmoid'))
         self.model.compile(loss='binary_crossentropy',
             optimizer=tf.keras.optimizers.RMSprop(lr=self.hyperparameters.learningRate),

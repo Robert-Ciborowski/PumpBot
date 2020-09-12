@@ -112,8 +112,8 @@ class HistoricalBinanceTradingSimulator:
         self.trader = ProfitPumpTrader(
             BasicInvestmentStrategy(self.investmentFraction),
             self.wallet,
-            profitRatioToAimFor=0.018,
-            acceptableLossRatio=0.018,
+            profitRatioToAimFor=0.028,
+            acceptableLossRatio=0.028,
             acceptableDipFromStartRatio=0.04,
             minutesAfterSellIfPump=self.minutesAfterSellIfPump,
             minutesAfterSellIfPriceInactivity=self.minutesAfterSellIfPriceInactivity,

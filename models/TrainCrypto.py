@@ -36,7 +36,10 @@ def train():
 
             pump = []
             for i in range(SAMPLES_OF_DATA_TO_LOOK_AT):
-                pump.append((float(row[i]), float(row[i + SAMPLES_OF_DATA_TO_LOOK_AT])))
+                pump.append((float(row[i]), float(row[i + SAMPLES_OF_DATA_TO_LOOK_AT]),
+                             float(row[i + SAMPLES_OF_DATA_TO_LOOK_AT * 2]),
+                             float(row[i + SAMPLES_OF_DATA_TO_LOOK_AT * 3])))
+                # pump.append((float(row[i]),))
                 # pump.append(float(row[i]))
 
             pumps.append(np.array(pump))
@@ -52,7 +55,10 @@ def train():
 
             pump = []
             for i in range(SAMPLES_OF_DATA_TO_LOOK_AT):
-                pump.append((float(row[i]), float(row[i + SAMPLES_OF_DATA_TO_LOOK_AT])))
+                pump.append((float(row[i]), float(row[i + SAMPLES_OF_DATA_TO_LOOK_AT]),
+                             float(row[i + SAMPLES_OF_DATA_TO_LOOK_AT * 2]),
+                             float(row[i + SAMPLES_OF_DATA_TO_LOOK_AT * 3])))
+                # pump.append((float(row[i]),))
                 # pump.append(float(row[i]))
 
             nonPumps.append(np.array(pump))
@@ -66,11 +72,11 @@ def train():
     print(data)
 
     # Hyperparameters!
-    learningRate = 0.001
+    learningRate = 0.05
     epochs = 2000
-    batchSize = 45
+    batchSize = 6000
     labelName = "Pump"
-    classificationThreshold = 0.90
+    classificationThreshold = 0.95
     decayRate = 0.05
     decayStep = 1.0
 
@@ -80,7 +86,7 @@ def train():
                                 decayRate=decayRate, decayStep=decayStep))
 
     model.createModelUsingDefaults()
-    epochs, hist = model.trainModel(data, labels, 0.3)
+    epochs, hist = model.trainModel(data, labels, 0.15)
     list_of_metrics_to_plot = model.listOfMetrics
     model.plotCurve(epochs, hist, list_of_metrics_to_plot)
 
