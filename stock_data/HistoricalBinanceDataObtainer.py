@@ -110,7 +110,7 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
 
                     # price1 = float(row["open"])
                     # price3 = (float(row["high"]) + float(row["close"])) / 2
-                    price5 = float(row["close"])
+                    price5 = float(row["high"])
                     # price2 = (price1 + price3) / 2
                     # price4 = (price3 + price5) / 2
 

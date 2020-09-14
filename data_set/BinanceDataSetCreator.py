@@ -133,7 +133,7 @@ class BinanceDataSetCreator:
                     # pump.
                     cancel = False
                     extension = EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT
-                    numTimes = 20
+                    numTimes = 100
 
                     if not areTheyPumps:
                         numTimes = 2
@@ -142,6 +142,7 @@ class BinanceDataSetCreator:
                     for i in range(numTimes):
                         csvRow = []
                         offset = randint(0, extension)
+                        scaling = uniform(0.7, 1.3)
 
                         for i in range(offset, self.numberOfSamples + offset):
                             value = prices[i]
@@ -150,7 +151,7 @@ class BinanceDataSetCreator:
                                 cancel = True
                                 break
 
-                            csvRow.append(value * uniform(0.90, 1.10))
+                            csvRow.append(value * uniform(0.995, 1.005) * scaling)
 
                         if cancel:
                             continue
@@ -162,10 +163,12 @@ class BinanceDataSetCreator:
                                 cancel = True
                                 break
 
-                            csvRow.append(value * uniform(0.90, 1.10))
+                            csvRow.append(value * uniform(0.995, 1.005) * scaling)
 
                         if cancel:
                             continue
+
+                        scaling = uniform(0.90, 1.10)
 
                         for i in range(offset, self.numberOfSamples + offset):
                             value = volumes[i]
@@ -174,7 +177,7 @@ class BinanceDataSetCreator:
                                 cancel = True
                                 break
 
-                            csvRow.append(value * uniform(0.90, 1.10))
+                            csvRow.append(value * uniform(0.995, 1.005) * scaling)
 
                         if cancel:
                             continue
@@ -186,7 +189,7 @@ class BinanceDataSetCreator:
                                 cancel = True
                                 break
 
-                            csvRow.append(value * uniform(0.90, 1.10))
+                            csvRow.append(value * uniform(0.995, 1.005) * scaling)
 
                         if cancel:
                             continue
@@ -386,7 +389,7 @@ class BinanceDataSetCreator:
             if rowEntry["Pump and Dumps"] == 0:
                 dfs.append(df2)
 
-                for i in range(0, amountToIncrement - self.numberOfSamples - EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT, 20):
+                for i in range(0, amountToIncrement - self.numberOfSamples - EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT, 3):
                     # df3 = df2.iloc[i:i + int(self.numberOfSamples * 0.9)]
                     # std = df3.std(axis=0, skipna=True)["Close"]
                     df4 = df2.iloc[i:i + self.numberOfSamples + EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT]
