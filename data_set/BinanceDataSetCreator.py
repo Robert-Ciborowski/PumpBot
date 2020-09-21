@@ -133,16 +133,16 @@ class BinanceDataSetCreator:
                     # pump.
                     cancel = False
                     extension = EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT
-                    numTimes = 100
+                    numTimes = 80
 
                     if not areTheyPumps:
-                        numTimes = 2
+                        numTimes = 4
                         # extension = 0
 
                     for i in range(numTimes):
                         csvRow = []
                         offset = randint(0, extension)
-                        scaling = uniform(0.7, 1.3)
+                        scaling = uniform(0.8, 1.4)
 
                         for i in range(offset, self.numberOfSamples + offset):
                             value = prices[i]
@@ -151,7 +151,7 @@ class BinanceDataSetCreator:
                                 cancel = True
                                 break
 
-                            csvRow.append(value * uniform(0.995, 1.005) * scaling)
+                            csvRow.append(value * uniform(0.998, 1.002) * scaling)
 
                         if cancel:
                             continue
@@ -163,12 +163,12 @@ class BinanceDataSetCreator:
                                 cancel = True
                                 break
 
-                            csvRow.append(value * uniform(0.995, 1.005) * scaling)
+                            csvRow.append(value * uniform(0.998, 1.002) * scaling)
 
                         if cancel:
                             continue
 
-                        scaling = uniform(0.90, 1.10)
+                        scaling = uniform(0.8, 1.4)
 
                         for i in range(offset, self.numberOfSamples + offset):
                             value = volumes[i]
@@ -177,7 +177,7 @@ class BinanceDataSetCreator:
                                 cancel = True
                                 break
 
-                            csvRow.append(value * uniform(0.995, 1.005) * scaling)
+                            csvRow.append(value * uniform(0.998, 1.002) * scaling)
 
                         if cancel:
                             continue
@@ -189,7 +189,7 @@ class BinanceDataSetCreator:
                                 cancel = True
                                 break
 
-                            csvRow.append(value * uniform(0.995, 1.005) * scaling)
+                            csvRow.append(value * uniform(0.998, 1.002) * scaling)
 
                         if cancel:
                             continue
@@ -471,7 +471,7 @@ class BinanceDataSetCreator:
                     numIters = 0
 
                     while True:
-                        if startIndex < 0 or numIters == 10:
+                        if startIndex < 0 or numIters == 12:
                             break
 
                         dfToAppend2 = self.dataObtainer.getHistoricalDataAsDataframe(
@@ -490,6 +490,23 @@ class BinanceDataSetCreator:
                             endIndex -= 5
                             numIters += 1
                             continue
+
+                        half = (endIndex - startIndex) // 2
+                        idealDerivative = (self.dataObtainer.getHistoricalDataAsDataframe(
+                            symbol).iloc[startIndex + half]["Close"] - self.dataObtainer.getHistoricalDataAsDataframe(
+                            symbol).iloc[startIndex]["Close"]) / half
+
+                        derivative = (self.dataObtainer.getHistoricalDataAsDataframe(
+                            symbol).iloc[endIndex]["Close"] - self.dataObtainer.getHistoricalDataAsDataframe(
+                            symbol).iloc[endIndex - 15]["Close"]) / 15
+
+                        if abs(derivative) > abs(idealDerivative * 1.3):
+                            startIndex -= 5
+                            endIndex -= 5
+                            numIters += 1
+                            continue
+
+                        # print("Value " + str(idealDerivative) + " vs " + str(derivative))
 
                         # diff = abs((dfToAppend2.iloc[-1]["Close"] - dfToAppend2.iloc[0]["Close"]) / dfToAppend2.iloc[0]["Close"])
                         # std = dfToAppend2.std(axis=0, skipna=True)["Close"]

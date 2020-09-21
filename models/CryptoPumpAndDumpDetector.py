@@ -60,6 +60,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     """
     Precondition: prices is a pandas dataframe or series.
     """
+
     def detect(self, prices, volumes) -> float:
         # if isinstance(prices, pd.DataFrame):
         #     data = {name: np.array(np.float32(value)) for name, value in
@@ -261,32 +262,35 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
     """
     Creates a brand new neural network for this model.
     """
+
     def createModel(self, featureLayer,
-                     layerParameters: List):
+                    layerParameters: List):
         # Should go over minutes, not seconds
-        # input_seq = layers.Input(shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 1))
-        self.model = tf.keras.models.Sequential()
-        self.model.add(layers.Conv1D(filters=16, kernel_size=16, activation='relu',
-                         input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 4)))
-        self.model.add(layers.AveragePooling1D(pool_size=2))
-        self.model.add(
-            layers.Conv1D(filters=8, kernel_size=8, activation='relu',
-                          input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 4)))
-        self.model.add(layers.AveragePooling1D(pool_size=2))
+        input_layer = layers.Input(shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 4))
+        # self.model = tf.keras.models.Sequential()
+        # self.model.add(input_seq)
+        layer = layers.Conv1D(filters=16, kernel_size=16, activation='relu',
+                         input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 4))(input_layer)
+        layer = layers.AveragePooling1D(pool_size=2)(layer)
+        layer = layers.Conv1D(filters=8, kernel_size=8, activation='relu',
+                          input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 4))(layer)
+        layer = layers.AveragePooling1D(pool_size=2)(layer)
         # self.model.add(
         #     layers.Conv1D(filters=2, kernel_size=4, activation='relu',
         #                   input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 4)))
         # self.model.add(layers.AveragePooling1D(pool_size=2))
-        self.model.add(layers.Flatten())
-        self.model.add(layers.Dense(100, activation='relu'))
-        self.model.add(layers.Dense(20, activation='relu'))
-        self.model.add(layers.Dense(5, activation='relu'))
-        self.model.add(tf.keras.layers.Dropout(0.1))
-        self.model.add(layers.Dense(1, activation='sigmoid'))
+        # layer = layers.Flatten()(layer)
+        layer = tf.keras.layers.LSTM(SAMPLES_OF_DATA_TO_LOOK_AT, input_shape=layer.shape)(layer)
+        # layer = layers.Flatten()(layer)
+        layer = layers.Dense(100, activation='relu')(layer)
+        layer = layers.Dense(20, activation='relu')(layer)
+        layer = layers.Dense(5, activation='relu')(layer)
+        layer = tf.keras.layers.Dropout(0.1)(layer)
+        layer = layers.Dense(1, activation='sigmoid')(layer)
+        self.model = tf.keras.Model(input_layer, layer)
         self.model.compile(loss='binary_crossentropy',
-            optimizer=tf.keras.optimizers.RMSprop(lr=self.hyperparameters.learningRate),
-            metrics=self._metrics)
-
+                           optimizer=tf.keras.optimizers.RMSprop(lr=self.hyperparameters.learningRate),
+                           metrics=self._metrics)
 
         # self.model = tf.keras.models.Sequential()
         # self.model.add(featureLayer)
@@ -348,7 +352,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         #                          epochs=self.hyperparameters.epochs,
         #                          shuffle=True)
         history = self.model.fit(x=features, y=labels, batch_size=self.hyperparameters.batchSize,
-                            validation_split=validationSplit, epochs=self.hyperparameters.epochs, shuffle=True)
+                                 validation_split=validationSplit, epochs=self.hyperparameters.epochs, shuffle=True)
 
         # The list of epochs is stored separately from the rest of history.
         epochs = history.epoch
@@ -366,6 +370,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         and/or metrics). The attribute `model.metrics_names` will give you
         the display labels for the scalar outputs.
     """
+
     def evaluate(self, features, label):
         return self.model.evaluate(features, label, self.hyperparameters.batchSize)
 
@@ -446,18 +451,18 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         batchSize = 30
         classificationThreshold = 0.95
         self.setup(classificationThreshold,
-                    Hyperparameters(learningRate, epochs,
-                                    batchSize))
+                   Hyperparameters(learningRate, epochs,
+                                   batchSize))
 
     def _buildMetrics(self):
         self._metrics = [
             tf.keras.metrics.BinaryAccuracy(name='accuracy',
                                             threshold=self._classificationThreshold),
             tf.keras.metrics.Precision(thresholds=self._classificationThreshold,
-                                     name='precision'
-                                     ),
+                                       name='precision'
+                                       ),
             tf.keras.metrics.Recall(thresholds=self._classificationThreshold,
-                                  name="recall"),
+                                    name="recall"),
             tf.keras.metrics.AUC(num_thresholds=100, name='auc')
         ]
         self.listOfMetrics = ["accuracy", "precision", "recall", "auc"]
@@ -468,7 +473,8 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         """
         # We need to tell the model to make a test prediction so that all of
         # the additional GPU DLLs get loaded. Think of it as a warm up :P
-        lst = [x / CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES for x in range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES * 2)]
+        lst = [x / CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES for x in
+               range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES * 2)]
         self.detect(lst, lst)
 
     def _turnListOfFloatsToInputData(self, data: List[float], volumeAmount: int, priceAmount: int) -> Dict:
