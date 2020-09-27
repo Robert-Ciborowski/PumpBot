@@ -102,18 +102,18 @@ if __name__ == "__main__":
         # "YFIIUSDT",
         # "VETUSDT",
         "OAXBTC",
-        "YOYOBTC",
-        "SNGLSBTC",
-        "FUNBTC",
-        "GASBTC",
-        "HSRBTC",
-        "KNCBTC",
-        "LRCBTC",
-        "LTCBTC",
-        "MCOBTC",
-        "NEOBTC",
-        "OMGBTC",
-        "QTUMBTC"
+        # "YOYOBTC",
+        # "SNGLSBTC",
+        # "FUNBTC",
+        # "GASBTC",
+        # "HSRBTC",
+        # "KNCBTC",
+        # "LRCBTC",
+        # "LTCBTC",
+        # "MCOBTC",
+        # "NEOBTC",
+        # "OMGBTC",
+        # "QTUMBTC"
     ]
 
     # downloadSpecificBinanceDataToCSV(tickers, oldest=datetime(year=2020, month=1, day=1))
