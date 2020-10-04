@@ -78,6 +78,10 @@ class DiscordBot(discord.Client, EventListener):
             channel = self.get_channel(self._stockUpdatesID)
             await channel.send("Pump & dump detected! " + event.data["Ticker"]
                                + " at {:.7f}".format(event.data["Price"]))
+        elif event.type == "Investment":
+            channel = self.get_channel(self._stockUpdatesID)
+            await channel.send("Investing in " + event.data["Ticker"]
+                               + " at {:.7f}".format(event.data["Price"]) + ". Amount invested: {:.7f}".format(event.data["Amount"]))
 
     async def _processCommand(self, message):
         filteredContent = message.content[1:len(message.content)]

@@ -264,8 +264,6 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
         while len(klines2) > numberOfMinutes:
             klines2.pop(0)
 
-        print(len(klines2))
-
         data = pd.DataFrame(klines2, columns=['close', 'volume'])
         return data
 

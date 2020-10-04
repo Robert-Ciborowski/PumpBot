@@ -69,10 +69,10 @@ if __name__ == "__main__":
     # bot = ExampleBot()
     # EventDispatcher.getInstance().addListener(bot, "PumpAndDump")
     #
-    # bot = DiscordBot(CurrentBinanceDataObtainer(), "bot_properties.json",
-    #                  "bot_secret_properties.json", "8")
-    # bot.runOnSeperateThread()
-    # EventDispatcher.getInstance().addListener(bot, "PumpAndDump")
+    bot = DiscordBot(CurrentBinanceDataObtainer(MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL * SAMPLES_PER_MINUTE, SECONDS_BETWEEN_SAMPLES), "bot_properties.json",
+                     "bot_secret_properties.json", "8")
+    bot.runOnSeperateThread()
+    EventDispatcher.getInstance().addListener(bot, "Investment")
 
     # This sets up the model.
     model = CryptoPumpAndDumpDetector()

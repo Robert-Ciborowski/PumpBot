@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from typing import Dict
 import threading as th
 
+from events.EventDispatcher import EventDispatcher
+from events.InvestmentEvent import InvestmentEvent
 from stock_data.TrackedStockDatabase import TrackedStockDatabase
 from thread_runner.ThreadRunner import ThreadRunner
 from trading.InvestmentStrategy import InvestmentStrategy
@@ -64,7 +66,7 @@ class ProfitPumpTrader(PumpTrader):
         self._fastForwardAmount = fastForwardAmount
 
     def _onPumpAndDump(self, ticker: str, price: float, confidence: float):
-        if self.wallet.lacksFunds(ticker=ticker):
+        if self.wallet.lacksFunds():
             print("Did not buy " + ticker + " because wallet lacks funds.")
             return
 
@@ -87,6 +89,8 @@ class ProfitPumpTrader(PumpTrader):
                 print("MinutePumpTrader is buying " + ticker + " with " + str(
                     investment) + "...")
                 self.tracker.addNewTrade(pumpTrade)
+                EventDispatcher.getInstance().dispatchEvent(
+                    InvestmentEvent(ticker, price, confidence, investment))
 
                 with self._tradesLock:
                     self.ongoingTrades[ticker] = [self.stockDatabase.getCurrentTime(), price, price]

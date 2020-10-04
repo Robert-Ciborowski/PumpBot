@@ -5,12 +5,14 @@ import pandas as pd
 import numpy as np
 import threading as th
 
+from discord_bot.DiscordBot import DiscordBot
 from events.EventDispatcher import EventDispatcher
 from filter.PassThroughStockFilter import PassThroughStockFilter
 from listing_obtainers.BinanceListingObtainer import BinanceListingObtainer
 from listing_obtainers.SpecifiedListingObtainer import SpecifiedListingObtainer
 from models.CryptoPumpAndDumpDetector import CryptoPumpAndDumpDetector
 from models.SimplePumpAndDumpDetector import SimplePumpAndDumpDetector
+from stock_data.CurrentBinanceDataObtainer import CurrentBinanceDataObtainer
 from stock_data.HistoricalBinanceDataObtainer import \
     HistoricalBinanceDataObtainer
 from stock_data.TrackedStockDatabase import TrackedStockDatabase
@@ -19,7 +21,8 @@ from trading.BasicInvestmentStrategy import BasicInvestmentStrategy
 from trading.MinutePumpTrader import MinutePumpTrader
 from trading.ProfitPumpTrader import ProfitPumpTrader
 from trading.PumpTrader import PumpTrader
-from util.Constants import SECONDS_BETWEEN_SAMPLES
+from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL, \
+    SAMPLES_PER_MINUTE, SECONDS_BETWEEN_SAMPLES
 from wallet.SimpleWallet import SimpleWallet
 from wallet.Wallet import Wallet
 from logger.Logger import Logger
@@ -123,6 +126,11 @@ class HistoricalBinanceTradingSimulator:
             unprofitableTradesPerDay=self.unprofitableTradesPerDay,
             fastForwardAmount=self._fastForwardAmount)
         EventDispatcher.getInstance().addListener(self.trader, "PumpAndDump")
+
+        bot = DiscordBot(CurrentBinanceDataObtainer(MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL * SAMPLES_PER_MINUTE, SECONDS_BETWEEN_SAMPLES), "bot_properties.json",
+                         "bot_secret_properties.json", "8")
+        bot.runOnSeperateThread()
+        EventDispatcher.getInstance().addListener(bot, "Investment")
 
     def start(self):
         print("Starting historical Binance trading simulator...")

@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from typing import Dict
 import threading as th
 
+from events.EventDispatcher import EventDispatcher
+from events.InvestmentEvent import InvestmentEvent
 from stock_data.TrackedStockDatabase import TrackedStockDatabase
 from trading.InvestmentStrategy import InvestmentStrategy
 from trading.PumpTrade import PumpTrade
@@ -59,6 +61,8 @@ class MinutePumpTrader(PumpTrader):
         if success and self.timeOfLastSell + timedelta(minutes=self.minutesAfterSell) <= datetime.now():
             if self.wallet.purchase(ticker, investment, test=TEST_MODE):
                 print("MinutePumpTrader is buying " + ticker)
+                EventDispatcher.getInstance().dispatchEvent(
+                    InvestmentEvent(ticker, price, confidence, investment))
 
                 with self._tradesLock:
                     self.ongoingTrades[ticker] = datetime.now()
