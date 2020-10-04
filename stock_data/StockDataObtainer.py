@@ -22,10 +22,15 @@ class StockDataObtainer:
 
     """
     Returns the stock price, or -1 if the price has not changed today.
-    
-    We're not actually using this function anymore.
     """
     def obtainPrice(self, ticker: str) -> float:
+        return 0
+
+    """
+    Returns the stock volume, or -1 if the price has not changed today.
+    """
+
+    def obtainVolume(self, ticker: str) -> float:
         return 0
 
     """
@@ -41,6 +46,9 @@ class StockDataObtainer:
         return []
 
     def obtainPricesAndVolumes(self, ticker: str, numberOfPrices=-1):
+        return []
+
+    def obtainMinutePricesAndVolumes(self, ticker: str, numberOfPrices=-1):
         return []
 
     def getCurrentDate(self) -> datetime:

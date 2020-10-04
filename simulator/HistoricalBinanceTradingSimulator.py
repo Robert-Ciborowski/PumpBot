@@ -19,6 +19,7 @@ from trading.BasicInvestmentStrategy import BasicInvestmentStrategy
 from trading.MinutePumpTrader import MinutePumpTrader
 from trading.ProfitPumpTrader import ProfitPumpTrader
 from trading.PumpTrader import PumpTrader
+from util.Constants import SECONDS_BETWEEN_SAMPLES
 from wallet.SimpleWallet import SimpleWallet
 from wallet.Wallet import Wallet
 from logger.Logger import Logger
@@ -86,7 +87,7 @@ class HistoricalBinanceTradingSimulator:
         self.database = TrackedStockDatabase.getInstance()
         self.database.useObtainer(self.dataObtainer) \
             .trackStocksInFilter(filter) \
-            .setSecondsBetweenStockUpdates(60 / self._fastForwardAmount)
+            .setSecondsBetweenStockUpdates(SECONDS_BETWEEN_SAMPLES / self._fastForwardAmount)
         # .setSecondsBetweenStockUpdates(60)
 
         self.model = CryptoPumpAndDumpDetector(tryUsingGPU=False)

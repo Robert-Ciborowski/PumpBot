@@ -16,8 +16,8 @@ from datetime import timedelta, datetime
 from dateutil import parser
 
 ### API
-binance_api_key = "hMXuUP9qqyXs3sfPcjx5v4wlQ0knlctIfCNjmH8dafnHd9M07Zq7BsHTgjJHUgVh"    #Enter your own API-key here
-binance_api_secret = "ZHFnPwEmiAjs6DTV5AjAQPxB0eqgNVcwADMhdF8rR7wtEvSSZGwVcYaVngUr5WNG" #Enter your own API-secret here
+binance_api_key = "REDACTED"    #Enter your own API-key here
+binance_api_secret = "REDACTED" #Enter your own API-secret here
 
 ### CONSTANTS
 binsizes = {"1m": 1, "5m": 5, "1h": 60, "1d": 1440}
@@ -101,7 +101,7 @@ if __name__ == "__main__":
         # "SUSHIUSDT",
         # "YFIIUSDT",
         # "VETUSDT",
-        "OAXBTC",
+        "DOTUSDT",
         # "YOYOBTC",
         # "SNGLSBTC",
         # "FUNBTC",
@@ -116,8 +116,9 @@ if __name__ == "__main__":
         # "QTUMBTC"
     ]
 
-    # downloadSpecificBinanceDataToCSV(tickers, oldest=datetime(year=2020, month=1, day=1))
-    downloadSpecificBinanceDataToCSV(tickers)
+    print(datetime.now())
+    downloadSpecificBinanceDataToCSV(tickers, oldest=datetime(year=2020, month=10, day=1))
+    # downloadSpecificBinanceDataToCSV(tickers)
 
     # downloadBinanceDataToCSV()
     # downloadSpecificBinanceDataToCSV("OAXBTC")

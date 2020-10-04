@@ -12,7 +12,8 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import csv
 
-from util.Constants import GROUPED_DATA_SIZE, BIN_SIZE_FOR_BINNING, SAMPLES_OF_DATA_TO_LOOK_AT, \
+from util.Constants import GROUPED_DATA_SIZE, BIN_SIZE_FOR_BINNING, \
+    ROLLING_AVERAGE_SIZE_FOR_MODEL, SAMPLES_OF_DATA_TO_LOOK_AT, \
     ROLLING_AVERAGE_SIZE, EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT
 
 
@@ -78,9 +79,9 @@ class BinanceDataSetCreator:
                     # prices = df["Close"]
                     # pricesMax = prices.max()
 
-                    priceRA = prices.rolling(window=24, min_periods=1,
+                    priceRA = prices.rolling(window=ROLLING_AVERAGE_SIZE_FOR_MODEL, min_periods=1,
                                                center=False).mean()
-                    volumeRA = volumes.rolling(window=24, min_periods=1,
+                    volumeRA = volumes.rolling(window=ROLLING_AVERAGE_SIZE_FOR_MODEL, min_periods=1,
                                                center=False).mean()
 
                     pricesMax = prices.max()

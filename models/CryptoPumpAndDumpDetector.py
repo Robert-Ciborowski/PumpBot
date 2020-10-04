@@ -21,7 +21,8 @@ from models.LayerParameter import LayerParameter
 from models.Hyperparameters import Hyperparameters
 from models.PumpAndDumpDetector import PumpAndDumpDetector
 from thread_runner.ThreadRunner import ThreadRunner
-from util.Constants import GROUPED_DATA_SIZE, SAMPLES_OF_DATA_TO_LOOK_AT
+from util.Constants import GROUPED_DATA_SIZE, ROLLING_AVERAGE_SIZE_FOR_MODEL, \
+    SAMPLES_OF_DATA_TO_LOOK_AT
 import threading as th
 
 
@@ -230,8 +231,8 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         std = volumes.std()
         volumes = (volumes - mean) / std
 
-        pricesRA = pd.Series(prices).rolling(window=24, min_periods=1, center=False).mean()
-        volumesRA = pd.Series(volumes).rolling(window=24, min_periods=1, center=False).mean()
+        pricesRA = pd.Series(prices).rolling(window=ROLLING_AVERAGE_SIZE_FOR_MODEL, min_periods=1, center=False).mean()
+        volumesRA = pd.Series(volumes).rolling(window=ROLLING_AVERAGE_SIZE_FOR_MODEL, min_periods=1, center=False).mean()
         pricesRAMax = pricesRA.max()
         volumesRAMax = volumesRA.max()
 

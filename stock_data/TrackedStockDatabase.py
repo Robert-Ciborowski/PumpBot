@@ -16,7 +16,8 @@ from events.ListingPriceUpdatedEvent import ListingPriceUpdatedEvent
 from filter.StockFilter import StockFilter
 from stock_data.StockDataObtainer import StockDataObtainer
 from thread_runner.ThreadRunner import ThreadRunner
-from util.Constants import SAMPLES_OF_DATA_TO_LOOK_AT
+from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL, \
+    SAMPLES_OF_DATA_TO_LOOK_AT
 
 """
 Representation invariants:
@@ -125,7 +126,7 @@ class TrackedStockDatabase:
             try:
                 return self._prices[ticker]
             except KeyError as e:
-                print("Tried to obtain " + ticker + "from the database, but "
+                print("Tried to obtain " + ticker + " from the database, but "
                                                     "that stock isn't tracked!")
                 return []
 
@@ -134,7 +135,16 @@ class TrackedStockDatabase:
             try:
                 return self._volumes[ticker]
             except KeyError as e:
-                print("Tried to obtain " + ticker + "from the database, but "
+                print("Tried to obtain " + ticker + " from the database, but "
+                                                    "that stock isn't tracked!")
+                return []
+
+    def getMinuteStockPricesAndVolumes(self, ticker: str) -> List[float]:
+        with self._entriesLock:
+            try:
+                return self.obtainer.obtainMinutePricesAndVolumes(ticker, MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL)
+            except KeyError as e:
+                print("Tried to obtain " + ticker + " from the database, but "
                                                     "that stock isn't tracked!")
                 return []
 
@@ -158,8 +168,11 @@ class TrackedStockDatabase:
         diff = currDateTime - self._updateTimestamps[ticker]
 
         if int(diff.total_seconds() / self._secondsBetweenStockUpdates) > 0:
-            prices, volumes = self.obtainer.obtainPricesAndVolumes(ticker, self.pricesToKeepTrackOf)
+            # price = self.obtainer.obtainPrice(ticker)
+            # volume = self.obtainer.obtainVolume(ticker)
+            # self._updateEntryAndTimeStamp(ticker, price, volume)
 
+            prices, volumes = self.obtainer.obtainPricesAndVolumes(ticker, self.pricesToKeepTrackOf)
             if len(prices) != 0:
                 self._updateEntryAndTimeStamp(ticker, prices, volumes)
                 EventDispatcher.getInstance().dispatchEvent(ListingPriceUpdatedEvent(ticker))
@@ -169,6 +182,13 @@ class TrackedStockDatabase:
 
     def _updateEntryAndTimeStamp(self, ticker: str, prices: List[float], volumes: List[float]):
         with self._entriesLock:
+            # if len(self._prices[ticker]) != 0:
+            #     self._prices[ticker].pop(0)
+            #     self._volumes[ticker].pop(0)
+            #
+            # self._prices[ticker].append(price)
+            # self._volumes[ticker].append(volume)
+
             self._prices[ticker] = prices
             self._volumes[ticker] = volumes
             self._updateTimestamps[ticker] = datetime.now()

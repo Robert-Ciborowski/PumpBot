@@ -25,6 +25,8 @@ from stock_data.TrackedStockDatabase import TrackedStockDatabase
 from thread_runner.ThreadRunner import ThreadRunner
 from trading.BasicInvestmentStrategy import BasicInvestmentStrategy
 from trading.ProfitPumpTrader import ProfitPumpTrader
+from util.Constants import MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL, \
+    SAMPLES_PER_MINUTE, SECONDS_BETWEEN_SAMPLES
 from wallet.BinanceWallet import BinanceWallet
 
 
@@ -45,12 +47,12 @@ if __name__ == "__main__":
     #            "KNCBTC", "LRCBTC", "LTCBTC", "MCOBTC", "NEOBTC", "OAXBTC",
     #            "OMGBTC", "QTUMBTC", "SNGLSBTC", "STRATBTC", "WTCBTC",
     #            "YOYOBTC", "ZRXBTC"]
-    tickers = ["SNGLSBTC", "STRATBTC"]
+    tickers = ["OAXBTC"]
 
     properties = getProperties("crypto_properties.json")
 
     # This sets up data obtaining.
-    dataObtainer = CurrentBinanceDataObtainer()
+    dataObtainer = CurrentBinanceDataObtainer(MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL * SAMPLES_PER_MINUTE, SECONDS_BETWEEN_SAMPLES)
     listings_obtainer = SpecifiedListingObtainer(tickers)
     filter = PassThroughStockFilter(dataObtainer)
     filter.addListings(listings_obtainer) \
@@ -59,9 +61,9 @@ if __name__ == "__main__":
 
     # This sets up the price & volume database.
     database = TrackedStockDatabase.getInstance()
-    database.useObtainer(dataObtainer)\
-           .trackStocksInFilter(filter)\
-           .setMillisecondsBetweenStockUpdates(60)
+    database.useObtainer(dataObtainer) \
+        .trackStocksInFilter(filter) \
+        .setSecondsBetweenStockUpdates(SECONDS_BETWEEN_SAMPLES)
 
     # This sets up bots that output messages.
     # bot = ExampleBot()
@@ -99,7 +101,7 @@ if __name__ == "__main__":
         fastForwardAmount=1)
     EventDispatcher.getInstance().addListener(trader, "PumpAndDump")
 
-    threadRunner = ThreadRunner(endTime=datetime.now() + timedelta(seconds=60))
+    threadRunner = ThreadRunner(endTime=datetime.now() + timedelta(minutes=150))
     database.useThreadRunner(threadRunner)
     trader.useThreadRunner(threadRunner)
 
