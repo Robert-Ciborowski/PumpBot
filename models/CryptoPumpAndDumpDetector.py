@@ -475,7 +475,7 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         # We need to tell the model to make a test prediction so that all of
         # the additional GPU DLLs get loaded. Think of it as a warm up :P
         lst = [x / CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES for x in
-               range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES * 2)]
+               range(CryptoPumpAndDumpDetector._NUMBER_OF_SAMPLES)]
         self.detect(lst, lst)
 
     def _turnListOfFloatsToInputData(self, data: List[float], volumeAmount: int, priceAmount: int) -> Dict:

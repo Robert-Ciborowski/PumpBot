@@ -178,7 +178,7 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
         # return self.obtainPricesAndVolumes(ticker, numberOfPrices)
         now = datetime.now()
         now = datetime(now.year, now.month, now.day, now.hour, now.minute)
-        df = self._get_all_binance(ticker, now, now - timedelta(minutes=SAMPLES_OF_DATA_TO_LOOK_AT-1))
+        df = self._get_all_binance(ticker, now, SAMPLES_OF_DATA_TO_LOOK_AT)
         return df["close"].to_numpy(), df["volume"].to_numpy()
 
     def getCurrentDate(self) -> datetime:
@@ -244,11 +244,10 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
                                                       "@mail.utoronto.ca) for "
                                                       "help.")
 
-    def _get_all_binance(self, symbol, newest, oldest):
+    def _get_all_binance(self, symbol, newest_point, numberOfMinutes):
         kline_size = "1m"
         # newest_point = self._minutes_of_new_data(symbol, kline_size)
-        newest_point = newest
-        oldest_point = oldest
+        oldest_point = newest_point - timedelta(minutes=numberOfMinutes)
 
         klines = self._client.get_historical_klines(symbol, kline_size,
                                                       oldest_point.strftime(
@@ -259,6 +258,11 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
 
         for i in klines:
             klines2.append([float(i[4]), float(i[5])])
+
+        # Depending on the computer, we might get one too many results?!?!
+        # This fixes that.
+        while len(klines2) > numberOfMinutes:
+            klines2.pop(0)
 
         print(len(klines2))
 
