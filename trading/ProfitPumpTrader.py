@@ -64,7 +64,7 @@ class ProfitPumpTrader(PumpTrader):
         self._fastForwardAmount = fastForwardAmount
 
     def _onPumpAndDump(self, ticker: str, price: float, confidence: float):
-        if self.wallet.lacksFunds():
+        if self.wallet.lacksFunds(ticker=ticker):
             print("Did not buy " + ticker + " because wallet lacks funds.")
             return
 
