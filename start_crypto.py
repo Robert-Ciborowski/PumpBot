@@ -69,7 +69,9 @@ if __name__ == "__main__":
     # bot = ExampleBot()
     # EventDispatcher.getInstance().addListener(bot, "PumpAndDump")
     #
-    bot = DiscordBot(CurrentBinanceDataObtainer(MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL * SAMPLES_PER_MINUTE, SECONDS_BETWEEN_SAMPLES), "bot_properties.json",
+    discordObtainer = CurrentBinanceDataObtainer(MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL * SAMPLES_PER_MINUTE, SECONDS_BETWEEN_SAMPLES)
+    discordObtainer.trackStocks(tickers)
+    bot = DiscordBot(discordObtainer, "bot_properties.json",
                      "bot_secret_properties.json", "8")
     bot.runOnSeperateThread()
     EventDispatcher.getInstance().addListener(bot, "Investment")
@@ -101,7 +103,7 @@ if __name__ == "__main__":
         fastForwardAmount=1)
     EventDispatcher.getInstance().addListener(trader, "PumpAndDump")
 
-    threadRunner = ThreadRunner(endTime=datetime.now() + timedelta(days=1))
+    threadRunner = ThreadRunner(endTime=datetime.now() + timedelta(hours=9))
     database.useThreadRunner(threadRunner)
     trader.useThreadRunner(threadRunner)
 

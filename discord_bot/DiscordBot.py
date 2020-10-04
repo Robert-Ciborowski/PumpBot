@@ -6,6 +6,7 @@
 
 import asyncio
 from asyncio import AbstractEventLoop
+from datetime import datetime
 from typing import Dict
 
 import discord
@@ -41,15 +42,29 @@ class DiscordBot(discord.Client, EventListener):
         self._obtainer = obtainer
         self._priceFormat = priceFormat
 
+    def run_it_forever(self, loop):
+        loop.run_forever()
+
     def runOnSeperateThread(self):
-        self._runThread = th.Thread(target=self._run, daemon=False)
-        self._runThread.start()
+        loop = asyncio.get_event_loop()
+
+        loop.create_task(self._run())
+        thread = th.Thread(target=self.run_it_forever, args=(loop,))
+        thread.start()
+
+        #
+        # thread = threading.Thread(target=run_it_forever, args=(loop,))
+        # thread.start()
+
+        # self._runThread = th.Thread(target=self._run, daemon=False)
+        # self._runThread.start()
 
     def stopRunning(self):
         asyncio.run_coroutine_threadsafe(self.close(), self._loop)
 
-    def _run(self):
-        super().run(self.TOKEN)
+    async def _run(self):
+        # super().run(self.TOKEN)
+        await super().start(self.TOKEN)
 
     async def on_ready(self):
         print(str(self.user) + " is online!")
@@ -79,9 +94,10 @@ class DiscordBot(discord.Client, EventListener):
             await channel.send("Pump & dump detected! " + event.data["Ticker"]
                                + " at {:.7f}".format(event.data["Price"]))
         elif event.type == "Investment":
+            now = str(datetime.now())
             channel = self.get_channel(self._stockUpdatesID)
             await channel.send("Investing in " + event.data["Ticker"]
-                               + " at {:.7f}".format(event.data["Price"]) + ". Amount invested: {:.7f}".format(event.data["Amount"]))
+                               + " at {:.7f}".format(event.data["Price"]) + ". Amount invested: {:.7f}".format(event.data["Amount"]) + " at " + now)
 
     async def _processCommand(self, message):
         filteredContent = message.content[1:len(message.content)]

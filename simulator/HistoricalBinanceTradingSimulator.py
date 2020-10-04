@@ -127,7 +127,11 @@ class HistoricalBinanceTradingSimulator:
             fastForwardAmount=self._fastForwardAmount)
         EventDispatcher.getInstance().addListener(self.trader, "PumpAndDump")
 
-        bot = DiscordBot(CurrentBinanceDataObtainer(MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL * SAMPLES_PER_MINUTE, SECONDS_BETWEEN_SAMPLES), "bot_properties.json",
+        discordObtainer = CurrentBinanceDataObtainer(
+            MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL * SAMPLES_PER_MINUTE,
+            SECONDS_BETWEEN_SAMPLES)
+        discordObtainer.trackStocks(self.tickers)
+        bot = DiscordBot(discordObtainer, "bot_properties.json",
                          "bot_secret_properties.json", "8")
         bot.runOnSeperateThread()
         EventDispatcher.getInstance().addListener(bot, "Investment")
