@@ -101,13 +101,12 @@ if __name__ == "__main__":
         fastForwardAmount=1)
     EventDispatcher.getInstance().addListener(trader, "PumpAndDump")
 
-    threadRunner = ThreadRunner(endTime=datetime.now() + timedelta(minutes=150))
+    threadRunner = ThreadRunner(endTime=datetime.now() + timedelta(days=1))
     database.useThreadRunner(threadRunner)
     trader.useThreadRunner(threadRunner)
 
     print("Started trading crypto!")
     threadRunner.start()
-
 
     # This starts the trading!
     # database.startSelfUpdating()
