@@ -119,7 +119,7 @@ class BinanceWallet(Wallet):
         :param ticker: the asset
         :return: amount owned, units: ticker
         """
-        return self.client.get_asset_balance(asset=ticker)["free"]
+        return float(self.client.get_asset_balance(asset=ticker)["free"])
 
     def getBalanceLocked(self, ticker="BTC") -> float:
         """
@@ -127,7 +127,7 @@ class BinanceWallet(Wallet):
         :param ticker: the asset
         :return: amount owned, units: ticker
         """
-        return self.client.get_asset_balance(asset=ticker)["locked"]
+        return float(self.client.get_asset_balance(asset=ticker)["locked"])
 
     def getDepositAddress(self, coin="BTC") -> str:
         return self.client.get_deposit_address(asset=coin)["address"]
