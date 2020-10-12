@@ -16,6 +16,9 @@ SECONDS_BETWEEN_SAMPLES = 6
 # For running the actual program
 TEST_MODE = False
 
+# How many times we try a Binance API call if it fails
+BINANCE_DATA_FETCH_ATTEMPT_AMOUNT = 5
+
 # Old
 GROUPED_DATA_SIZE = 5
 BIN_SIZE_FOR_BINNING = 10

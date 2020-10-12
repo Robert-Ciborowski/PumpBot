@@ -5,6 +5,7 @@ import json
 
 import binance
 
+from util.Constants import BINANCE_DATA_FETCH_ATTEMPT_AMOUNT
 from wallet.Wallet import Wallet
 from binance.client import Client
 from binance.exceptions import BinanceAPIException, BinanceWithdrawException
@@ -26,7 +27,7 @@ class BinanceWallet(Wallet):
                                  api_secret=binanceAPIKey)
 
         self.withdrawAddress = withdrawAddress
-        self._tryAmount = 5
+        self._tryAmount = BINANCE_DATA_FETCH_ATTEMPT_AMOUNT
 
     def useBinanceKeysFromFile(self, propertiesFile: str):
         try:

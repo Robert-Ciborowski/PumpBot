@@ -85,7 +85,7 @@ class ProfitPumpTrader(PumpTrader):
         success = self.tracker.isOwned(pumpTrade)
 
         if success:
-            if self.wallet.purchase(ticker, investment, investment / price, test=TEST_MODE):
+            if self.wallet.purchase(ticker, investment / price, test=TEST_MODE):
                 print("MinutePumpTrader is buying " + ticker + " with " + str(
                     investment) + "...")
                 self.tracker.addNewTrade(pumpTrade)

@@ -10,14 +10,17 @@ from datetime import datetime, timedelta
 from typing import Dict, List
 import json
 import pandas as pd
+import numpy as np
 from dateutil import parser
 
 import binance
 import pytz
 from binance.client import Client
+from binance.exceptions import BinanceAPIException
 
 from stock_data.StockDataObtainer import StockDataObtainer
-from util.Constants import SAMPLES_OF_DATA_TO_LOOK_AT
+from util.Constants import BINANCE_DATA_FETCH_ATTEMPT_AMOUNT, \
+    SAMPLES_OF_DATA_TO_LOOK_AT
 
 
 class CurrentBinanceDataObtainer(StockDataObtainer):
@@ -32,6 +35,7 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
     _lastUpdateTime: datetime
     _epoch: datetime
     _incomingDataLimit: int
+    _tryAmount: int
 
     def __init__(self, maxPricesToTrack: int, secondsBetweenUpdates: int, propertiesFile="binance_properties.json"):
         super().__init__()
@@ -46,6 +50,7 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
         self._incomingDataLimit = 3
         self._recentPrices = {}
         self._recentVolumes = {}
+        self._tryAmount = BINANCE_DATA_FETCH_ATTEMPT_AMOUNT
 
     def trackStocks(self, tickers: List[str]):
         for ticker in tickers:
@@ -176,10 +181,20 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
 
     def obtainMinutePricesAndVolumes(self, ticker: str, numberOfPrices=SAMPLES_OF_DATA_TO_LOOK_AT):
         # return self.obtainPricesAndVolumes(ticker, numberOfPrices)
-        now = datetime.now()
-        now = datetime(now.year, now.month, now.day, now.hour, now.minute)
-        df = self._get_all_binance(ticker, now, SAMPLES_OF_DATA_TO_LOOK_AT)
-        return df["close"].to_numpy(), df["volume"].to_numpy()
+        for i in range(self._tryAmount):
+            try:
+                now = datetime.now()
+                now = datetime(now.year, now.month, now.day, now.hour, now.minute)
+                df = self._get_all_binance(ticker, now, SAMPLES_OF_DATA_TO_LOOK_AT)
+                return df["close"].to_numpy(), df["volume"].to_numpy()
+            except binance.exceptions.BinanceAPIException as e:
+                print(
+                    "obtainMinutePricesAndVolumes failed to work for " + ticker + "! Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
+                print(e)
+
+        return np.asarray([0.0 for i in range(numberOfPrices)])
+
 
     def getCurrentDate(self) -> datetime:
         now = datetime.now()
@@ -195,12 +210,16 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
 
         numberOfValuesToAppend = min(numberOfValuesToAppend, self.maxPricesToTrack)
 
-        # startTime = (now - timedelta(seconds=self.secondsBetweenUpdates) - self._epoch).total_seconds() * 1000.0
-        # endTime = (now - self._epoch).total_seconds() * 1000.0
-        trades = self._client.get_recent_trades(symbol=ticker,
-                                             # startTime=int(startTime),
-                                             # endTime=int(endTime),
-                                             limit=self._incomingDataLimit)
+        try:
+            trades = self._client.get_recent_trades(symbol=ticker,
+                                                 # startTime=int(startTime),
+                                                 # endTime=int(endTime),
+                                                 limit=self._incomingDataLimit)
+        except binance.exceptions.BinanceAPIException as e:
+            print("CurrentBinanceDataObtainer _update failed!")
+            print(e)
+            return
+
         price = 0.0
         volume = 0.0
 
@@ -266,9 +285,3 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
 
         data = pd.DataFrame(klines2, columns=['close', 'volume'])
         return data
-
-    def _minutes_of_new_data(self, symbol, kline_size):
-        new = pd.to_datetime(
-            self._client.get_klines(symbol=symbol, interval=kline_size)[-1][
-                0], unit='ms')
-        return new
