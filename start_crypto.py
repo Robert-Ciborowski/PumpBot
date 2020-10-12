@@ -112,7 +112,7 @@ if __name__ == "__main__":
         fastForwardAmount=1)
     EventDispatcher.getInstance().addListener(trader, "PumpAndDump")
 
-    threadRunner = ThreadRunner(endTime=datetime.now() + timedelta(hours=9))
+    threadRunner = ThreadRunner(endTime=datetime.now() + timedelta(days=7))
     database.useThreadRunner(threadRunner)
     trader.useThreadRunner(threadRunner)
 
