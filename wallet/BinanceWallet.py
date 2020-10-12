@@ -14,6 +14,10 @@ class BinanceWallet(Wallet):
     client: Client
     withdrawAddress: str
 
+    # Amount of times to try to get data with the Binance API if we fail to get
+    # it the first time:
+    _tryAmount: int
+
     def __init__(self, withdrawAddress="", binanceKey="", binanceAPIKey=""):
         if binanceKey is None or binanceAPIKey is None:
             self.client = None
@@ -22,6 +26,7 @@ class BinanceWallet(Wallet):
                                  api_secret=binanceAPIKey)
 
         self.withdrawAddress = withdrawAddress
+        self._tryAmount = 5
 
     def useBinanceKeysFromFile(self, propertiesFile: str):
         try:
@@ -39,79 +44,69 @@ class BinanceWallet(Wallet):
                                                       "@mail.utoronto.ca) for "
                                                       "help.")
 
-    def purchase(self, ticker: str, amountInBaseCurrency: float,
-                 amountInPurchaseCurrency: float, test=True) -> bool:
+    def purchase(self, ticker: str, amountInPurchaseCurrency: float, test=True) -> bool:
         """
         Purchases a cryptocurrency.
         :param ticker: what to purchase
-        :param amount: the amount to purchase, units: ticker
+        :param amountInPurchaseCurrency: the amount to purchase, units: ticker
         :param test: whether this is a test order or a real one
         :return: success of the transaction
         """
-        try:
-            if test:
-                self.client.create_test_order(
-                    symbol=ticker,
-                    side=Client.SIDE_BUY,
-                    type=Client.ORDER_TYPE_MARKET,
-                    quantity=amountInPurchaseCurrency)
-                print(
-                    "BinanceWallet purchase still needs to be tested to see if it "
-                    "takes in quantity in buy currency or BTC!")
-            else:
-                print(
-                    "BinanceWallet purchase still needs to be tested to see if it "
-                    "takes in quantity in buy currency or BTC!")
-                # self.client.create_order(
-                #     symbol=ticker,
-                #     side=Client.SIDE_BUY,
-                #     type=Client.ORDER_TYPE_MARKET,
-                #     quantity=amountInPurchaseCurrency)
-        except binance.exceptions.BinanceAPIException as e:
-            print("A BinanceTransactor transaction failed to occur!")
-            print(e)
-            return False
-        except:
-            print("A BinanceTransactor transaction failed to occur! No details.")
-            return False
+        for i in range(self._tryAmount):
+            try:
+                if test:
+                    # quantity is the amount in the purchase currency!
+                    self.client.create_test_order(
+                        symbol=ticker,
+                        side=Client.SIDE_BUY,
+                        type=Client.ORDER_TYPE_MARKET,
+                        quantity=amountInPurchaseCurrency)
+                    return True
+                else:
+                    self.client.create_order(
+                        symbol=ticker,
+                        side=Client.SIDE_BUY,
+                        type=Client.ORDER_TYPE_MARKET,
+                        quantity=amountInPurchaseCurrency)
+                    return True
+            except binance.exceptions.BinanceAPIException as e:
+                print("A wallet purchase transaction failed to occur for " + ticker + "! Trying " + str(self._tryAmount - 1 - i) + " more times.")
+                print(e)
+            except:
+                print("A wallet purchase transaction failed to occur! for " + ticker + "! Trying " + str(self._tryAmount - 1 - i) + " more times. No details.")
 
-        return True
+        return False
 
-    def sell(self, ticker: str, amountInBaseCurrency: float,
-             amountInSellCurrency: float, test=True) -> bool:
+    def sell(self, ticker: str, amountInSellCurrency: float, test=True) -> bool:
         """
         Sells a cryptocurrency.
         :param ticker: what to sell
-        :param amount: the amount to sell, units: ticker
+        :param amountInSellCurrency: the amount to sell, units: ticker
         :return: success of the transaction
         """
-        try:
-            if test:
-                self.client.create_test_order(
-                    symbol=ticker,
-                    side=Client.SIDE_SELL,
-                    type=Client.ORDER_TYPE_MARKET,
-                    quantity=amountInSellCurrency)
-                print("BinanceWallet sell still needs to be tested to see if it "
-                      "takes in quantity in sell currency or BTC!")
-            else:
-                print(
-                    "BinanceWallet sell still needs to be tested to see if it "
-                    "takes in quantity in sell currency or BTC!")
-                # self.client.create_order(
-                #     symbol=ticker,
-                #     side=Client.SIDE_SELL,
-                #     type=Client.ORDER_TYPE_MARKET,
-                #     quantity=amountInSellCurrency)
-        except binance.exceptions.BinanceAPIException as e:
-            print("A BinanceTransactor transaction failed to occur!")
-            print(e)
-            return False
-        except:
-            print("A BinanceTransactor transaction failed to occur! No details.")
-            return False
+        for i in range(self._tryAmount):
+            try:
+                if test:
+                    self.client.create_test_order(
+                        symbol=ticker,
+                        side=Client.SIDE_SELL,
+                        type=Client.ORDER_TYPE_MARKET,
+                        quantity=amountInSellCurrency)
+                    return True
+                else:
+                    self.client.create_order(
+                        symbol=ticker,
+                        side=Client.SIDE_SELL,
+                        type=Client.ORDER_TYPE_MARKET,
+                        quantity=amountInSellCurrency)
+                    return True
+            except binance.exceptions.BinanceAPIException as e:
+                print("A BinanceTransactor sell transaction failed to occur for " + ticker + "! Trying " + str(self._tryAmount - 1 - i) + " more times.")
+                print(e)
+            except:
+                print("A BinanceTransactor transaction failed to occur! No details.")
 
-        return True
+        return False
 
     def getBalance(self, ticker="BTC") -> float:
         """
@@ -119,7 +114,14 @@ class BinanceWallet(Wallet):
         :param ticker: the asset
         :return: amount owned, units: ticker
         """
-        return float(self.client.get_asset_balance(asset=ticker)["free"])
+        for i in range(self._tryAmount):
+            try:
+                return float(self.client.get_asset_balance(asset=ticker)["free"])
+            except BinanceAPIException as e:
+                print("BinanceAPI Exception occured in wallet getBalance() for " + ticker + "! Trying " + str(self._tryAmount - 1 - i) + " more times.")
+                print(e)
+
+        return 0.0
 
     def getBalanceLocked(self, ticker="BTC") -> float:
         """
@@ -127,18 +129,46 @@ class BinanceWallet(Wallet):
         :param ticker: the asset
         :return: amount owned, units: ticker
         """
-        return float(self.client.get_asset_balance(asset=ticker)["locked"])
+        for i in range(self._tryAmount):
+            try:
+                return float(self.client.get_asset_balance(asset=ticker)["locked"])
+            except BinanceAPIException:
+                print("BinanceAPI Exception occured in wallet getBalanceLocked() for " + ticker + "! Trying " + str(self._tryAmount - 1 - i) + " more times.")
+                print(e)
 
-    def getDepositAddress(self, coin="BTC") -> str:
-        return self.client.get_deposit_address(asset=coin)["address"]
+        return 0.0
 
-    def getWithdrawals(self, coin=""):
-        if coin == "":
-            withdraws = self.client.get_withdraw_history()
-            return withdraws
+    def getDepositAddress(self, ticker="BTC") -> str:
+        for i in range(self._tryAmount):
+            try:
+                return self.client.get_deposit_address(asset=ticker)["address"]
+            except BinanceAPIException as e:
+                print("BinanceAPI Exception occured in wallet getDepositAddress() for " + ticker + "! Trying " + str(self._tryAmount - 1 - i) + " more times.")
+                print(e)
 
-        withdraws = self.client.get_withdraw_history(asset=coin)
-        return withdraws
+        return ""
 
-    def getTradeFee(self, coin: str):
-        return self.client.get_trade_fee(symbol=coin)
+    def getWithdrawals(self, ticker=""):
+        for i in range(self._tryAmount):
+            try:
+                if ticker == "":
+                    withdraws = self.client.get_withdraw_history()
+                    return withdraws
+
+                withdraws = self.client.get_withdraw_history(asset=ticker)
+                return withdraws
+            except BinanceAPIException as e:
+                print("BinanceAPI Exception occured in wallet getWithdrawals() for " + ticker + "! Trying " + str(self._tryAmount - 1 - i) + " more times.")
+                print(e)
+
+        return 0.0
+
+    def getTradeFee(self, ticker: str):
+        for i in range(self._tryAmount):
+            try:
+                return self.client.get_trade_fee(symbol=ticker)
+            except BinanceAPIException as e:
+                print("BinanceAPI Exception occured in wallet getTradeFee() for " + ticker + "! Trying " + str(self._tryAmount - 1 - i) + " more times.")
+                print(e)
+
+        return 0.0

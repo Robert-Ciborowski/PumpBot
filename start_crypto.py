@@ -88,6 +88,10 @@ if __name__ == "__main__":
     # This sets up the wallet.
     wallet = BinanceWallet()
     wallet.useBinanceKeysFromFile("binance_properties.json")
+    print("Current balance: " + str(wallet.getBalance()))
+    # wallet.purchase("OAXBTC", 0.0, 100, test=True)
+    # wallet.sell("OAXBTC", 0.0, 100, test=True)
+    print("Current balance: " + str(wallet.getBalance()))
 
     # This sets up the trader.
     trader = ProfitPumpTrader(

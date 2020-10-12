@@ -59,7 +59,7 @@ class MinutePumpTrader(PumpTrader):
         success = self.tracker.isOwned(PumpTrade(ticker, price, investment, buyTimestamp=time))
 
         if success and self.timeOfLastSell + timedelta(minutes=self.minutesAfterSell) <= datetime.now():
-            if self.wallet.purchase(ticker, investment, test=TEST_MODE):
+            if self.wallet.purchase(ticker, investment / price, test=TEST_MODE):
                 print("MinutePumpTrader is buying " + ticker)
                 EventDispatcher.getInstance().dispatchEvent(
                     InvestmentEvent(ticker, price, confidence, investment))

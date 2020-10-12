@@ -14,7 +14,7 @@ SAMPLES_PER_MINUTE = 10
 SECONDS_BETWEEN_SAMPLES = 6
 
 # For running the actual program
-TEST_MODE = True
+TEST_MODE = False
 
 # Old
 GROUPED_DATA_SIZE = 5

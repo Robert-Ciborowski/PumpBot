@@ -5,8 +5,7 @@ from stock_data.StockDataObtainer import StockDataObtainer
 
 
 class Wallet:
-    def purchase(self, ticker: str, amountInBaseCurrency: float,
-                 amountInPurchaseCurrency: float, test=True) -> bool:
+    def purchase(self, ticker: str, amountInPurchaseCurrency: float, test=True) -> bool:
         """
         Purschases a stock/cryptocurrency.
         :param ticker: what to purchase
@@ -15,8 +14,7 @@ class Wallet:
         """
         pass
 
-    def sell(self, ticker: str, amountInBaseCurrency: float,
-             amountInSellCurrency: float, test=True) -> bool:
+    def sell(self, ticker: str, amountInSellCurrency: float, test=True) -> bool:
         """
         Sells a stock/cryptocurrency.
         :param ticker: what to sell
