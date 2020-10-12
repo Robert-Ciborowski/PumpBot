@@ -29,6 +29,7 @@ data_set/dataset_figures/*
 simulator_output.txt
 simulator_trades.txt
 simulator_trades.csv
+crypto_output.txt
 simulator_figures/*
 
 venv-3.6.8

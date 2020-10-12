@@ -14,6 +14,7 @@ from filter.PassThroughStockFilter import PassThroughStockFilter
 from listing_obtainers.BinanceListingObtainer import BinanceListingObtainer
 from listing_obtainers.NASDAQListingObtainer import NASDAQListingObtainer
 from listing_obtainers.SpecifiedListingObtainer import SpecifiedListingObtainer
+from logger.Logger import Logger
 from models.CryptoPumpAndDumpDetector import CryptoPumpAndDumpDetector
 from models.DummyPumpAndDumpDetector import DummyPumpAndDumpDetector
 from datetime import datetime, timedelta
@@ -50,6 +51,10 @@ if __name__ == "__main__":
     tickers = ["OAXBTC"]
 
     properties = getProperties("crypto_properties.json")
+
+    # For logging our outputs to a file
+    import sys
+    sys.stdout = Logger("crypto_output.txt")
 
     # This sets up data obtaining.
     dataObtainer = CurrentBinanceDataObtainer(MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL * SAMPLES_PER_MINUTE, SECONDS_BETWEEN_SAMPLES)
