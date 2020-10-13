@@ -11,6 +11,7 @@ from typing import Dict, List
 import json
 import pandas as pd
 import numpy as np
+import requests
 from dateutil import parser
 
 import binance
@@ -189,9 +190,18 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
                 return df["close"].to_numpy(), df["volume"].to_numpy()
             except binance.exceptions.BinanceAPIException as e:
                 print(
-                    "obtainMinutePricesAndVolumes failed to work for " + ticker + "! Trying " + str(
+                    "obtainMinutePricesAndVolumes failed to work for " + ticker + "! BinanceAPIException. Trying " + str(
                         self._tryAmount - 1 - i) + " more times.")
                 print(e)
+            except requests.exceptions.ReadTimeout as e:
+                print(
+                    "obtainMinutePricesAndVolumes failed to work for " + ticker + "! ReadTimeout. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
+                print(e)
+            except:
+                print(
+                    "obtainMinutePricesAndVolumes failed to work for " + ticker + "! Unknown. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
 
         return np.asarray([0.0 for i in range(numberOfPrices)])
 
@@ -216,8 +226,15 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
                                                  # endTime=int(endTime),
                                                  limit=self._incomingDataLimit)
         except binance.exceptions.BinanceAPIException as e:
-            print("CurrentBinanceDataObtainer _update failed!")
+            print("CurrentBinanceDataObtainer _update failed! BinanceAPIException")
             print(e)
+            return
+        except requests.exceptions.ReadTimeout as e:
+            print("CurrentBinanceDataObtainer _update failed! requests.exceptions.ReadTimeout")
+            print(e)
+            return
+        except:
+            print("CurrentBinanceDataObtainer _update failed! Unknown error")
             return
 
         price = 0.0

@@ -4,6 +4,7 @@ A wallet tied to Binance.
 import json
 
 import binance
+import requests
 
 from util.Constants import BINANCE_DATA_FETCH_ATTEMPT_AMOUNT
 from wallet.Wallet import Wallet
@@ -71,10 +72,19 @@ class BinanceWallet(Wallet):
                         quantity=amountInPurchaseCurrency)
                     return True
             except binance.exceptions.BinanceAPIException as e:
-                print("A wallet purchase transaction failed to occur for " + ticker + "! Trying " + str(self._tryAmount - 1 - i) + " more times.")
+                print(
+                    "purchase failed to work for " + ticker + "! BinanceAPIException. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
+                print(e)
+            except requests.exceptions.ReadTimeout as e:
+                print(
+                    "purchase failed to work for " + ticker + "! ReadTimeout. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
                 print(e)
             except:
-                print("A wallet purchase transaction failed to occur! for " + ticker + "! Trying " + str(self._tryAmount - 1 - i) + " more times. No details.")
+                print(
+                    "purchase failed to work for " + ticker + "! Unknown. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
 
         return False
 
@@ -102,10 +112,19 @@ class BinanceWallet(Wallet):
                         quantity=amountInSellCurrency)
                     return True
             except binance.exceptions.BinanceAPIException as e:
-                print("A BinanceTransactor sell transaction failed to occur for " + ticker + "! Trying " + str(self._tryAmount - 1 - i) + " more times.")
+                print(
+                    "sell failed to work for " + ticker + "! BinanceAPIException. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
+                print(e)
+            except requests.exceptions.ReadTimeout as e:
+                print(
+                    "sell failed to work for " + ticker + "! ReadTimeout. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
                 print(e)
             except:
-                print("A BinanceTransactor transaction failed to occur! No details.")
+                print(
+                    "sell failed to work for " + ticker + "! Unknown. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
 
         return False
 
@@ -118,9 +137,20 @@ class BinanceWallet(Wallet):
         for i in range(self._tryAmount):
             try:
                 return float(self.client.get_asset_balance(asset=ticker)["free"])
-            except BinanceAPIException as e:
-                print("BinanceAPI Exception occured in wallet getBalance() for " + ticker + "! Trying " + str(self._tryAmount - 1 - i) + " more times.")
+            except binance.exceptions.BinanceAPIException as e:
+                print(
+                    "getBalance failed to work for " + ticker + "! BinanceAPIException. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
                 print(e)
+            except requests.exceptions.ReadTimeout as e:
+                print(
+                    "getBalance failed to work for " + ticker + "! ReadTimeout. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
+                print(e)
+            except:
+                print(
+                    "getBalance failed to work for " + ticker + "! Unknown. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
 
         return 0.0
 
@@ -133,9 +163,20 @@ class BinanceWallet(Wallet):
         for i in range(self._tryAmount):
             try:
                 return float(self.client.get_asset_balance(asset=ticker)["locked"])
-            except BinanceAPIException:
-                print("BinanceAPI Exception occured in wallet getBalanceLocked() for " + ticker + "! Trying " + str(self._tryAmount - 1 - i) + " more times.")
+            except binance.exceptions.BinanceAPIException as e:
+                print(
+                    "getBalanceLocked failed to work for " + ticker + "! BinanceAPIException. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
                 print(e)
+            except requests.exceptions.ReadTimeout as e:
+                print(
+                    "getBalanceLocked failed to work for " + ticker + "! ReadTimeout. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
+                print(e)
+            except:
+                print(
+                    "getBalanceLocked failed to work for " + ticker + "! Unknown. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
 
         return 0.0
 
@@ -143,9 +184,20 @@ class BinanceWallet(Wallet):
         for i in range(self._tryAmount):
             try:
                 return self.client.get_deposit_address(asset=ticker)["address"]
-            except BinanceAPIException as e:
-                print("BinanceAPI Exception occured in wallet getDepositAddress() for " + ticker + "! Trying " + str(self._tryAmount - 1 - i) + " more times.")
+            except binance.exceptions.BinanceAPIException as e:
+                print(
+                    "getDepositAddress failed to work for " + ticker + "! BinanceAPIException. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
                 print(e)
+            except requests.exceptions.ReadTimeout as e:
+                print(
+                    "getBalance failed to work for " + ticker + "! ReadTimeout. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
+                print(e)
+            except:
+                print(
+                    "getBalance failed to work for " + ticker + "! Unknown. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
 
         return ""
 
@@ -158,9 +210,20 @@ class BinanceWallet(Wallet):
 
                 withdraws = self.client.get_withdraw_history(asset=ticker)
                 return withdraws
-            except BinanceAPIException as e:
-                print("BinanceAPI Exception occured in wallet getWithdrawals() for " + ticker + "! Trying " + str(self._tryAmount - 1 - i) + " more times.")
+            except binance.exceptions.BinanceAPIException as e:
+                print(
+                    "getWithdrawals failed to work for " + ticker + "! BinanceAPIException. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
                 print(e)
+            except requests.exceptions.ReadTimeout as e:
+                print(
+                    "getWithdrawals failed to work for " + ticker + "! ReadTimeout. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
+                print(e)
+            except:
+                print(
+                    "getWithdrawals failed to work for " + ticker + "! Unknown. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
 
         return 0.0
 
@@ -168,8 +231,19 @@ class BinanceWallet(Wallet):
         for i in range(self._tryAmount):
             try:
                 return self.client.get_trade_fee(symbol=ticker)
-            except BinanceAPIException as e:
-                print("BinanceAPI Exception occured in wallet getTradeFee() for " + ticker + "! Trying " + str(self._tryAmount - 1 - i) + " more times.")
+            except binance.exceptions.BinanceAPIException as e:
+                print(
+                    "getTradeFee failed to work for " + ticker + "! BinanceAPIException. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
                 print(e)
+            except requests.exceptions.ReadTimeout as e:
+                print(
+                    "getTradeFee failed to work for " + ticker + "! ReadTimeout. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
+                print(e)
+            except:
+                print(
+                    "getTradeFee failed to work for " + ticker + "! Unknown. Trying " + str(
+                        self._tryAmount - 1 - i) + " more times.")
 
         return 0.0
