@@ -203,7 +203,7 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
                     "obtainMinutePricesAndVolumes failed to work for " + ticker + "! Unknown. Trying " + str(
                         self._tryAmount - 1 - i) + " more times.")
 
-        return np.asarray([0.0 for i in range(numberOfPrices)])
+        return np.asarray([0.0 for i in range(numberOfPrices)]), np.asarray([0.0 for i in range(numberOfPrices)])
 
 
     def getCurrentDate(self) -> datetime:

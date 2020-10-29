@@ -146,7 +146,7 @@ class TrackedStockDatabase:
             except KeyError as e:
                 print("Tried to obtain " + ticker + " from the database, but "
                                                     "that stock isn't tracked!")
-                return []
+                return [], []
 
     def update(self):
         while not self._stopThread:
