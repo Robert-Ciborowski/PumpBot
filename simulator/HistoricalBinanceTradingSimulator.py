@@ -81,6 +81,7 @@ class HistoricalBinanceTradingSimulator:
                                                           self.endDate + timedelta(days=1),
                                                           filePathPrefix=self.historicalDataLocation + "/",
                                                           fastForwardAmount=self._fastForwardAmount)
+        self.wallet.dataObtainer = self.dataObtainer
         listings_obtainer = SpecifiedListingObtainer(self.tickers)
         filter = PassThroughStockFilter(self.dataObtainer)
         filter.addListings(listings_obtainer) \

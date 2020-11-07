@@ -187,6 +187,8 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
                 now = datetime.now()
                 now = datetime(now.year, now.month, now.day, now.hour, now.minute)
                 df = self._get_all_binance(ticker, now, SAMPLES_OF_DATA_TO_LOOK_AT)
+                print("Obtaining minute price and volume data of " + ticker + " at " + str(
+                        now) + ".")
                 return df["close"].to_numpy(), df["volume"].to_numpy()
             except binance.exceptions.BinanceAPIException as e:
                 print(
@@ -253,8 +255,8 @@ class CurrentBinanceDataObtainer(StockDataObtainer):
             price = self._recentPrices[ticker][-1]
             volume = self._recentVolumes[ticker][-1]
 
-        print("Price of " + ticker + " at " + str(now) + " is " + str(
-            price) + ", volume is " + str(volume) + ".")
+        # print("Price of " + ticker + " at " + str(now) + " is " + str(
+        #     price) + ", volume is " + str(volume) + ".")
 
         for i in range(numberOfValuesToAppend):
             self._recentPrices[ticker].append(price)

@@ -174,7 +174,7 @@ class ProfitPumpTrader(PumpTrader):
 
         # This sells all of the asset.
         amount = self.wallet.getBalance(ticker)
-        self.wallet.sell(ticker, amount * price, amount, test=TEST_MODE)
+        self.wallet.sell(ticker, amount, test=TEST_MODE)
 
         # This keeps track of statistics.
         price = self.stockDatabase.getCurrentStockPrice(ticker)

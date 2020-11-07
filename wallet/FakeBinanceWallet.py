@@ -22,7 +22,7 @@ class FakeBinanceWallet(Wallet):
         self.balances = {}
         self.dataObtainer = None
 
-    def purchase(self, ticker: str, amountInBaseCurrency: float,
+    def purchase(self, ticker: str,
                  amountInPurchaseCurrency: float, test=True) -> bool:
         """
         Purchases a cryptocurrency.
@@ -31,6 +31,8 @@ class FakeBinanceWallet(Wallet):
         :param test: whether this is a test order or a real one
         :return: success of the transaction
         """
+        amountInBaseCurrency = self.dataObtainer.obtainMinutePricesAndVolumes(ticker)[0][-1] * amountInPurchaseCurrency
+
         if amountInBaseCurrency < self.minimumTradeAmount:
             print(
                 "Tried to purchase " + ticker + " but amount is too small: " + str(amountInBaseCurrency) + " (FakeBinanceWallet).")
@@ -49,7 +51,7 @@ class FakeBinanceWallet(Wallet):
         print("Current amount of funds: " + str(self.baseCurrencyAmount) + " (FakeBinanceWallet purchase)")
         return True
 
-    def sell(self, ticker: str, amountInBaseCurrency: float,
+    def sell(self, ticker: str,
              amountInSellCurrency: float, test=True) -> bool:
         """
         Sells a cryptocurrency.
@@ -57,11 +59,14 @@ class FakeBinanceWallet(Wallet):
         :param amount: the amount to sell, units: ticker
         :return: success of the transaction
         """
+        amountInBaseCurrency = self.dataObtainer.obtainPrice(ticker)
+
         if ticker in self.balances:
             self.balances[ticker] -= amountInSellCurrency
         else:
             print("Tried to sell " + ticker + " but not enough is owned (FakeBinanceWallet).")
             return False
+
 
         self.baseCurrencyAmount += (1 - self.binanceFee) * amountInBaseCurrency
         print("Current amount of funds: " + str(
