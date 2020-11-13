@@ -132,10 +132,10 @@ class HistoricalBinanceTradingSimulator:
             MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL * SAMPLES_PER_MINUTE,
             SECONDS_BETWEEN_SAMPLES)
         discordObtainer.trackStocks(self.tickers)
-        bot = DiscordBot(discordObtainer, "bot_properties.json",
-                         "bot_secret_properties.json", "8")
-        bot.runOnSeperateThread()
-        EventDispatcher.getInstance().addListener(bot, "Investment")
+        # bot = DiscordBot(discordObtainer, "bot_properties.json",
+        #                  "bot_secret_properties.json", "8")
+        # bot.runOnSeperateThread()
+        # EventDispatcher.getInstance().addListener(bot, "Investment")
 
     def start(self):
         print("Starting historical Binance trading simulator...")

@@ -10,7 +10,7 @@ from util.Constants import BINANCE_DATA_FETCH_ATTEMPT_AMOUNT
 from wallet.Wallet import Wallet
 from binance.client import Client
 from binance.exceptions import BinanceAPIException, BinanceWithdrawException
-
+from decimal import *
 
 class BinanceWallet(Wallet):
     client: Client
@@ -65,11 +65,12 @@ class BinanceWallet(Wallet):
                         quantity=amountInPurchaseCurrency)
                     return True
                 else:
+                    getcontext().prec = 5
                     self.client.create_order(
                         symbol=ticker,
                         side=Client.SIDE_BUY,
                         type=Client.ORDER_TYPE_MARKET,
-                        quantity=amountInPurchaseCurrency)
+                        quantity=Decimal(amountInPurchaseCurrency))
                     return True
             except binance.exceptions.BinanceAPIException as e:
                 print(

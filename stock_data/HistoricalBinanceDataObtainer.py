@@ -134,12 +134,12 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                                      second=date.second)
         timezone = pytz.timezone(self.timezone)
         d_aware = timezone.localize(start_date_to_use)
-        price = self._getValues(ticker, ["Close"], d_aware, seconds=1)["Close"]
+        price = self._getValues(ticker, ["Close"], d_aware, seconds=60)["Close"]
 
         if len(price) == 0:
             price = 0.0
         else:
-            price = price[0]
+            price = price[-1]
 
         print("Price at " + str(d_aware) + ": " + str(price))
 

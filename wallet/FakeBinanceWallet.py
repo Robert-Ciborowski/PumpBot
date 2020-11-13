@@ -59,7 +59,7 @@ class FakeBinanceWallet(Wallet):
         :param amount: the amount to sell, units: ticker
         :return: success of the transaction
         """
-        amountInBaseCurrency = self.dataObtainer.obtainPrice(ticker)
+        amountInBaseCurrency = amountInSellCurrency * self.dataObtainer.obtainPrice(ticker)
 
         if ticker in self.balances:
             self.balances[ticker] -= amountInSellCurrency
