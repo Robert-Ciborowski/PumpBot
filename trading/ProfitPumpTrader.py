@@ -87,7 +87,7 @@ class ProfitPumpTrader(PumpTrader):
         if success:
             if self.wallet.purchase(ticker, investment / price, test=TEST_MODE):
                 print("MinutePumpTrader is buying " + ticker + " with " + str(
-                    investment) + "...")
+                    investment) + " at price " + str(price) + "...")
                 self.tracker.addNewTrade(pumpTrade)
                 EventDispatcher.getInstance().dispatchEvent(
                     InvestmentEvent(ticker, price, confidence, investment))
@@ -95,8 +95,8 @@ class ProfitPumpTrader(PumpTrader):
                 with self._tradesLock:
                     self.ongoingTrades[ticker] = [self.stockDatabase.getCurrentTime(), price, price]
             else:
-                print("MinutePumpTrader failed to buy " + ticker + " with " + str(
-                    investment) + "...")
+                print("ProfitPumpTrader failed to buy " + ticker + " with " + str(
+                    investment) + " at price " + str(price) + "...")
 
     def start(self):
         self._stopThread = False

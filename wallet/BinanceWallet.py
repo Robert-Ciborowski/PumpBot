@@ -231,8 +231,8 @@ class BinanceWallet(Wallet):
                 print(e)
             except:
                 print(
-                    "getWithdrawals failed to work for " + ticker + "! Unknown. Trying " + str(
-                        self._tryAmount - 1 - i) + " more times.")
+                    "getWithdrawals failed to work for " + ticker + "! Unknown error! Trying " + str(
+                        self._tryAmount - 1 - i) + " more times. " + str(e))
 
         return 0.0
 
@@ -263,6 +263,6 @@ class BinanceWallet(Wallet):
         if info is None:
             return
 
-        stepSize = info[ticker]["ficlter"][1]["stepSize"]
+        stepSize = float(info["filter"][2]["stepSize"])
         precision = int(round(-math.log(stepSize, 10), 0))
         self._symbolPrecisions[ticker] = precision
