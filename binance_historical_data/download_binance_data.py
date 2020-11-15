@@ -118,8 +118,8 @@ if __name__ == "__main__":
     ]
 
     print(datetime.now())
-    downloadSpecificBinanceDataToCSV(tickers, oldest=datetime(year=2020, month=10, day=1))
-    # downloadSpecificBinanceDataToCSV(tickers)
+    # downloadSpecificBinanceDataToCSV(tickers, oldest=datetime(year=2020, month=10, day=1))
+    downloadSpecificBinanceDataToCSV(tickers)
 
     # downloadBinanceDataToCSV()
     # downloadSpecificBinanceDataToCSV("OAXBTC")

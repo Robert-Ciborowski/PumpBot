@@ -9,8 +9,8 @@ from dateutil import parser
 # from tqdm import tqdm_notebook #(Optional, used for progress-bars)
 
 ### API
-binance_api_key = "0rrfC2KKc7yo3wAi353jmNp7aeRvkQF398l6mHNQvWechYhgcqn3KWF7lISnPoHQ"    #Enter your own API-key here
-binance_api_secret = "fY6pYILgcyTrnCnOYbxdxpIDf5lMmKT7UHOmlq7k11d0ddtYIPrDxcNB1ZXBanr4" #Enter your own API-secret here
+binance_api_key = ""    #Enter your own API-key here
+binance_api_secret = "" #Enter your own API-secret here
 
 ### CONSTANTS
 binsizes = {"1m": 1, "5m": 5, "1h": 60, "1d": 1440}

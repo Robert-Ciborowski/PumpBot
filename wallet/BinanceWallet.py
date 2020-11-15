@@ -69,7 +69,7 @@ class BinanceWallet(Wallet):
                     return True
                 else:
                     if ticker not in self._symbolPrecisions:
-                        self.addSymbolPrecision(ticker)
+                        self._addSymbolPrecision(ticker)
 
                     self.client.create_order(
                         symbol=ticker,
@@ -112,7 +112,7 @@ class BinanceWallet(Wallet):
                     return True
                 else:
                     if ticker not in self._symbolPrecisions:
-                        self.addSymbolPrecision(ticker)
+                        self._addSymbolPrecision(ticker)
 
                     self.client.create_order(
                         symbol=ticker,
@@ -257,12 +257,12 @@ class BinanceWallet(Wallet):
 
         return 0.0
 
-    def addSymbolPrecision(self, ticker: str):
+    def _addSymbolPrecision(self, ticker: str):
         info = self.client.get_symbol_info(ticker)
 
         if info is None:
             return
 
-        stepSize = float(info["filter"][2]["stepSize"])
+        stepSize = float(info["filters"][2]["stepSize"])
         precision = int(round(-math.log(stepSize, 10), 0))
         self._symbolPrecisions[ticker] = precision

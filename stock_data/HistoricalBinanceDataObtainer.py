@@ -69,11 +69,11 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
     """
     def _readTickerData(self, ticker: str):
         listOfDicts = []
-        index = []
         entries = []
 
         path = self.filePathPrefix + ticker + "-1m-data.csv"
         count = 0
+        numSamples = 0
         timezone = pytz.timezone(self.timezone)
 
         try:
@@ -108,9 +108,9 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                     if timing > self.dateOfEnd:
                         break
 
-                    entries2, dicts, indices = self._generateSubMinuteData(row, timing, SAMPLES_PER_MINUTE)
+                    entries2, dicts, totalSamples = self._generateSubMinuteData(row, timing, SAMPLES_PER_MINUTE)
                     listOfDicts += dicts
-                    index += indices
+                    numSamples += totalSamples
                     entries += entries2
                     count += 1
 
@@ -119,7 +119,7 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
                         count = 0
 
             # df = pd.DataFrame(entries, index=index, columns=["Timestamp", "Open", "High", "Low", "Close", "Volume"])
-            df = pd.DataFrame(entries, index=index, columns=["Timestamp", "Close", "Volume"])
+            df = pd.DataFrame(entries, index=[i for i in range(numSamples)], columns=["Timestamp", "Close", "Volume"])
             self._dataAsDataFrames[ticker] = df
             self._dataAsListOfDicts[ticker] = listOfDicts
             print("Done reading " + ticker + " historical data.")
@@ -312,6 +312,6 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
             dicts.append(d)
             entries.append([timeIndex[i], prices[i], trade])
 
-        return entries, dicts, timeIndex
+        return entries, dicts, samplesPerMinute
 
 
