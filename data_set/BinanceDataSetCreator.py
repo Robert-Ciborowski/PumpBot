@@ -21,14 +21,15 @@ class BinanceDataSetCreator:
     dataObtainer: HistoricalBinanceDataObtainer
     numberOfSamples: int
     samplesBeforePumpPeak: int
+    pumpSpike: float
+    pumpDrop: float
 
-    def __init__(self, dataObtainer: HistoricalBinanceDataObtainer):
+    def __init__(self, dataObtainer: HistoricalBinanceDataObtainer, pumpSpike=0.04, pumpDrop=0.04):
         self.dataObtainer = dataObtainer
         self.numberOfSamples = SAMPLES_OF_DATA_TO_LOOK_AT
-        # self.samplesBeforePumpPeak = 3
         self.samplesBeforePumpPeak = 0
-        # self.samplesBeforePumpPeak = 30
-        # self.samplesBeforePumpPeak = 7
+        self.pumpSpike = pumpSpike
+        self.pumpDrop = pumpDrop
 
     def exportPumpsToCSV(self, symbol: str, rightBeforePumps: List,
                          areTheyPumps=True, pathPrefix=""):
@@ -48,22 +49,12 @@ class BinanceDataSetCreator:
                 priceRAList = ["Price-RA-" + str(i) for i in range(SAMPLES_OF_DATA_TO_LOOK_AT)]
                 volumeList = ["Volume-" + str(i) for i in range(SAMPLES_OF_DATA_TO_LOOK_AT)]
                 volumeRAList = ["Volume-RA-" + str(i) for i in range(SAMPLES_OF_DATA_TO_LOOK_AT)]
-                # volumeList = ["Volume-RA-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))]
-                # priceList = ["Price-RA-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE))]
-                # volumeList2 = ["Volume-RA2-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2))]
-                # priceList2 = ["Price-RA2-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 2))]
-                # volumeList3 = ["Volume-RA3-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3))]
-                # priceList3 = ["Price-RA3-" + str(i) for i in range(int(SAMPLES_OF_DATA_TO_LOOK_AT / GROUPED_DATA_SIZE / 3))]
                 writer.writerow(priceList + priceRAList + volumeList + volumeRAList + ["Pump"])
                 count = 1
 
                 for df in rightBeforePumps:
                     print(str(count) + "/" + str(len(rightBeforePumps)) + " arePumps: " + str(areTheyPumps))
                     count += 1
-                    # if str(ROLLING_AVERAGE_SIZE) + "m Volume RA" not in df.columns:
-                    #     print(str(ROLLING_AVERAGE_SIZE) + "m Volume RA not in dataframe! Are they pumps: " + str(areTheyPumps))
-                    #     print(df.columns)
-                    #     continue
 
                     mean = df["Volume"].mean()
                     std = df["Volume"].std()
@@ -71,13 +62,6 @@ class BinanceDataSetCreator:
                     mean = df["Close"].mean()
                     std = df["Close"].std()
                     prices = (df["Close"] - mean) / std
-                    # volumes = volumes.abs()
-                    # prices = prices.abs()
-                    # volumes = volumes / volumes.max()
-                    # prices = prices / prices.max()
-                    # volumes = df["Volume"]
-                    # prices = df["Close"]
-                    # pricesMax = prices.max()
 
                     priceRA = prices.rolling(window=ROLLING_AVERAGE_SIZE_FOR_MODEL, min_periods=1,
                                                center=False).mean()
@@ -110,26 +94,6 @@ class BinanceDataSetCreator:
                     volumes = volumes / volumesMax
                     volumeRA = volumeRA / volumesRAMax
 
-                    # prices = prices / pricesMax
-
-                    # max = df["Volume"].max()
-                    # volumes = df["Volume"] / max
-                    # max = df["Close"].max()
-                    # prices = df["Close"] / max
-                    # csvRow = []
-
-                    # volumes = pd.cut(volumes, bins=MEME).value_counts().values
-                    # prices = pd.cut(prices, bins=MEME).value_counts().values
-                    # volumes = df["Volume"]
-                    # prices = df["Close"]
-
-                    # volumesDf = df["Volume"]
-                    # pricesDf = df["Close"]
-                    #
-                    # volumes, prices = self._generateVolumeAndPriceData(volumesDf, pricesDf, GROUPED_DATA_SIZE)
-                    # volumes2, prices2 = self._generateVolumeAndPriceData(volumesDf, pricesDf, GROUPED_DATA_SIZE * 2)
-                    # volumes3, prices3 = self._generateVolumeAndPriceData(volumesDf, pricesDf, GROUPED_DATA_SIZE * 3)
-
                     # Becomes true if a value is nan so that we can skip this
                     # pump.
                     cancel = False
@@ -138,7 +102,6 @@ class BinanceDataSetCreator:
 
                     if not areTheyPumps:
                         numTimes = 4
-                        # extension = 0
 
                     for i in range(numTimes):
                         csvRow = []
@@ -202,60 +165,10 @@ class BinanceDataSetCreator:
 
                         writer.writerow(csvRow)
 
-                    # for value in prices:
-                    #     if math.isnan(value):
-                    #         cancel = True
-                    #         break
-                    #     csvRow.append(value)
-                    #
-                    # if cancel:
-                    #     continue
-
-                    # for value in volumes2:
-                    #     if math.isnan(value):
-                    #         cancel = True
-                    #         break
-                    #
-                    #     csvRow.append(value)
-                    #
-                    # if cancel:
-                    #     continue
-                    #
-                    # for value in prices2:
-                    #     if math.isnan(value):
-                    #         cancel = True
-                    #         break
-                    #     csvRow.append(value)
-                    #
-                    # if cancel:
-                    #     continue
-                    #
-                    # for value in volumes3:
-                    #     if math.isnan(value):
-                    #         cancel = True
-                    #         break
-                    #
-                    #     csvRow.append(value)
-                    #
-                    # if cancel:
-                    #     continue
-                    #
-                    # for value in prices3:
-                    #     if math.isnan(value):
-                    #         cancel = True
-                    #         break
-                    #     csvRow.append(value)
-                    #
-                    # if cancel:
-                    #     continue
-
-
-
         except IOError as e:
             print("Error writing to csv file! " + str(e))
 
     def createFinalPumpsDataSet(self, pumps: List, rightBeforePumps: List):
-        # lst = []
         actualPumps = []
         falsePositives = []
         length = len(pumps)
@@ -391,13 +304,7 @@ class BinanceDataSetCreator:
                 dfs.append(df2)
 
                 for i in range(0, amountToIncrement - self.numberOfSamples - EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT, 3):
-                    # df3 = df2.iloc[i:i + int(self.numberOfSamples * 0.9)]
-                    # std = df3.std(axis=0, skipna=True)["Close"]
                     df4 = df2.iloc[i:i + self.numberOfSamples + EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT]
-                    # std = df4.std(axis=0, skipna=True)["Close"]
-
-                    # if std < 5.0e-08:
-                    # if df4["Close"].max() > df4["Close"].min() * 1.025:
                     dfs2.append(df4)
 
         return dfs, dfs2
@@ -406,11 +313,7 @@ class BinanceDataSetCreator:
     def findPumpAndDumps(self, symbol: str, startIndex: int, endIndex: int,
                          plot=False):
         df = self.dataObtainer.getHistoricalDataAsDataframe(symbol).iloc[startIndex:endIndex]
-        # return self._analyseSymbolForPumps(symbol, df, 3, 1.05), df
-        # return self._analyseSymbolForPumps(symbol, df, 2.5, 1.05), df
-        # return self._analyseSymbolForPumps(symbol, df, 2.0, 1.05), df
-        # return self._analyseSymbolForPumps(symbol, df, 1.0, 1.045, 1.045), df
-        return self._analyseSymbolForPumps(symbol, df, 1.0, 1.04, 1.04), df
+        return self._analyseSymbolForPumps(symbol, df, 1.0, 1.0 + self.pumpSpike, 1.0 + self.pumpDrop), df
 
     # returns final dataframe
     def _analyseSymbolForPumps(self, symbol: str, df: pd.DataFrame, volumeThreshold: float,
@@ -428,23 +331,7 @@ class BinanceDataSetCreator:
 
         # This finds spikes for volume and price.
         volumeMask = self._findVolumeSpikes(df, volumeThreshold, windowSize)
-        # volumeSpikeAmount = self._getNumberOfRows(vdf)
-
         pmask, pmask2 = self._findPriceSpikes(df, priceThreshold, priceThreshold2, windowSize)
-        # priceSpikeAmount = self._getNumberOfRows(pdf)
-
-        # pdmask, pddf = self._findPriceDumps(df, windowSize)
-        # vdmask, vddf = self._findVolumeDumps(df, windowSize)
-
-        # This finds coinciding price and volume spikes.
-        # volumePriceMask = (volumeMask) & (pmask)
-        # volumePriceDF = df[volumePriceMask]
-        # volumePriceCombinedRowsAmount = self._getNumberOfRows(volumePriceDF)
-
-        # These are coinciding price and volume spikes for alleged P&D (more
-        # than 1x per given time removed).
-        # volumePriceFinalDF = self._removeSamePumps(volumePriceDF)
-        # allegedAmount = self._getNumberOfRows(volumePriceFinalDF)
 
         # This finds coinciding price and volume spikes (with dumps afterwards).
         # finalMask = (volumeMask) & (pmask) & (pdmask)
@@ -467,7 +354,6 @@ class BinanceDataSetCreator:
                 if startIndex >= 0:
                     pumpPeak = self.dataObtainer.getHistoricalDataAsDataframe(
                             symbol).iloc[endIndex]["Close"]
-                    # print("----------")
 
                     numIters = 0
 
@@ -477,16 +363,12 @@ class BinanceDataSetCreator:
 
                         dfToAppend2 = self.dataObtainer.getHistoricalDataAsDataframe(
                             symbol).iloc[startIndex:endIndex]
-                        # std = dfToAppend2.std(axis=0, skipna=True)["Close"]
-                        # print(str(pumpPeak) + " " + str(dfToAppend2["Close"].max()))
 
-                        # if pumpPeak < dfToAppend2.iloc[0]["Close"]:
                         if pumpPeak < dfToAppend2["Close"].max():
                             break
 
                         if self.dataObtainer.getHistoricalDataAsDataframe(
                             symbol).iloc[startIndex:startIndex + int(SAMPLES_OF_DATA_TO_LOOK_AT * 0.8)]["Close"].max() * 1.03 > pumpPeak:
-                            # if dfToAppend2["Close"].max() > dfToAppend2["Close"].min() * 1.025:
                             startIndex -= 5
                             endIndex -= 5
                             numIters += 1
@@ -507,30 +389,8 @@ class BinanceDataSetCreator:
                             numIters += 1
                             continue
 
-                        # print("Value " + str(idealDerivative) + " vs " + str(derivative))
-
-                        # diff = abs((dfToAppend2.iloc[-1]["Close"] - dfToAppend2.iloc[0]["Close"]) / dfToAppend2.iloc[0]["Close"])
-                        # std = dfToAppend2.std(axis=0, skipna=True)["Close"]
-
-                        # if std > 5.0e-08:
-                        #     break
-
-                        # if diff < 0.035 and std < 5.0e-08:
-                        # if std < 5.0e-08:
                         pumps.append(dfToAppend2)
                         break
-
-                        startIndex -= 30
-                        endIndex -= 30
-
-                        # if std < 2.0e-08:
-                        #     pumps.append(dfToAppend2)
-                        # else:
-                        #     break
-
-                        # startIndex -= self.numberOfSamples
-                        # endIndex -= self.numberOfSamples
-
 
         rowEntry = {'Exchange': exchangeName,
                     'Symbol': symbol,
@@ -548,9 +408,6 @@ class BinanceDataSetCreator:
         Removes spikes that occur on the same day.
         """
         df2 = df.copy()
-        # df['Timestamp_SAME'] = df['Timestamp'].apply(
-        #     lambda x: x.replace(hour=0, minute=0, second=0))
-        # df = df.drop_duplicates(subset='Timestamp_SAME', keep='last')
 
         prevDate = None
         for index, row in df2.iterrows():
@@ -600,8 +457,6 @@ class BinanceDataSetCreator:
         # This is where the high is at least p_thresh greater than the x-hr RA.
         priceSpikeMask = df["Close"] > newThreshold
         priceSpikeMask2 = df["Close"] > newThreshold2
-        # priceSpikeDF = df[priceSpikeMask]
-        # priceSpikeDF = priceSpikeDF[priceSpikeMask2]
         return (priceSpikeMask, priceSpikeMask2)
 
     def _findPriceDumps(self, df: pd.DataFrame, windowSize: int):

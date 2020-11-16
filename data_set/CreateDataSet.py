@@ -61,7 +61,7 @@ if __name__ == "__main__":
         "../binance_historical_data/")
     print("Reading historical stock data...")
     historicalObtainer.trackStocks(listOfStocks)
-    dataSetCreator = BinanceDataSetCreator(historicalObtainer)
+    dataSetCreator = BinanceDataSetCreator(historicalObtainer, pumpSpike=0.04, pumpDrop=0.04)
     print("Analyzing historical stock data for pumps...")
     pumps, rightBeforePumps = dataSetCreator.findPumpsForSymbols(listOfStocks,
                                                                  1440)
