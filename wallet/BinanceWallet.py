@@ -16,13 +16,14 @@ from binance.exceptions import BinanceAPIException, BinanceWithdrawException
 class BinanceWallet(Wallet):
     client: Client
     withdrawAddress: str
+    baseCurrency: str
 
     # Amount of times to try to get data with the Binance API if we fail to get
     # it the first time:
     _tryAmount: int
     _symbolPrecisions: Dict
 
-    def __init__(self, withdrawAddress="", binanceKey="", binanceAPIKey=""):
+    def __init__(self, withdrawAddress="", binanceKey="", binanceAPIKey="", baseCurrency="BTC"):
         if binanceKey is None or binanceAPIKey is None:
             self.client = None
         else:
@@ -32,6 +33,7 @@ class BinanceWallet(Wallet):
         self.withdrawAddress = withdrawAddress
         self._tryAmount = BINANCE_DATA_FETCH_ATTEMPT_AMOUNT
         self._symbolPrecisions = {}
+        self.baseCurrency = baseCurrency
 
     def useBinanceKeysFromFile(self, propertiesFile: str):
         try:
@@ -143,8 +145,14 @@ class BinanceWallet(Wallet):
         :param ticker: the asset
         :return: amount owned, units: ticker
         """
+        # Filter out base currency if we get something like "OAXBTC"
+        if ticker != self.baseCurrency:
+            ticker = ticker.replace(self.baseCurrency, "")
+
+
         for i in range(self._tryAmount):
             try:
+                print(self.client.get_asset_balance(asset=ticker))
                 return float(self.client.get_asset_balance(asset=ticker)["free"])
             except binance.exceptions.BinanceAPIException as e:
                 print(

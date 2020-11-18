@@ -168,7 +168,7 @@ class ProfitPumpTrader(PumpTrader):
                 self.ongoingTrades[ticker][1] = currentPrice
 
     def _sell(self, ticker: str, price: float, cooldown: int):
-        print("MinutePumpTrader is selling " + ticker)
+        print("ProfitPumpTrader is selling " + ticker)
         self.sellCooldown[ticker] = self.stockDatabase.getCurrentTime() + \
                                     timedelta(minutes=cooldown)
 
