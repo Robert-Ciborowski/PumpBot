@@ -73,11 +73,14 @@ class BinanceWallet(Wallet):
                     if ticker not in self._symbolPrecisions:
                         self._addSymbolPrecision(ticker)
 
+                    quantity = self._truncate(amountInPurchaseCurrency, self._symbolPrecisions[ticker])
+                    print("Binance wallet is purchasing " + str(quantity) + " " + ticker + ".")
+
                     self.client.create_order(
                         symbol=ticker,
                         side=Client.SIDE_BUY,
                         type=Client.ORDER_TYPE_MARKET,
-                        quantity=round(amountInPurchaseCurrency, self._symbolPrecisions[ticker]))
+                        quantity=quantity)
                     return True
             except binance.exceptions.BinanceAPIException as e:
                 print(
@@ -116,11 +119,16 @@ class BinanceWallet(Wallet):
                     if ticker not in self._symbolPrecisions:
                         self._addSymbolPrecision(ticker)
 
+                    quantity = self._truncate(amountInSellCurrency,
+                                              self._symbolPrecisions[ticker])
+                    print("Binance wallet is selling " + str(
+                        quantity) + " " + ticker + ".")
+
                     self.client.create_order(
                         symbol=ticker,
                         side=Client.SIDE_SELL,
                         type=Client.ORDER_TYPE_MARKET,
-                        quantity=round(amountInSellCurrency, self._symbolPrecisions[ticker]))
+                        quantity=self._truncate(amountInSellCurrency, self._symbolPrecisions[ticker]))
                     return True
             except binance.exceptions.BinanceAPIException as e:
                 print(
@@ -273,3 +281,7 @@ class BinanceWallet(Wallet):
         stepSize = float(info["filters"][2]["stepSize"])
         precision = int(round(-math.log(stepSize, 10), 0))
         self._symbolPrecisions[ticker] = precision
+
+    def _truncate(self, number, digits) -> float:
+        stepper = 10.0 ** digits
+        return math.trunc(stepper * number) / stepper
