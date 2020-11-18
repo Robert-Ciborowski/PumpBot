@@ -152,7 +152,6 @@ class BinanceWallet(Wallet):
 
         for i in range(self._tryAmount):
             try:
-                print(self.client.get_asset_balance(asset=ticker))
                 return float(self.client.get_asset_balance(asset=ticker)["free"])
             except binance.exceptions.BinanceAPIException as e:
                 print(
