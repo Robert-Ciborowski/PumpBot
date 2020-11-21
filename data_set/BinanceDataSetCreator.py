@@ -102,7 +102,7 @@ class BinanceDataSetCreator:
                     numTimes = 80
 
                     if not areTheyPumps:
-                        numTimes = 2
+                        numTimes = 3
 
                     for i in range(numTimes):
                         csvRow = []
@@ -365,17 +365,10 @@ class BinanceDataSetCreator:
                         dfToAppend2 = self.dataObtainer.getHistoricalDataAsDataframe(
                             symbol).iloc[startIndex:endIndex]
 
-                        if pumpPeak < dfToAppend2["Close"].max():
-                            break
+                        # if pumpPeak < dfToAppend2["Close"].max():
+                        #     break
 
-                        if dfToAppend2["Close"].max() > dfToAppend2["Close"].min() * 1.04:
-                            startIndex -= 5
-                            endIndex -= 5
-                            numIters += 1
-                            continue
-
-                        if self.dataObtainer.getHistoricalDataAsDataframe(
-                            symbol).iloc[startIndex:startIndex + int(SAMPLES_OF_DATA_TO_LOOK_AT * 0.8)]["Close"].max() * 1.03 > pumpPeak:
+                        if pumpPeak < dfToAppend2["Close"].max() or dfToAppend2["Close"].max() > dfToAppend2["Close"].min() * 1.05:
                             startIndex -= 5
                             endIndex -= 5
                             numIters += 1
@@ -391,52 +384,12 @@ class BinanceDataSetCreator:
                             symbol).iloc[endIndex]["Close"] - self.dataObtainer.getHistoricalDataAsDataframe(
                             symbol).iloc[derivativeStartPoint]["Close"]) / derivativeDelta
 
-                        if abs(derivative) > abs(idealDerivative * 1.16):
+                        if abs(derivative) > abs(idealDerivative * 1.04):
                             startIndex -= 5
                             endIndex -= 5
                             numIters += 1
                             continue
 
-                        # derivativeDelta = SAMPLES_OF_DATA_TO_LOOK_AT * 0.5
-                        # derivativeStartPoint = int(endIndex - derivativeDelta)
-                        # derivative = (
-                        #                          self.dataObtainer.getHistoricalDataAsDataframe(
-                        #                              symbol).iloc[endIndex][
-                        #                              "Close"] -
-                        #                          self.dataObtainer.getHistoricalDataAsDataframe(
-                        #                              symbol).iloc[
-                        #                              derivativeStartPoint][
-                        #                              "Close"]) / derivativeDelta
-                        #
-                        # if abs(derivative) > abs(idealDerivative * 1.16):
-                        #     startIndex -= 5
-                        #     endIndex -= 5
-                        #     numIters += 1
-                        #     continue
-
-                        # derivativeDelta = SAMPLES_OF_DATA_TO_LOOK_AT
-                        # derivativeStartPoint = int(endIndex - derivativeDelta)
-                        # derivative = (
-                        #                      self.dataObtainer.getHistoricalDataAsDataframe(
-                        #                          symbol).iloc[endIndex][
-                        #                          "Close"] -
-                        #                      self.dataObtainer.getHistoricalDataAsDataframe(
-                        #                          symbol).iloc[
-                        #                          derivativeStartPoint][
-                        #                          "Close"]) / derivativeDelta
-                        #
-                        # if abs(derivative) > abs(idealDerivative * 1.14):
-                        #     startIndex -= 5
-                        #     endIndex -= 5
-                        #     numIters += 1
-                        #     continue
-
-                        time1 = self.dataObtainer.getHistoricalDataAsDataframe(
-                            symbol).iloc[endIndex]["Timestamp"]
-                        time2 = self.dataObtainer.getHistoricalDataAsDataframe(
-                            symbol).iloc[startIndex]["Timestamp"]
-                        time3 = self.dataObtainer.getHistoricalDataAsDataframe(
-                            symbol).iloc[derivativeStartPoint]["Timestamp"]
                         pumps.append(dfToAppend2.reset_index())
                         break
 

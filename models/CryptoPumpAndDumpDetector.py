@@ -281,7 +281,9 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         #                   input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 4)))
         # self.model.add(layers.AveragePooling1D(pool_size=2))
         # layer = layers.Flatten()(layer)
-        layer = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(SAMPLES_OF_DATA_TO_LOOK_AT, input_shape=layer.shape))(layer)
+        layer = tf.keras.layers.LSTM(SAMPLES_OF_DATA_TO_LOOK_AT,
+                             input_shape=layer.shape)(layer)
+        # layer = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(SAMPLES_OF_DATA_TO_LOOK_AT, input_shape=layer.shape))(layer)
         # layer = layers.Flatten()(layer)
         layer = layers.Dense(100, activation='relu')(layer)
         layer = layers.Dense(20, activation='relu')(layer)
