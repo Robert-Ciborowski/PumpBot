@@ -23,7 +23,7 @@ if __name__ == "__main__":
     # listOfStocks = ["SNGLSBTC"]
     listOfStocks = [
         # "TRXUSDT",
-        # "BTCUSDT",
+        "BTCUSDT",
         # "ETHUSDT",
         # "BNBUSDT",
         # "EOSUSDT",
@@ -31,7 +31,7 @@ if __name__ == "__main__":
         # "SUSHIUSDT",
         # "YFIIUSDT",
         # "VETUSDT",
-        "OAXBTC",
+        # "OAXBTC",
         # "YOYOBTC",
         # "SNGLSBTC",
         # "FUNBTC",
@@ -56,14 +56,14 @@ if __name__ == "__main__":
         # datetime(day=1, month=9, year=2019, hour=0, minute=0),
         # datetime(day=1, month=1, year=2018, hour=0, minute=0),
         # datetime(day=20, month=3, year=2018, hour=0, minute=0),
-        datetime(day=1, month=1, year=2018, hour=0, minute=0),
-        datetime(day=1, month=6, year=2020, hour=0, minute=0),
+        datetime(day=18, month=8, year=2017, hour=0, minute=0),
+        datetime(day=20, month=4, year=2020, hour=0, minute=0),
         "../binance_historical_data/")
     print("Reading historical stock data...")
     historicalObtainer.trackStocks(listOfStocks)
     # set timeInterval to 60 when creating actual dataset!
     # dataSetCreator = BinanceDataSetCreator(historicalObtainer, pumpSpike=0.03, pumpDrop=0.03, timeIntervalForNonPumps=60)
-    dataSetCreator = BinanceDataSetCreator(historicalObtainer, pumpSpike=0.03, pumpDrop=0.03, timeIntervalForNonPumps=3000)
+    dataSetCreator = BinanceDataSetCreator(historicalObtainer, pumpSpike=0.01, pumpDrop=0.01, timeIntervalForNonPumps=3000)
     print("Analyzing historical stock data for pumps...")
     pumps, rightBeforePumps = dataSetCreator.findPumpsForSymbols(listOfStocks,
                                                                  1440)
