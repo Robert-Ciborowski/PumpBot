@@ -291,7 +291,7 @@ class HistoricalBinanceDataObtainer(StockDataObtainer):
         return self.dateOfStart + diff
 
     def _generateSubMinuteData(self, row, timing, samplesPerMinute):
-        timeIndex = [timing + timedelta(seconds=samplesPerMinute * i) for i in range(0, 60, 60 // samplesPerMinute)]
+        timeIndex = [timing + timedelta(seconds=i) for i in range(0, 60, 60 // samplesPerMinute)]
         open = float(row["open"])
         mid = (float(row["high"]) + float(row["low"])) / 2
         close = float(row["close"])

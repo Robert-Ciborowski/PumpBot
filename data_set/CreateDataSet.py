@@ -31,8 +31,8 @@ if __name__ == "__main__":
         # "SUSHIUSDT",
         # "YFIIUSDT",
         # "VETUSDT",
-        # "OAXBTC",
-        "YOYOBTC",
+        "OAXBTC",
+        # "YOYOBTC",
         # "SNGLSBTC",
         # "FUNBTC",
         # "GASBTC",
@@ -55,13 +55,15 @@ if __name__ == "__main__":
         # datetime(day=1, month=1, year=2018, hour=0, minute=0),
         # datetime(day=1, month=9, year=2019, hour=0, minute=0),
         # datetime(day=1, month=1, year=2018, hour=0, minute=0),
-        # datetime(day=31, month=12, year=2019, hour=0, minute=0),
+        # datetime(day=20, month=3, year=2018, hour=0, minute=0),
         datetime(day=1, month=1, year=2018, hour=0, minute=0),
-        datetime(day=31, month=12, year=2019, hour=0, minute=0),
+        datetime(day=1, month=6, year=2020, hour=0, minute=0),
         "../binance_historical_data/")
     print("Reading historical stock data...")
     historicalObtainer.trackStocks(listOfStocks)
-    dataSetCreator = BinanceDataSetCreator(historicalObtainer, pumpSpike=0.04, pumpDrop=0.04)
+    # set timeInterval to 60 when creating actual dataset!
+    # dataSetCreator = BinanceDataSetCreator(historicalObtainer, pumpSpike=0.03, pumpDrop=0.03, timeIntervalForNonPumps=60)
+    dataSetCreator = BinanceDataSetCreator(historicalObtainer, pumpSpike=0.03, pumpDrop=0.03, timeIntervalForNonPumps=3000)
     print("Analyzing historical stock data for pumps...")
     pumps, rightBeforePumps = dataSetCreator.findPumpsForSymbols(listOfStocks,
                                                                  1440)
