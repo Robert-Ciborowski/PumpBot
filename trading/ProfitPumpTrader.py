@@ -6,6 +6,7 @@ stocks are sold at the right time.
 from datetime import datetime, timedelta
 from typing import Dict
 import threading as th
+import numpy as np
 
 from events.EventDispatcher import EventDispatcher
 from events.InvestmentEvent import InvestmentEvent
@@ -68,6 +69,12 @@ class ProfitPumpTrader(PumpTrader):
     def _onPumpAndDump(self, ticker: str, price: float, confidence: float):
         if self.wallet.lacksFunds():
             print("Did not buy " + ticker + " because wallet lacks funds.")
+            return
+
+        recent = self.stockDatabase.getMinuteStockPricesAndVolumes(ticker, minutes=360)
+
+        if recent[0][0] > recent[0][-1] * 1.02:
+            print("Did not buy " + ticker + " because min < max * 0.97")
             return
 
         investment = self.investmentStrategy.getAmountToInvest(self.wallet, price, confidence)

@@ -115,101 +115,6 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
             time2 - time1))
         return result
 
-    def _setupDataForModelUsingFractions(self, inputPrices, inputVolumes):
-        volumeMax = np.amax(inputVolumes)
-        pricesMax = np.amax(inputPrices)
-
-        if volumeMax == 0.0:
-            volumeMax = 1.0
-
-        if pricesMax == 0.0:
-            pricesMax = 1.0
-
-        volumes = []
-        prices = []
-        volumes2 = []
-        prices2 = []
-        volumes3 = []
-        prices3 = []
-        collectiveVolume = 0.0
-        collectivePrice = 0.0
-        subsectionSize = GROUPED_DATA_SIZE
-
-        index = 0
-
-        for item in inputPrices:
-            collectivePrice += item
-            index += 1
-
-            if index == subsectionSize:
-                index = 0
-                prices.append(np.array([collectivePrice / subsectionSize / pricesMax]))
-                collectivePrice = 0.0
-
-        index = 0
-
-        for item in inputVolumes:
-            collectiveVolume += item
-            index += 1
-
-            if index == subsectionSize:
-                index = 0
-                volumes.append(np.array([collectiveVolume / subsectionSize / volumeMax]))
-                collectiveVolume = 0.0
-
-        subsectionSize = GROUPED_DATA_SIZE * 2
-
-        index = 0
-
-        for item in inputPrices:
-            collectivePrice += item
-            index += 1
-
-            if index == subsectionSize:
-                index = 0
-                prices2.append(
-                    np.array([collectivePrice / subsectionSize / pricesMax]))
-                collectivePrice = 0.0
-
-        index = 0
-
-        for item in inputVolumes:
-            collectiveVolume += item
-            index += 1
-
-            if index == subsectionSize:
-                index = 0
-                volumes2.append(
-                    np.array([collectiveVolume / subsectionSize / volumeMax]))
-                collectiveVolume = 0.0
-
-        index = 0
-        subsectionSize = GROUPED_DATA_SIZE * 3
-
-        for item in inputPrices:
-            collectivePrice += item
-            index += 1
-
-            if index == subsectionSize:
-                index = 0
-                prices3.append(
-                    np.array([collectivePrice / subsectionSize / pricesMax]))
-                collectivePrice = 0.0
-
-        index = 0
-
-        for item in inputVolumes:
-            collectiveVolume += item
-            index += 1
-
-            if index == subsectionSize:
-                index = 0
-                volumes3.append(
-                    np.array([collectiveVolume / subsectionSize / volumeMax]))
-                collectiveVolume = 0.0
-
-        return prices, volumes, prices2, volumes2, prices3, volumes3
-
     def _setupDataForModelUsingZScores(self, prices, volumes):
         from scipy import stats
         prices = stats.zscore(prices)
@@ -281,9 +186,9 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         #                   input_shape=(SAMPLES_OF_DATA_TO_LOOK_AT, 4)))
         # self.model.add(layers.AveragePooling1D(pool_size=2))
         # layer = layers.Flatten()(layer)
-        layer = tf.keras.layers.LSTM(SAMPLES_OF_DATA_TO_LOOK_AT,
-                             input_shape=layer.shape)(layer)
-        # layer = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(SAMPLES_OF_DATA_TO_LOOK_AT, input_shape=layer.shape))(layer)
+        # layer = tf.keras.layers.LSTM(SAMPLES_OF_DATA_TO_LOOK_AT,
+        #                      input_shape=layer.shape)(layer)
+        layer = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(SAMPLES_OF_DATA_TO_LOOK_AT, input_shape=layer.shape))(layer)
         # layer = layers.Flatten()(layer)
         layer = layers.Dense(100, activation='relu')(layer)
         layer = layers.Dense(20, activation='relu')(layer)
@@ -294,6 +199,9 @@ class CryptoPumpAndDumpDetector(PumpAndDumpDetector):
         self.model.compile(loss='binary_crossentropy',
                            optimizer=tf.keras.optimizers.RMSprop(lr=self.hyperparameters.learningRate),
                            metrics=self._metrics)
+        tf.keras.utils.plot_model(self.model,
+                                  "crypto_model.png",
+                                  show_shapes=True)
 
         # self.model = tf.keras.models.Sequential()
         # self.model.add(featureLayer)

@@ -1,8 +1,8 @@
 {
 	"Investment Ratio": 0.7,
 	"Target Profit Ratio": 0.028,
-	"Acceptable Loss Ratio": 0.08,
-	"Acceptable Dip From Start Ratio": 0.05,
+	"Acceptable Loss Ratio": 0.015,
+	"Acceptable Dip From Start Ratio": 0.0125,
 	"Minutes After Pump Sell": 20,
 	"Minutes After Price-Inactive Sell": 20,
 	"Minutes After Loss Sell": 20,

@@ -94,7 +94,7 @@ if __name__ == "__main__":
     tickers = [
         # "TRXUSDT",
         # "BTCUSDT",
-        # "ETHUSDT",
+        "ETHUSDT",
         # "BNBUSDT",
         # "EOSUSDT",
         # "DOTUSDT",
@@ -103,7 +103,7 @@ if __name__ == "__main__":
         # "VETUSDT",
         # "DOTUSDT",
         # "YOYOBTC",
-        "OAXBTC",
+        # "OAXBTC",
         # "SNGLSBTC",
         # "FUNBTC",
         # "GASBTC",

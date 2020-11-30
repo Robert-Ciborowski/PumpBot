@@ -114,12 +114,13 @@ class HistoricalBinanceTradingSimulator:
         #                                fastForwardAmount=self._fastForwardAmount,
         #                                startingFunds=self.startingFunds)
         print("MAIN THREAD: " + str(th.current_thread().ident))
+
         self.trader = ProfitPumpTrader(
             BasicInvestmentStrategy(self.investmentFraction),
             self.wallet,
-            profitRatioToAimFor=0.028,
-            acceptableLossRatio=0.08,
-            acceptableDipFromStartRatio=0.06,
+            profitRatioToAimFor=0.03,
+            acceptableLossRatio=0.015,
+            acceptableDipFromStartRatio=0.015,
             minutesAfterSellIfPump=self.minutesAfterSellIfPump,
             minutesAfterSellIfPriceInactivity=self.minutesAfterSellIfPriceInactivity,
             minutesAfterSellIfLoss=self.minutesAfterSellIfLoss,
