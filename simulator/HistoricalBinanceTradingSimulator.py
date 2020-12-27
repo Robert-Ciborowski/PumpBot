@@ -11,6 +11,7 @@ from filter.PassThroughStockFilter import PassThroughStockFilter
 from listing_obtainers.BinanceListingObtainer import BinanceListingObtainer
 from listing_obtainers.SpecifiedListingObtainer import SpecifiedListingObtainer
 from models.CryptoPumpAndDumpDetector import CryptoPumpAndDumpDetector
+from models.RSIPumpAndDumpDetector import RSIPumpAndDumpDetector
 from models.SimplePumpAndDumpDetector import SimplePumpAndDumpDetector
 from stock_data.CurrentBinanceDataObtainer import CurrentBinanceDataObtainer
 from stock_data.HistoricalBinanceDataObtainer import \
@@ -94,12 +95,13 @@ class HistoricalBinanceTradingSimulator:
             .setSecondsBetweenStockUpdates(SECONDS_BETWEEN_SAMPLES / self._fastForwardAmount)
         # .setSecondsBetweenStockUpdates(60)
 
-        self.model = CryptoPumpAndDumpDetector(tryUsingGPU=False)
-        self.model.setupUsingDefaults()
-        self.model.createModelUsingDefaults()
-        self.model.exportPath = self.modelLocation
-        self.model.loadWeights()
-        self.model.prepareForUse()
+        # self.model = CryptoPumpAndDumpDetector(tryUsingGPU=False)
+        # self.model.setupUsingDefaults()
+        # self.model.createModelUsingDefaults()
+        # self.model.exportPath = self.modelLocation
+        # self.model.loadWeights()
+        # self.model.prepareForUse()
+        self.model = RSIPumpAndDumpDetector(12.0, 30)
         # 2.0e-08
         # self.model = SimplePumpAndDumpDetector(2.0e-08, 2.0e-08)
         EventDispatcher.getInstance().addListener(self.model,
@@ -117,7 +119,7 @@ class HistoricalBinanceTradingSimulator:
         self.trader = ProfitPumpTrader(
             BasicInvestmentStrategy(self.investmentFraction),
             self.wallet,
-            profitRatioToAimFor=0.028,
+            profitRatioToAimFor=0.01,
             acceptableLossRatio=0.08,
             acceptableDipFromStartRatio=0.06,
             minutesAfterSellIfPump=self.minutesAfterSellIfPump,
@@ -128,10 +130,10 @@ class HistoricalBinanceTradingSimulator:
             fastForwardAmount=self._fastForwardAmount)
         EventDispatcher.getInstance().addListener(self.trader, "PumpAndDump")
 
-        discordObtainer = CurrentBinanceDataObtainer(
-            MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL * SAMPLES_PER_MINUTE,
-            SECONDS_BETWEEN_SAMPLES)
-        discordObtainer.trackStocks(self.tickers)
+        # discordObtainer = CurrentBinanceDataObtainer(
+        #     MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL * SAMPLES_PER_MINUTE,
+        #     SECONDS_BETWEEN_SAMPLES)
+        # discordObtainer.trackStocks(self.tickers)
         # bot = DiscordBot(discordObtainer, "bot_properties.json",
         #                  "bot_secret_properties.json", "8")
         # bot.runOnSeperateThread()

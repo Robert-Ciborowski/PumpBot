@@ -359,7 +359,7 @@ class BinanceDataSetCreator:
                     numIters = 0
 
                     while True:
-                        if startIndex < 0 or numIters == 12:
+                        if startIndex < 0 or numIters == 18:
                             break
 
                         dfToAppend2 = self.dataObtainer.getHistoricalDataAsDataframe(
@@ -384,7 +384,7 @@ class BinanceDataSetCreator:
                             symbol).iloc[endIndex]["Close"] - self.dataObtainer.getHistoricalDataAsDataframe(
                             symbol).iloc[derivativeStartPoint]["Close"]) / derivativeDelta
 
-                        if abs(derivative) > abs(idealDerivative * 1.04):
+                        if abs(derivative) > abs(idealDerivative * 1.01):
                             startIndex -= 5
                             endIndex -= 5
                             numIters += 1

@@ -76,7 +76,7 @@ def train():
     epochs = 190
     batchSize = 6000
     labelName = "Pump"
-    classificationThreshold = 0.95
+    classificationThreshold = 0.5
     decayRate = 0.05
     decayStep = 1.0
 
