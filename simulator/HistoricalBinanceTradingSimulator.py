@@ -116,6 +116,7 @@ class HistoricalBinanceTradingSimulator:
         #                                fastForwardAmount=self._fastForwardAmount,
         #                                startingFunds=self.startingFunds)
         print("MAIN THREAD: " + str(th.current_thread().ident))
+
         self.trader = ProfitPumpTrader(
             BasicInvestmentStrategy(self.investmentFraction),
             self.wallet,

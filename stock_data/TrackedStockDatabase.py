@@ -109,7 +109,12 @@ class TrackedStockDatabase:
             except KeyError as e:
                 print("Tried to obtain " + ticker + "from the database, but "
                                                     "that stock isn't tracked!")
-                return -1
+                return 0.0
+            except IndexError as e:
+                print("Tried to obtain " + ticker + "from the database, but "
+                                                    "its data is corrupt!")
+                return 0.0
+
 
     def getCurrentStockVolume(self, ticker: str, minutesAgo=0) -> float:
         with self._entriesLock:
@@ -139,10 +144,10 @@ class TrackedStockDatabase:
                                                     "that stock isn't tracked!")
                 return []
 
-    def getMinuteStockPricesAndVolumes(self, ticker: str) -> List[float]:
+    def getMinuteStockPricesAndVolumes(self, ticker: str, minutes=MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL) -> List[float]:
         with self._entriesLock:
             try:
-                return self.obtainer.obtainMinutePricesAndVolumes(ticker, MINUTES_OF_DATA_TO_LOOK_AT_FOR_MODEL)
+                return self.obtainer.obtainMinutePricesAndVolumes(ticker, minutes)
             except KeyError as e:
                 print("Tried to obtain " + ticker + " from the database, but "
                                                     "that stock isn't tracked!")

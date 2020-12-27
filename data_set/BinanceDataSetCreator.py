@@ -14,7 +14,8 @@ import csv
 
 from util.Constants import GROUPED_DATA_SIZE, BIN_SIZE_FOR_BINNING, \
     ROLLING_AVERAGE_SIZE_FOR_MODEL, SAMPLES_OF_DATA_TO_LOOK_AT, \
-    ROLLING_AVERAGE_SIZE, EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT
+    ROLLING_AVERAGE_SIZE, EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT, \
+    SAMPLES_PER_MINUTE, SAMPLES_TO_CONSIDER_FOR_PRE_PUMP
 
 
 class BinanceDataSetCreator:
@@ -31,6 +32,7 @@ class BinanceDataSetCreator:
         self.pumpSpike = pumpSpike
         self.pumpDrop = pumpDrop
         self.timeIntervalForNonPumps = timeIntervalForNonPumps
+        self._moveBackAmountDuringPumpAnalysis = 5 * SAMPLES_PER_MINUTE
 
     def exportPumpsToCSV(self, symbol: str, rightBeforePumps: List,
                          areTheyPumps=True, pathPrefix=""):
@@ -99,10 +101,10 @@ class BinanceDataSetCreator:
                     # pump.
                     cancel = False
                     extension = EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT
-                    numTimes = 80
+                    numTimes = 60
 
                     if not areTheyPumps:
-                        numTimes = 3
+                        numTimes = 1
 
                     for i in range(numTimes):
                         csvRow = []
@@ -116,7 +118,7 @@ class BinanceDataSetCreator:
                                 cancel = True
                                 break
 
-                            csvRow.append(value * uniform(0.996, 1.004) * scaling)
+                            csvRow.append(value * uniform(0.95, 1.05) * scaling)
 
                         if cancel:
                             continue
@@ -350,16 +352,17 @@ class BinanceDataSetCreator:
                 timeIndex = finalCombined.index[0]
                 endIndex = self.dataObtainer.getHistoricalDataAsDataframe(symbol).index.get_loc(timeIndex)\
                            - self.samplesBeforePumpPeak
-                startIndex = endIndex - self.numberOfSamples - EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT
+                startIndex2 = endIndex - (self.numberOfSamples + EXTENDED_SAMPLES_OF_DATA_TO_LOOK_AT) * SAMPLES_PER_MINUTE
+                startIndex = endIndex - SAMPLES_TO_CONSIDER_FOR_PRE_PUMP * SAMPLES_PER_MINUTE
 
-                if startIndex >= 0:
+                if startIndex >= 0 and startIndex2 >= 0:
                     pumpPeak = self.dataObtainer.getHistoricalDataAsDataframe(
                             symbol).iloc[endIndex]["Close"]
 
                     numIters = 0
 
                     while True:
-                        if startIndex < 0 or numIters == 18:
+                        if startIndex < 0 or numIters == 15:
                             break
 
                         dfToAppend2 = self.dataObtainer.getHistoricalDataAsDataframe(
@@ -369,8 +372,9 @@ class BinanceDataSetCreator:
                         #     break
 
                         if pumpPeak < dfToAppend2["Close"].max() or dfToAppend2["Close"].max() > dfToAppend2["Close"].min() * 1.05:
-                            startIndex -= 5
-                            endIndex -= 5
+                            startIndex -= self._moveBackAmountDuringPumpAnalysis
+                            endIndex -= self._moveBackAmountDuringPumpAnalysis
+                            startIndex2 -= self._moveBackAmountDuringPumpAnalysis
                             numIters += 1
                             continue
 
@@ -378,19 +382,29 @@ class BinanceDataSetCreator:
                         idealDerivative = (self.dataObtainer.getHistoricalDataAsDataframe(
                             symbol).iloc[startIndex + half]["Close"] - self.dataObtainer.getHistoricalDataAsDataframe(
                             symbol).iloc[startIndex]["Close"]) / half
-                        derivativeDelta = SAMPLES_OF_DATA_TO_LOOK_AT * 0.15
+                        derivativeDelta = SAMPLES_OF_DATA_TO_LOOK_AT * 0.50
                         derivativeStartPoint = int(endIndex - derivativeDelta)
                         derivative = (self.dataObtainer.getHistoricalDataAsDataframe(
                             symbol).iloc[endIndex]["Close"] - self.dataObtainer.getHistoricalDataAsDataframe(
                             symbol).iloc[derivativeStartPoint]["Close"]) / derivativeDelta
 
-                        if abs(derivative) > abs(idealDerivative * 1.01):
-                            startIndex -= 5
-                            endIndex -= 5
+                        if abs(derivative) > abs(idealDerivative) * 1.05:
+                            startIndex -= self._moveBackAmountDuringPumpAnalysis
+                            endIndex -= self._moveBackAmountDuringPumpAnalysis
+                            startIndex2 -= self._moveBackAmountDuringPumpAnalysis
                             numIters += 1
                             continue
 
-                        pumps.append(dfToAppend2.reset_index())
+                        dfToAppend3 = self.dataObtainer.getHistoricalDataAsDataframe(
+                            symbol).iloc[startIndex2:endIndex]
+
+                        dfToAppend3["Timestamp2"] = dfToAppend3["Timestamp"].apply(
+                            lambda x: x.replace(second=0))
+                        dfToAppend3 = dfToAppend3.drop_duplicates(subset="Timestamp2",
+                                                keep="last")
+                        dfToAppend3 = dfToAppend3.drop(columns=["Timestamp"])
+                        dfToAppend3 = dfToAppend3.rename(columns={"Timestamp2": "Timestamp"})
+                        pumps.append(dfToAppend3.reset_index())
                         break
 
         rowEntry = {'Exchange': exchangeName,
